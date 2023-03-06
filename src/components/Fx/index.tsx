@@ -6,10 +6,65 @@ const serverAddress = process.env.NODE_ENV === "development"
   ? `http://localhost:1443`
   : `https://data-tracker.api.artt.dev`
 
-const inverseList = ["GBPUSD", "EURUSD"]
-const aeTickers = ["GBPUSD", "EURUSD", "USDJPY", "DXY", "USDTHB"]
-const emTickers = ["USDKRW", "USDPHP", "USDCNY", "USDINR", "USDSGD", "USDIDR", "USDMYR", "USDTWD", "USDVND"]
-const allTickers = [...aeTickers, ...emTickers]
+
+const tickersDef = {
+  GBPUSD: {
+    group: "AE",
+    invert: true,
+  },
+  EURUSD: {
+    group: "AE",
+    invert: true,
+  },
+  USDJPY: {
+    group: "AE",
+    invert: false,
+  },
+  DXY: {
+    group: "AE",
+    invert: false,
+  },
+  USDTHB: {
+    group: "EM",
+    invert: false,
+  },
+  USDKRW: {
+    group: "EM",
+    invert: false,
+  },
+  USDPHP: {
+    group: "EM",
+    invert: false,
+  },
+  USDCNY: {
+    group: "EM",
+    invert: false,
+  },
+  USDINR: {
+    group: "EM",
+    invert: false,
+  },
+  USDSGD: {
+    group: "EM",
+    invert: false,
+  },
+  USDIDR: {
+    group: "EM",
+    invert: false,
+  },
+  USDMYR: {
+    group: "EM",
+    invert: false,
+  },
+  USDTWD: {
+    group: "EM",
+    invert: false,
+  },
+  USDVND: {
+    group: "EM",
+    invert: false,
+  },
+}
 
 const graphTickers = ["USDTHB"]
 
@@ -21,20 +76,13 @@ function getIndexOfTimestamp(ticks: number[], timestamp: number) {
   return tmp - 1
 }
 
-function calculateYearlyReturns(year: number, ticks: number[], series: number[]) {
-  const prevYearIndex = getIndexOfTimestamp(ticks, Date.UTC(year-1, 11, 31))
-  const curYearIndex = getIndexOfTimestamp(ticks, Date.UTC(year, 11, 31))
-  return (series[curYearIndex] / series[prevYearIndex]) - 1
-}
-
 type Props = {
 
 }
 
 const Fx: React.FC<Props> = () => {
 
-  const [processedData, setProcessedData] = React.useState<{ticks: number[], series: {[x: string]: number[]}}>()
-  const [returns, setReturns] = React.useState<{[x: string]: number[]}>()
+  const [processedData, setProcessedData] = React.useState<{ticks: number[], series: {name: string, data: number[], returns: number[]}[]}>()
 
   const fetchByTickers = (tickers: string[]) => {
     return fetch(`${serverAddress}/fx`, {
@@ -53,68 +101,92 @@ const Fx: React.FC<Props> = () => {
 
   React.useEffect(() => {
     const fetchAllData = async () => {
+      const allTickers = Object.keys(tickersDef)
       return Promise.all([
-        fetchByTickers(aeTickers),
-        fetchByTickers(emTickers),
+        fetchByTickers(allTickers.slice(0, 5)),
+        fetchByTickers(allTickers.slice(5)),
       ])
     }
     fetchAllData()
       .then(res => {
+
         // combine the two responses
         // should be the same, but just to make sure
         const numTicks = Math.min(...res.map(r => r.ticks.length))
-        const tmp = res.map(r => r.data)
-          .flat()
-          .reduce((a, b) => ({
-            ...a,
-            [b.name]: b.data.slice(0, numTicks).map((p: number) => inverseList.includes(b.name) ? 1/p : p)
-          }), {})
+        const ticks = res[0].ticks.slice(0, numTicks)
+
+        // calculate EOY dates
+        const curYear = new Date().getFullYear()
+        let eoyTimestamps: number[] = []
+        for (let i = -3; i <= 0; i ++) {
+          eoyTimestamps.push(getIndexOfTimestamp(ticks, Date.UTC(curYear + i, 11, 31)))
+        }
+
+        // add in returns array into the data
+        const tmp = res.map(responseChunk => {
+          return(responseChunk.data.map((series: {data: number[], name: string}) => {
+            const p = series.name === "DXY" ? 1 : -1
+            let returns = []
+            for (let i = 1; i <= 3; i ++) {
+              returns.push((series.data[eoyTimestamps[i]] / series.data[eoyTimestamps[i - 1]])**p - 1)
+            }
+            return({
+              ...series,
+              returns: returns,
+            })
+          }))
+        }).flat()
+
         setProcessedData({
-          ticks: res[0].ticks.slice(0, numTicks),
+          ticks: ticks,
           series: tmp,
         })
+        
       })
   }, [])
 
-  React.useEffect(() => {
-    if (!processedData)
-      return
-    const curYear = new Date().getFullYear()
-    let tmp: {[x: string]: any} = {}
-    for (let i = -2; i <= 0; i ++) {
-      const year = curYear + i
-      tmp[year] = {}
-      // calculate returns for year curYear - i
-      const prevYearIndex = getIndexOfTimestamp(processedData.ticks, Date.UTC(year - 1, 11, 31))
-      const curYearIndex = getIndexOfTimestamp(processedData.ticks, Date.UTC(year, 11, 31))
-      allTickers.forEach(ticker => {
-        const p = ticker === "DXY" ? 1 : -1
-        tmp[year][ticker] = (processedData.series[ticker][curYearIndex] / processedData.series[ticker][prevYearIndex])**p - 1
-      })
-    }
-    setReturns(tmp)
-  }, [processedData])
-
   return(
-    <HighchartsReact
-      highcharts={Highcharts}
-      constructorType={'stockChart'}
-      options={{
-        series: graphTickers.map((ticker: string) => ({
-          name: ticker,
-          data: processedData?.series[ticker].map((p, i) => [processedData.ticks[i], p])
-        })),
-        scrollbar: {
-          enabled: false
-        },
-        plotOptions: {
-          series: {
-            // compare: 'percent',
-            // showInNavigator: true,
-          }
-        },
-      }}
-    />
+    <div>
+      <HighchartsReact
+        highcharts={Highcharts}
+        constructorType={'stockChart'}
+        options={{
+          series: processedData?.series
+            .filter(series => graphTickers.includes(series.name))
+            .map(series => ({
+              name: series.name,
+              data: series.data.map((p, i) => [processedData.ticks[i], p])
+            })),
+          scrollbar: {
+            enabled: false
+          },
+          plotOptions: {
+            series: {
+              // compare: 'percent',
+              // showInNavigator: true,
+            }
+          },
+        }}
+      />
+      <HighchartsReact
+        highcharts={Highcharts}
+        options={{
+          chart: {
+            type: 'bar',
+          },
+          series: [{
+            data: processedData?.series.map(series => series.returns[0])
+          }],
+          // allTickers.map(ticker => ({
+          //   name: ticker,
+          //   data: returns && [returns[ticker][0]],
+          // })),
+          xAxis: {
+            categories: processedData?.series.map(series => series.name)
+          },
+        }}
+      />
+    </div>
   )
 
 }
