@@ -7,60 +7,74 @@ const serverAddress = process.env.NODE_ENV === "development"
   : `https://data-tracker.api.artt.dev`
 
 
-const tickersDef = {
+const tickersDef: {[x: string]: any} = {
   GBPUSD: {
+    label: "GBP",
     group: "AE",
     invert: true,
   },
   EURUSD: {
+    label: "EUR",
     group: "AE",
     invert: true,
   },
   USDJPY: {
+    label: "JPY",
     group: "AE",
     invert: false,
   },
   DXY: {
+    label: "DXY",
     group: "AE",
     invert: false,
   },
   USDTHB: {
+    label: "THB",
     group: "EM",
     invert: false,
   },
   USDKRW: {
+    label: "KRW",
     group: "EM",
     invert: false,
   },
   USDPHP: {
+    label: "PHP",
     group: "EM",
     invert: false,
   },
   USDCNY: {
+    label: "CNY",
     group: "EM",
     invert: false,
   },
   USDINR: {
+    label: "INR",
     group: "EM",
     invert: false,
   },
   USDSGD: {
+    label: "SGD",
     group: "EM",
     invert: false,
   },
   USDIDR: {
+    label: "IDR",
     group: "EM",
     invert: false,
   },
   USDMYR: {
+    label: "MYR",
     group: "EM",
     invert: false,
   },
   USDTWD: {
+    label: "TWD",
     group: "EM",
     invert: false,
   },
   USDVND: {
+    label: "VND",
     group: "EM",
     invert: false,
   },
@@ -76,15 +90,19 @@ function getIndexOfTimestamp(ticks: number[], timestamp: number) {
   return tmp - 1
 }
 
-type Props = {
-
+function percentFormatter(this: {y: number}): string {
+  return `${(this.y * 100).toFixed(2)}%`
 }
 
-const Fx: React.FC<Props> = () => {
+export default function Fx() {
 
   const [processedData, setProcessedData] = React.useState<{ticks: number[], series: {name: string, data: number[], returns: number[]}[]}>()
 
-  const fetchByTickers = (tickers: string[]) => {
+  function getSeriesByGroup(group: string) {
+    return processedData?.series.filter(x => tickersDef[x.name].group === group)
+  }
+
+  function fetchByTickers(tickers: string[]) {
     return fetch(`${serverAddress}/fx`, {
       method: "POST",
       headers: {
@@ -145,6 +163,56 @@ const Fx: React.FC<Props> = () => {
       })
   }, [])
 
+  function Comparison() {
+    const commonOptions = {
+      dataSorting: {
+        enabled: true,
+      },
+      dataLabels: {
+        enabled: true,
+        formatter: percentFormatter,
+      },
+    }
+    return(
+      <HighchartsReact
+        highcharts={Highcharts}
+        options={{
+          chart: {
+            type: 'bar',
+          },
+          credits: {
+            enabled: false,
+          },
+          series: [
+            {
+              ...commonOptions,
+              name: 'AE',
+              data: getSeriesByGroup("AE")?.map(series => [tickersDef[series.name].label, series.returns[1]]),
+            },
+            {
+              ...commonOptions,
+              name: 'EM',
+              data: getSeriesByGroup("EM")?.map(series => [tickersDef[series.name].label, series.returns[1]]),
+              xAxis: 1,
+            }
+          ],
+          xAxis: [
+            {
+              type: 'category',
+              height: '28%',
+            },
+            {
+              type: 'category',
+              height: '70%',
+              top: '30%',
+              offset: 0,
+            }
+          ],
+        }}
+      />
+    )
+  }
+
   return(
     <div>
       <HighchartsReact
@@ -166,29 +234,13 @@ const Fx: React.FC<Props> = () => {
               // showInNavigator: true,
             }
           },
-        }}
-      />
-      <HighchartsReact
-        highcharts={Highcharts}
-        options={{
-          chart: {
-            type: 'bar',
-          },
-          series: [{
-            data: processedData?.series.map(series => series.returns[0])
-          }],
-          // allTickers.map(ticker => ({
-          //   name: ticker,
-          //   data: returns && [returns[ticker][0]],
-          // })),
-          xAxis: {
-            categories: processedData?.series.map(series => series.name)
+          credits: {
+            enabled: false,
           },
         }}
       />
+      <Comparison />
     </div>
   )
 
 }
-
-export default Fx
