@@ -2,10 +2,13 @@ import React from "react"
 import Highcharts from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 
+import styles from "./styles.module.scss"
+
 const serverAddress = process.env.NODE_ENV === "development"
   ? `http://localhost:1443`
   : `https://data-tracker.api.artt.dev`
 
+const curYear = new Date().getFullYear()
 
 const tickersDef: {[x: string]: any} = {
   GBPUSD: {
@@ -90,6 +93,10 @@ function getIndexOfTimestamp(ticks: number[], timestamp: number) {
   return tmp - 1
 }
 
+function ticksPercentFormatter(this: {value:number}): string {
+  return `${(this.value * 100).toFixed(0)}%`
+}
+
 function percentFormatter(this: {y: number}): string {
   return `${(this.y * 100).toFixed(2)}%`
 }
@@ -134,7 +141,6 @@ export default function Fx() {
         const ticks = res[0].ticks.slice(0, numTicks)
 
         // calculate EOY dates
-        const curYear = new Date().getFullYear()
         let eoyTimestamps: number[] = []
         for (let i = -3; i <= 0; i ++) {
           eoyTimestamps.push(getIndexOfTimestamp(ticks, Date.UTC(curYear + i, 11, 31)))
@@ -150,7 +156,7 @@ export default function Fx() {
             }
             return({
               ...series,
-              returns: returns,
+              returns: returns.reverse(), // reverse so that the most recent year is first
             })
           }))
         }).flat()
@@ -163,16 +169,11 @@ export default function Fx() {
       })
   }, [])
 
-  function Comparison() {
-    const commonOptions = {
-      dataSorting: {
-        enabled: true,
-      },
-      dataLabels: {
-        enabled: true,
-        formatter: percentFormatter,
-      },
-    }
+  interface ComparisonProps {
+    yearOffset: number,
+  }
+
+  function Comparison({ yearOffset }: ComparisonProps) {
     return(
       <HighchartsReact
         highcharts={Highcharts}
@@ -180,22 +181,22 @@ export default function Fx() {
           chart: {
             type: 'bar',
           },
-          credits: {
-            enabled: false,
-          },
-          series: [
-            {
-              ...commonOptions,
-              name: 'AE',
-              data: getSeriesByGroup("AE")?.map(series => [tickersDef[series.name].label, series.returns[1]]),
+          series: ["AE", "EM"].map(group => ({
+            name: group,
+            data: getSeriesByGroup(group)?.map(series => ({
+              name: tickersDef[series.name].label,
+              y: series.returns[yearOffset],
+              color: series.name === "USDTHB" && "coral",
+            })),
+            dataSorting: {
+              enabled: true,
             },
-            {
-              ...commonOptions,
-              name: 'EM',
-              data: getSeriesByGroup("EM")?.map(series => [tickersDef[series.name].label, series.returns[1]]),
-              xAxis: 1,
-            }
-          ],
+            dataLabels: {
+              enabled: true,
+              formatter: percentFormatter,
+            },
+            xAxis: group === "AE" ? 0 : 1,
+          })),
           xAxis: [
             {
               type: 'category',
@@ -208,6 +209,28 @@ export default function Fx() {
               offset: 0,
             }
           ],
+          yAxis: {
+            title: {
+              text: `${curYear - yearOffset} Returns` + (yearOffset === 0 ? " (YTD)" : ""),
+            },
+            labels: {
+              formatter: ticksPercentFormatter,
+            },
+          },
+          title: {
+            text: "",
+          },
+          plotOptions: {
+            series: {
+              enableMouseTracking: false,
+            },
+          },
+          legend: {
+            enabled: false,
+          },
+          credits: {
+            enabled: false,
+          },
         }}
       />
     )
@@ -239,7 +262,11 @@ export default function Fx() {
           },
         }}
       />
-      <Comparison />
+      <div className={styles.container}>
+        <Comparison yearOffset={2}/>
+        <Comparison yearOffset={1}/>
+        <Comparison yearOffset={0}/>
+      </div>
     </div>
   )
 
