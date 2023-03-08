@@ -101,9 +101,18 @@ function percentFormatter(this: {y: number}): string {
   return `${(this.y * 100).toFixed(2)}%`
 }
 
+type ProcessedData = {
+  ticks: number[],
+  series: {
+    name: string,
+    data: number[],
+    yearlyReturns: number[]
+  }[]
+}
+
 export default function Fx() {
 
-  const [processedData, setProcessedData] = React.useState<{ticks: number[], series: {name: string, data: number[], returns: number[]}[]}>()
+  const [processedData, setProcessedData] = React.useState<ProcessedData>()
 
   function getSeriesByGroup(group: string) {
     return processedData?.series.filter(x => tickersDef[x.name].group === group)
@@ -146,18 +155,33 @@ export default function Fx() {
           eoyTimestamps.push(getIndexOfTimestamp(ticks, Date.UTC(curYear + i, 11, 31)))
         }
 
-        // add in returns array into the data
+        // add in returns and volatility into the data
         const tmp = res.map(responseChunk => {
           return(responseChunk.data.map((series: {data: number[], name: string}) => {
+            // for each series...
+
+            // yearly returns
             const p = series.name === "DXY" ? 1 : -1
-            let returns = []
-            for (let i = 1; i <= 3; i ++) {
-              returns.push((series.data[eoyTimestamps[i]] / series.data[eoyTimestamps[i - 1]])**p - 1)
+            // const yearlyReturns = [0, 1, 2].map(i => (series.data[eoyTimestamps[i + 1]] / series.data[eoyTimestamps[i]])**p - 1)
+            let yearlyReturns = [NaN, NaN, NaN]
+            for (let i = 0; i < 3; i ++) {
+              yearlyReturns[i] = ((series.data[eoyTimestamps[i + 1]] / series.data[eoyTimestamps[i]])**p - 1)
             }
+
+            // calculate volatility
+            // const dailyReturnsSquared = series.data.map((x, i, a) => Math.log(a[i - 1] / x)**2)
+            // const 
+
+
+            // if (series.name === "USDTHB")
+            //   console.log(series.data, dailyReturns)
+
             return({
               ...series,
-              returns: returns.reverse(), // reverse so that the most recent year is first
+              // dailyReturns: dailyReturns,
+              yearlyReturns: yearlyReturns.reverse(), // reverse so that the most recent year is first
             })
+
           }))
         }).flat()
 
@@ -185,7 +209,7 @@ export default function Fx() {
             name: group,
             data: getSeriesByGroup(group)?.map(series => ({
               name: tickersDef[series.name].label,
-              y: series.returns[yearOffset],
+              y: series.yearlyReturns[yearOffset],
               color: series.name === "USDTHB" && "coral",
             })),
             dataSorting: {
