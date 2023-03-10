@@ -5,12 +5,7 @@ import Tab from '@mui/material/Tab';
 import TimeSeriesChart from "./TimeSeriesChart";
 import Comparison from "./Comparison";
 import { createTheme } from '@mui/material/styles';
-
-const serverAddress = process.env.NODE_ENV === "development"
-  ? `http://localhost:1443`
-  : `https://data-tracker.api.artt.dev`
-
-const curYear = new Date().getFullYear()
+import { serverAddress, curYear } from "utils";
 
 function calculateAverage(data: number[]) {
   return data.reduce((a, b) => a + b, 0) / data.length
@@ -98,7 +93,7 @@ function getIndexOfTimestamp(ticks: number[], timestamp: number, goBackIfNotFoun
   return goBackIfNotFoundExactly ? tmp - 1 : tmp
 }
 
-export type ProcessedData = {
+export type FxData = {
   ticks: number[],
   series: {
     name: string,
@@ -112,7 +107,7 @@ export default function Fx() {
 
   const theme = createTheme();
 
-  const [processedData, setProcessedData] = React.useState<ProcessedData>()
+  const [fxData, setFxData] = React.useState<FxData>()
   const [value, setValue] = React.useState(0);
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -145,18 +140,14 @@ export default function Fx() {
       label: "Returns",
       component:
         <>
-          <Comparison data={processedData} curYear={curYear} yearOffset={2} whatToCompare="yearlyReturns" />
-          <Comparison data={processedData} curYear={curYear} yearOffset={1} whatToCompare="yearlyReturns" />
-          <Comparison data={processedData} curYear={curYear} yearOffset={0} whatToCompare="yearlyReturns" />
+          {[2, 1, 0].map(i => <Comparison key={i} data={fxData} curYear={curYear} yearOffset={i} whatToCompare="yearlyReturns" />)}
         </>,
     },
     {
       label: "Volatility",
       component:
         <>
-          <Comparison data={processedData} curYear={curYear} yearOffset={2} whatToCompare="yearlyVolatility" />
-          <Comparison data={processedData} curYear={curYear} yearOffset={1} whatToCompare="yearlyVolatility" />
-          <Comparison data={processedData} curYear={curYear} yearOffset={0} whatToCompare="yearlyVolatility" />
+          {[2, 1, 0].map(i => <Comparison key={i} data={fxData} curYear={curYear} yearOffset={i} whatToCompare="yearlyVolatility" />)}
         </>,
     },
     {
@@ -248,7 +239,7 @@ export default function Fx() {
           }))
         }).flat()
 
-        setProcessedData({
+        setFxData({
           ticks: ticks,
           series: tmp,
         })
@@ -266,7 +257,7 @@ export default function Fx() {
       
       {/* Top box for time series chart */}
       <Box sx={{ flex: '1 1 50%' }}>
-        <TimeSeriesChart data={processedData} />
+        <TimeSeriesChart data={fxData} />
       </Box>
 
       {/* Bottom box for additional information */}

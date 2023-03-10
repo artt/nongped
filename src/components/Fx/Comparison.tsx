@@ -1,6 +1,5 @@
-import React from "react";
 import { tickersDef } from "./index"
-import type { ProcessedData } from "./index"
+import type { FxData } from "./index"
 import HighchartsWrapper from "components/HighchartsWrapper";
 
 function ticksPercentFormatter(this: {value:number}): string {
@@ -12,7 +11,7 @@ function ticksPercentFormatter(this: {value:number}): string {
 // }
 
 interface Props {
-  data?: ProcessedData
+  data?: FxData
   curYear: number,
   yearOffset: number,
   whatToCompare: "yearlyReturns" | "yearlyVolatility",

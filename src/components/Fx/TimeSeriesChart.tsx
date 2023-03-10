@@ -1,11 +1,10 @@
-import React from "react";
-import type { ProcessedData } from "./index"
+import type { FxData } from "./index"
 import HighchartsWrapper from "components/HighchartsWrapper";
 
 const graphTickers = ["USDTHB"]
 
 interface Props {
-  data?: ProcessedData
+  data?: FxData
 }
 
 export default function TimeSeriesChart({ data }: Props) {
