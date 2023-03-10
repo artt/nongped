@@ -19,10 +19,9 @@ function App() {
         }}
       >
         <Toolbar>
-          xxx
-          {/* <Typography variant="h6" noWrap component="div">
-            Clipped drawer
-          </Typography> */}
+          <Typography variant="h6" noWrap component="div">
+            Nong Ped
+          </Typography>
         </Toolbar>
       </AppBar>
       <Box sx={{

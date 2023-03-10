@@ -108,6 +108,8 @@ export default function Fx() {
   const theme = createTheme();
 
   const [fxData, setFxData] = React.useState<FxData>()
+  const [neerData, setNeerData] = React.useState<any>()
+
   const [value, setValue] = React.useState(0);
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -140,14 +142,27 @@ export default function Fx() {
       label: "Returns",
       component:
         <>
-          {[2, 1, 0].map(i => <Comparison key={i} data={fxData} curYear={curYear} yearOffset={i} whatToCompare="yearlyReturns" />)}
+          {[2, 1, 0].map(i =>
+            <Comparison
+              key={i}
+              data={fxData}
+              curYear={curYear}
+              yearOffset={i}
+              whatToCompare="yearlyReturns"
+            />)}
         </>,
     },
     {
       label: "Volatility",
       component:
         <>
-          {[2, 1, 0].map(i => <Comparison key={i} data={fxData} curYear={curYear} yearOffset={i} whatToCompare="yearlyVolatility" />)}
+          {[2, 1, 0].map(i =>
+            <Comparison key={i}
+            data={fxData}
+            curYear={curYear}
+            yearOffset={i}
+            whatToCompare="yearlyVolatility"
+          />)}
         </>,
     },
     {
@@ -164,86 +179,56 @@ export default function Fx() {
     },
   ]
 
-  function fetchByTickers(tickers: string[]) {
-    return fetch(`${serverAddress}/fx`, {
-      method: "POST",
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        "start": Date.UTC(2020, 6, 1),
-        "end": Date.now(),
-        "tickers": tickers,
-      })
-    }).then(res => res.json())
-  }
-
-  // fetching and processing data
   React.useEffect(() => {
-    const fetchAllData = async () => {
-      const allTickers = Object.keys(tickersDef)
-      return Promise.all([
-        fetchByTickers(allTickers.slice(0, 5)),
-        fetchByTickers(allTickers.slice(5)),
-      ])
-    }
-    fetchAllData()
-      .then(res => {
+    fetch(`${serverAddress}/fx`)
+    .then(res => res.json())
+    .then(res => {
 
-        // combine the two responses
-        // should be the same, but just to make sure
-        const numTicks = Math.min(...res.map(r => r.ticks.length))
-        const ticks = res[0].ticks.slice(0, numTicks)
+      const ticks = res.ticks
 
+      const firstOfYearIndices = [-2, -1, 0].map(i => getIndexOfTimestamp(ticks, Date.UTC(curYear + i, 0, 1), false))
+      // add in returns and volatility into the data
+      const tmp = res.data.map((series: {data: number[], name: string}) => {
 
-        // calculate EOY dates
-        // let eoyTimestamps: number[] = []
-        // for (let i = -3; i <= 0; i ++) {
-        //   eoyTimestamps.push(getIndexOfTimestamp(ticks, Date.UTC(curYear + i, 11, 31)))
-        // }
+        // yearly returns
+        const p = series.name === "DXY" ? 1 : -1
+        const yearlyReturns = [0, 1, 2].map(i => (series.data[(firstOfYearIndices[i + 1] - 1) || (series.data.length - 1)] / series.data[firstOfYearIndices[i] - 1])**p - 1)
 
-        const firstOfYearIndices = [-2, -1, 0].map(i => getIndexOfTimestamp(ticks, Date.UTC(curYear + i, 0, 1), false))
-        // add in returns and volatility into the data
-        const tmp = res.map(responseChunk => {
-          return(responseChunk.data.map((series: {data: number[], name: string}) => {
-            // for each series...
+        // calculate EWMA volatility
+        const weight = 0.06
+        const beginIndex = getIndexOfTimestamp(ticks, Date.UTC(2021, 0, 4), true)
+        // TODO: need to get first volatility for each series
+        const beginVol = Math.sqrt(0.0001217)
+        let vol = Array(ticks.length).fill(NaN)
+        vol[beginIndex] = beginVol
+        for (let i = beginIndex + 1; i < ticks.length; i ++) {
+          const tmpReturn = Math.log(series.data[i - 1] / series.data[i])
+          vol[i] = Math.sqrt((1 - weight) * vol[i - 1]**2 + weight * (isFinite(tmpReturn) ? tmpReturn : 0)**2)
+        }
+        const yearlyVolatility = [0, 1, 2].map(i => calculateAverage(vol.slice(firstOfYearIndices[i], firstOfYearIndices[i + 1]).filter(x => !Number.isNaN(x))))
 
-            // yearly returns
-            const p = series.name === "DXY" ? 1 : -1
-            const yearlyReturns = [0, 1, 2].map(i => (series.data[(firstOfYearIndices[i + 1] - 1) || (series.data.length - 1)] / series.data[firstOfYearIndices[i] - 1])**p - 1)
-
-            // calculate EWMA volatility
-            const weight = 0.06
-            const beginIndex = getIndexOfTimestamp(ticks, Date.UTC(2021, 0, 4), true)
-            // TODO: need to get first volatility for each series
-            const beginVol = Math.sqrt(0.0001217)
-            let vol = Array(ticks.length).fill(NaN)
-            vol[beginIndex] = beginVol
-            for (let i = beginIndex + 1; i < ticks.length; i ++) {
-              const tmpReturn = Math.log(series.data[i - 1] / series.data[i])
-              vol[i] = Math.sqrt((1 - weight) * vol[i - 1]**2 + weight * (isFinite(tmpReturn) ? tmpReturn : 0)**2)
-            }
-            const yearlyVolatility = [0, 1, 2].map(i => calculateAverage(vol.slice(firstOfYearIndices[i], firstOfYearIndices[i + 1]).filter(x => !Number.isNaN(x))))
-            if (series.name === "DXY") {
-              console.log(series.data)
-              console.log(vol)
-            }
-
-            return({
-              ...series,
-              yearlyVolatility: yearlyVolatility.map(v => v * Math.sqrt(252)).reverse(), // annualized volatility
-              yearlyReturns: yearlyReturns.reverse(), // reverse so that the most recent year is first
-            })
-
-          }))
-        }).flat()
-
-        setFxData({
-          ticks: ticks,
-          series: tmp,
+        return({
+          ...series,
+          yearlyVolatility: yearlyVolatility.map(v => v * Math.sqrt(252)).reverse(), // annualized volatility
+          yearlyReturns: yearlyReturns.reverse(), // reverse so that the most recent year is first
         })
-        
+
+      })
+
+      setFxData({
+        ticks: ticks,
+        series: tmp,
+      })
+      
+    })
+  }, [])
+
+  // fetching and processing NEER data
+  React.useEffect(() => {
+    fetch(`${serverAddress}/neer`)
+      .then(res => res.json())
+      .then(res => {
+        setNeerData(res)
       })
   }, [])
 
