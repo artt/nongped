@@ -266,7 +266,7 @@ export default function Fx() {
       
       {/* Top box for time series chart */}
       <Box sx={{ flex: '1 1 50%' }}>
-        {processedData && <TimeSeriesChart data={processedData} />}
+        <TimeSeriesChart data={processedData} />
       </Box>
 
       {/* Bottom box for additional information */}

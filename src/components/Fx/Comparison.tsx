@@ -1,9 +1,7 @@
 import React from "react";
-import Highcharts from 'highcharts/highstock';
-import HighchartsReact from 'highcharts-react-official';
 import { tickersDef } from "./index"
 import type { ProcessedData } from "./index"
-import Skeleton from '@mui/material/Skeleton';
+import HighchartsWrapper from "components/HighchartsWrapper";
 
 function ticksPercentFormatter(this: {value:number}): string {
   return `${(this.value * 100).toFixed(0)}%`
@@ -26,14 +24,10 @@ export default function Comparison({ data, curYear, yearOffset, whatToCompare }:
     return data!.series.filter(x => tickersDef[x.name].group === group)
   }
 
-  if (!data)
-    return <Skeleton variant="rounded" animation="wave" sx = {{ height: '100%', width: '100%' }} />
-
   return(
-    <HighchartsReact
-      highcharts={Highcharts}
-      containerProps={{ style: { height: "100%", width: "100%" } }}
-      options={{
+    <HighchartsWrapper
+      isLoading={!data}
+      options={data && {
         chart: {
           type: 'bar',
         },

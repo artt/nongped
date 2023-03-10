@@ -1,21 +1,19 @@
 import React from "react";
-import Highcharts from 'highcharts/highstock';
-import HighchartsReact from 'highcharts-react-official';
 import type { ProcessedData } from "./index"
+import HighchartsWrapper from "components/HighchartsWrapper";
 
 const graphTickers = ["USDTHB"]
 
 interface Props {
-  data: ProcessedData
+  data?: ProcessedData
 }
 
 export default function TimeSeriesChart({ data }: Props) {
   return (
-    <HighchartsReact
-      highcharts={Highcharts}
-      containerProps={{ style: { height: "100%" } }}
+    <HighchartsWrapper
+      isLoading={!data}
       constructorType={'stockChart'}
-      options={{
+      options={data && {
         series: data.series
           .filter(series => graphTickers.includes(series.name))
           .map(series => ({
