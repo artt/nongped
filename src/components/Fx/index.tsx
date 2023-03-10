@@ -1,8 +1,10 @@
 import React from "react"
-import Highcharts from 'highcharts/highstock';
-import HighchartsReact from 'highcharts-react-official';
-
-import styles from "./styles.module.scss"
+import Box from "@mui/material/Box"
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import TimeSeriesChart from "./TimeSeriesChart";
+import Comparison from "./Comparison";
+import { createTheme } from '@mui/material/styles';
 
 const serverAddress = process.env.NODE_ENV === "development"
   ? `http://localhost:1443`
@@ -14,7 +16,7 @@ function calculateAverage(data: number[]) {
   return data.reduce((a, b) => a + b, 0) / data.length
 }
 
-const tickersDef: {[x: string]: any} = {
+export const tickersDef: {[x: string]: any} = {
   GBPUSD: {
     label: "GBP",
     group: "AE",
@@ -87,8 +89,6 @@ const tickersDef: {[x: string]: any} = {
   },
 }
 
-const graphTickers = ["USDTHB"]
-
 function getIndexOfTimestamp(ticks: number[], timestamp: number, goBackIfNotFoundExactly: boolean) {
   const tmp = ticks.findIndex(t => t > timestamp)
   if (tmp === -1)
@@ -98,15 +98,7 @@ function getIndexOfTimestamp(ticks: number[], timestamp: number, goBackIfNotFoun
   return goBackIfNotFoundExactly ? tmp - 1 : tmp
 }
 
-function ticksPercentFormatter(this: {value:number}): string {
-  return `${(this.value * 100).toFixed(0)}%`
-}
-
-function percentFormatter(this: {y: number}): string {
-  return `${(this.y * 100).toFixed(2)}%`
-}
-
-type ProcessedData = {
+export type ProcessedData = {
   ticks: number[],
   series: {
     name: string,
@@ -118,11 +110,68 @@ type ProcessedData = {
 
 export default function Fx() {
 
-  const [processedData, setProcessedData] = React.useState<ProcessedData>()
+  const theme = createTheme();
 
-  function getSeriesByGroup(group: string) {
-    return processedData?.series.filter(x => tickersDef[x.name].group === group)
+  const [processedData, setProcessedData] = React.useState<ProcessedData>()
+  const [value, setValue] = React.useState(0);
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+  };
+
+  interface TabPanelProps {
+    children?: React.ReactNode;
+    index: number;
+    value: number;
   }
+
+  function TabPanel({ children, value, index, ...other }: TabPanelProps) {
+    if (value !== index)
+      return null
+    return (
+      <Box role="tabpanel" hidden={value !== index} sx={{
+        pl: 3,
+        height: '100%',
+        flex: '1 1 auto',
+        display: 'flex',
+        gap: theme.spacing(2)
+      }}>
+        {children}
+      </Box>
+    );
+  }
+
+  const bottomTabs = [
+    {
+      label: "Returns",
+      component:
+        <>
+          <Comparison data={processedData} curYear={curYear} yearOffset={2} whatToCompare="yearlyReturns" />
+          <Comparison data={processedData} curYear={curYear} yearOffset={1} whatToCompare="yearlyReturns" />
+          <Comparison data={processedData} curYear={curYear} yearOffset={0} whatToCompare="yearlyReturns" />
+        </>,
+    },
+    {
+      label: "Volatility",
+      component:
+        <>
+          <Comparison data={processedData} curYear={curYear} yearOffset={2} whatToCompare="yearlyVolatility" />
+          <Comparison data={processedData} curYear={curYear} yearOffset={1} whatToCompare="yearlyVolatility" />
+          <Comparison data={processedData} curYear={curYear} yearOffset={0} whatToCompare="yearlyVolatility" />
+        </>,
+    },
+    {
+      label: "NEER",
+      component: <div>NEER</div>,
+    },
+    {
+      label: "Current Account",
+      component: <div>Current Account</div>,
+    },
+    {
+      label: "Stability",
+      component: <div>Stability</div>,
+    },
+  ]
 
   function fetchByTickers(tickers: string[]) {
     return fetch(`${serverAddress}/fx`, {
@@ -139,6 +188,7 @@ export default function Fx() {
     }).then(res => res.json())
   }
 
+  // fetching and processing data
   React.useEffect(() => {
     const fetchAllData = async () => {
       const allTickers = Object.keys(tickersDef)
@@ -206,113 +256,34 @@ export default function Fx() {
       })
   }, [])
 
-  interface ComparisonProps {
-    yearOffset: number,
-    whatToCompare: "yearlyReturns" | "yearlyVolatility",
-  }
-
-  function Comparison({ yearOffset, whatToCompare }: ComparisonProps) {
-    return(
-      <HighchartsReact
-        highcharts={Highcharts}
-        options={{
-          chart: {
-            type: 'bar',
-          },
-          series: ["AE", "Region"].map(group => ({
-            name: group,
-            data: getSeriesByGroup(group)?.map(series => ({
-              name: tickersDef[series.name].label,
-              y: series[whatToCompare][yearOffset],
-              color: series.name === "USDTHB" && "coral",
-            })),
-            dataSorting: {
-              enabled: true,
-            },
-            dataLabels: {
-              enabled: true,
-              formatter: percentFormatter,
-            },
-            xAxis: group === "AE" ? 0 : 1,
-          })),
-          xAxis: [
-            {
-              type: 'category',
-              height: '21%',
-            },
-            {
-              type: 'category',
-              height: '77%',
-              top: '23%',
-              offset: 0,
-            }
-          ],
-          yAxis: {
-            title: {
-              text: `${curYear - yearOffset} ${whatToCompare.replace('yearly', '')}` + (yearOffset === 0 ? " (YTD)" : ""),
-            },
-            labels: {
-              formatter: ticksPercentFormatter,
-            },
-          },
-          title: {
-            text: "",
-          },
-          plotOptions: {
-            series: {
-              enablRegionouseTracking: false,
-            },
-          },
-          legend: {
-            enabled: false,
-          },
-          credits: {
-            enabled: false,
-          },
-        }}
-      />
-    )
-  }
-
   return(
-    <>
-      <div className={styles.timeSeriesContainer}>
-        <HighchartsReact
-          highcharts={Highcharts}
-          constructorType={'stockChart'}
-          options={{
-            series: processedData?.series
-              .filter(series => graphTickers.includes(series.name))
-              .map(series => ({
-                name: series.name,
-                data: series.data.map((p, i) => [processedData.ticks[i], p])
-              })),
-            scrollbar: {
-              enabled: false
-            },
-            plotOptions: {
-              series: {
-                // compare: 'percent',
-                // showInNavigator: true,
-              }
-            },
-            credits: {
-              enabled: false,
-            },
-          }}
-        />
-      </div>
-      <div className={styles.comparisonContainer}>
-        <div className={styles.flexContainer}>
-          <Comparison yearOffset={2} whatToCompare="yearlyReturns" />
-          <Comparison yearOffset={1} whatToCompare="yearlyReturns" />
-          <Comparison yearOffset={0} whatToCompare="yearlyReturns" />
-          <Comparison yearOffset={2} whatToCompare="yearlyVolatility" />
-          <Comparison yearOffset={1} whatToCompare="yearlyVolatility" />
-          <Comparison yearOffset={0} whatToCompare="yearlyVolatility" />
-        </div>
-      </div>
-    </>
+    <Box sx={{
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: theme.spacing(3),
+    }}>
+      
+      {/* Top box for time series chart */}
+      <Box sx={{ flex: '1 1 50%' }}>
+        {processedData && <TimeSeriesChart data={processedData} />}
+      </Box>
+
+      {/* Bottom box for additional information */}
+      <Box sx={{ flex: '1 1 50%', display: 'flex' }}>
+        <Tabs
+          orientation="vertical"
+          variant="scrollable"
+          value={value}
+          onChange={handleChange}
+          sx={{ borderRight: 1, borderColor: 'divider' }}
+        >
+          {bottomTabs.map(tab => <Tab label={tab.label} />)}
+        </Tabs>
+        {bottomTabs.map((tab, i) => <TabPanel value={value} index={i}>{tab.component}</TabPanel>)}
+      </Box>
+
+    </Box>
   )
 
 }
