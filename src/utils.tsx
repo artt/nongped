@@ -5,3 +5,7 @@
 export const serverAddress = "https://nongped.api.artt.dev"
 
 export const curYear = new Date().getFullYear()
+
+export function percentFormatter(this: {y: number}): string {
+  return `${(this.y * 100).toFixed(2)}%`
+}

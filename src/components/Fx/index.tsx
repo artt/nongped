@@ -5,6 +5,7 @@ import Tab from '@mui/material/Tab';
 import TimeSeriesChart from "./TimeSeriesChart";
 import Comparison from "./Comparison";
 import Neer from "./Neer";
+import Yield from "./Yield";
 import { createTheme } from '@mui/material/styles';
 import { serverAddress, curYear } from "utils";
 
@@ -119,9 +120,9 @@ export default function Fx() {
   const [fxData, setFxData] = React.useState<FxData>()
   const [neerData, setNeerData] = React.useState<NeerData>()
 
-  const [value, setValue] = React.useState(0);
+  const [tabValue, setTabValue] = React.useState(0);
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
+    setTabValue(newValue);
   };
 
   interface TabPanelProps {
@@ -177,6 +178,10 @@ export default function Fx() {
     {
       label: "NEER",
       component: <Neer data={neerData} curYear={curYear} />,
+    },
+    {
+      label: "Yield Curves",
+      component: <Yield />,
     },
     {
       label: "Current Account",
@@ -264,13 +269,13 @@ export default function Fx() {
         <Tabs
           orientation="vertical"
           variant="scrollable"
-          value={value}
+          value={tabValue}
           onChange={handleChange}
           sx={{ borderRight: 1, borderColor: 'divider' }}
         >
           {bottomTabs.map((tab, i) => <Tab key={i} label={tab.label} />)}
         </Tabs>
-        {bottomTabs.map((tab, i) => <TabPanel key={i} value={value} index={i}>{tab.component}</TabPanel>)}
+        {bottomTabs.map((tab, i) => <TabPanel key={i} value={tabValue} index={i}>{tab.component}</TabPanel>)}
       </Box>
 
     </Box>

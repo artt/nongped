@@ -1,7 +1,6 @@
 import type { NeerData } from "./index"
 import HighchartsWrapper from "components/HighchartsWrapper";
-
-const graphTickers = ["USDTHB"]
+import { percentFormatter } from "utils";
 
 interface Props {
   data?: NeerData,
@@ -17,8 +16,12 @@ export default function Neer({ data, curYear }: Props) {
           type: 'column',
         },
         series: [{
-          name: 'dd',
+          name: 'Returns',
           data: data.yearlyReturns,
+          dataLabels: {
+            enabled: true,
+            formatter: percentFormatter,
+          },
         }],
         xAxis: {
           categories: Array.from(Array(data.yearlyReturns.length).keys()).reverse().map(i => curYear - i + (i === 0 ? " (YTD)" : "")),
