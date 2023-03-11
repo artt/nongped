@@ -4,6 +4,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import TimeSeriesChart from "./TimeSeriesChart";
 import Comparison from "./Comparison";
+import Neer from "./Neer";
 import { createTheme } from '@mui/material/styles';
 import { serverAddress, curYear } from "utils";
 
@@ -103,12 +104,20 @@ export type FxData = {
   }[]
 }
 
+export type NeerData = {
+  data: {
+    t: string,
+    v: number,
+  }[],
+  yearlyReturns: number[]
+}
+
 export default function Fx() {
 
   const theme = createTheme();
 
   const [fxData, setFxData] = React.useState<FxData>()
-  const [neerData, setNeerData] = React.useState<any>()
+  const [neerData, setNeerData] = React.useState<NeerData>()
 
   const [value, setValue] = React.useState(0);
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -167,7 +176,7 @@ export default function Fx() {
     },
     {
       label: "NEER",
-      component: <div>NEER</div>,
+      component: <Neer data={neerData} curYear={curYear} />,
     },
     {
       label: "Current Account",
@@ -228,7 +237,12 @@ export default function Fx() {
     fetch(`${serverAddress}/neer`)
       .then(res => res.json())
       .then(res => {
-        setNeerData(res)
+        const firstIndex = res.findIndex((x: any) => x.t === `${curYear - 6}-12`)
+        const yearlyReturns = [0, 1, 2, 3, 4, 5].map(i => ((res[firstIndex + (12 * (i + 1))] || res[res.length - 1]).v / res[firstIndex + (12 * i)].v) - 1)
+        setNeerData({
+          data: res,
+          yearlyReturns: yearlyReturns.reverse(),
+        })
       })
   }, [])
 
@@ -254,9 +268,9 @@ export default function Fx() {
           onChange={handleChange}
           sx={{ borderRight: 1, borderColor: 'divider' }}
         >
-          {bottomTabs.map(tab => <Tab label={tab.label} />)}
+          {bottomTabs.map((tab, i) => <Tab key={i} label={tab.label} />)}
         </Tabs>
-        {bottomTabs.map((tab, i) => <TabPanel value={value} index={i}>{tab.component}</TabPanel>)}
+        {bottomTabs.map((tab, i) => <TabPanel key={i} value={value} index={i}>{tab.component}</TabPanel>)}
       </Box>
 
     </Box>

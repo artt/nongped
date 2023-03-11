@@ -20,7 +20,7 @@ function App() {
       >
         <Toolbar>
           <Typography variant="h6" noWrap component="div">
-            Nong Ped
+            NongPed
           </Typography>
         </Toolbar>
       </AppBar>
