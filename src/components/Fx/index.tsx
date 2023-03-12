@@ -186,10 +186,12 @@ export default function Fx() {
     {
       label: "Current Account",
       component: <div>Current Account</div>,
+      disabled: true,
     },
     {
       label: "Stability",
       component: <div>Stability</div>,
+      disabled: true,
     },
   ]
 
@@ -273,7 +275,7 @@ export default function Fx() {
           onChange={handleChange}
           sx={{ borderRight: 1, borderColor: 'divider' }}
         >
-          {bottomTabs.map((tab, i) => <Tab key={i} label={tab.label} />)}
+          {bottomTabs.map((tab, i) => <Tab key={i} label={tab.label} disabled={tab.disabled} />)}
         </Tabs>
         {bottomTabs.map((tab, i) => <TabPanel key={i} value={tabValue} index={i}>{tab.component}</TabPanel>)}
       </Box>

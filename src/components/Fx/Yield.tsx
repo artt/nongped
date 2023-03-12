@@ -24,11 +24,18 @@ export default function Yield() {
           type: 'spline',
         },
         series: data,
+        plotOptions: {
+          series: {
+            marker: {
+              enabled: true,
+            },
+          },
+        },
         xAxis: {
           title: {
             text: "Time to maturity"
           },
-          // categories: Array.from(Array(data.yearlyReturns.length).keys()).reverse().map(i => curYear - i + (i === 0 ? " (YTD)" : "")),
+          // type: 'logarithmic',
         },
         yAxis: {
           title: {
