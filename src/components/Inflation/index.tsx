@@ -8,7 +8,7 @@ type InflationData = {
   data: {
     t: string,
     v: number,
-  }[]
+  }[],
 }[]
 
 export default function Inflation() {
