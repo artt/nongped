@@ -1,5 +1,6 @@
 import React from 'react';
 import Fx from "components/Fx"
+import Inflation from 'components/Inflation';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import AppBar from '@mui/material/AppBar';
@@ -20,8 +21,8 @@ const navItems = [
     path: 'fx',
   },
   {
-    label: 'Contact',
-    path: 'contact',
+    label: 'Inflation',
+    path: 'inflation',
   },
 ];
 
@@ -30,7 +31,6 @@ function App() {
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   const page = query.get('p')
-  console.log(page)
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -81,6 +81,7 @@ function App() {
         }}>
           {!page && <div>Home</div>}
           {page === 'fx' && <Fx />}
+          {page === 'inflation' && <Inflation />}
         </Box>
       </Box>
     </Box>
