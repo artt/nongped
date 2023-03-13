@@ -6,16 +6,32 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import { Link, useLocation } from "react-router-dom";
 
 import './App.scss';
 
 const navItems = [
-  'Home',
-  'About',
-  'Contact'
+  {
+    label: 'Home',
+    path: '',
+  },
+  {
+    label: 'FX',
+    path: 'fx',
+  },
+  {
+    label: 'Contact',
+    path: 'contact',
+  },
 ];
 
 function App() {
+
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const page = query.get('p')
+  console.log(page)
+
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -35,12 +51,14 @@ function App() {
             NongPed
           </Typography>
           <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-            {navItems.map(item => (
+            {navItems.map((item, i) => (
               <Button
-                key={item}
+                key={i}
                 sx={{ color: '#fff' }}
+                component={Link}
+                to={item.path ? `/?p=${item.path}` : '/'}
               >
-                {item}
+                {item.label}
               </Button>
             ))}
           </Box>
@@ -61,7 +79,8 @@ function App() {
           alignItems: 'stretch',
           flexDirection: 'column',
         }}>
-          <Fx />
+          {!page && <div>Home</div>}
+          {page === 'fx' && <Fx />}
         </Box>
       </Box>
     </Box>
