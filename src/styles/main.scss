@@ -1,0 +1,16 @@
+@import "./normalize.css";
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+}
+
