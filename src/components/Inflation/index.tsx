@@ -143,7 +143,6 @@ export default function Inflation() {
 
   return (
     <Split
-      topPercent={70}
       top={
         <TimeSeriesChart
           chartData={data}

@@ -57,7 +57,8 @@ const TimeSeriesChart = ({ chartData, handleRangeChange }: Props) => {
           series: data,
           plotOptions: {
             column: {
-              stacking: 'normal'
+              stacking: 'normal',
+              crisp: false,
             },
             series: {
               dataGrouping: {

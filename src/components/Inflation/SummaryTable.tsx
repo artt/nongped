@@ -76,7 +76,7 @@ export default function SummaryTable({ data, minDate, maxDate }: Props) {
   }, [0])
 
   return(
-    <Box className="inflation-table-container">
+    <Box className="inflation-table-container" sx={{ paddingBottom: '10px' }}>
       <table>
         <thead>
           <tr>

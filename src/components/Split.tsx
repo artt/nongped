@@ -8,7 +8,7 @@ type Props = {
   bottom: React.ReactNode,
 }
 
-export default function Split({ topPercent=50, top, bottom }: Props) {
+export default function Split({ topPercent, top, bottom }: Props) {
 
   const theme = createTheme();
 
@@ -20,11 +20,11 @@ export default function Split({ topPercent=50, top, bottom }: Props) {
       gap: theme.spacing(3),
     }}>
       
-      <Box sx={{ flex: `1 1 ${topPercent}%` }}>
+      <Box sx={{ flex: `1 1 ${topPercent || 100}%` }}>
         {top}
       </Box>
 
-      <Box sx={{ flex: `1 1 ${100 - topPercent}%`, display: 'flex', minWidth: 0 }}>
+      <Box sx={{ flex: topPercent ? `1 1 ${100 - topPercent}%` : '', display: 'flex', minWidth: 0 }}>
         {bottom}
       </Box>
 
