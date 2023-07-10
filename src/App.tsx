@@ -11,6 +11,8 @@ import Link from "components/Link";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import "styles/main.scss"
 
+import logoUrl from 'assets/nongped.svg'
+
 const navItems = [
   {
     label: 'Home',
@@ -54,7 +56,7 @@ export default function App() {
         >
           <Toolbar>
             {/* add nongped.svg as the site's logo */}
-            <img src="/nongped.svg" alt="nongped" width="32" height="32" />
+            <img src={logoUrl} alt="nongped" width="32" height="32" />
             <Typography
               variant="h6"
               noWrap
@@ -89,7 +91,7 @@ export default function App() {
             flex: '1 1 40px',
             overflow: 'hidden',
           }}>
-            {!page && <div className="center"><img src="/nongped.svg" alt="nongped" width="400" height="400" /></div>}
+            {!page && <div className="center"><img src={logoUrl} alt="nongped" width="400" height="400" /></div>}
             {page === 'fx' && <Fx />}
             {page === 'inflation' && <Inflation />}
           </Box>
