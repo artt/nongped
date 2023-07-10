@@ -13,10 +13,21 @@ interface Props {
   // setChartRange: (range: [string?, string?]) => void,
 }
 
+type DataType = {
+  name: string,
+  color: string,
+  zIndex: number,
+  data: number[],
+  type: string,
+  pointStart: number,
+  pointIntervalUnit: string,
+  pointInterval: number,
+}[]
+
 const TimeSeriesChart = React.memo(({ chartData, handleRangeChange }: Props) => {
   
   const ref = React.useRef<Highcharts.Chart>()
-  const [data, setData] = React.useState<any>()
+  const [data, setData] = React.useState<DataType>()
 
   React.useEffect(() => {
     const tmp = deepmerge([], chartData)
