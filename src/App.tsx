@@ -6,8 +6,8 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import { Link, useLocation } from "react-router-dom";
-
+import { useLocation } from "react-router-dom";
+import Link from "components/Link";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 const navItems = [
@@ -26,8 +26,6 @@ const navItems = [
 ]
 
 export default function App() {
-
-  console.log('xxxxxxxx')
 
   const location = useLocation();
   const query = new URLSearchParams(location.search);

@@ -13,7 +13,7 @@ interface Props {
   // setChartRange: (range: [string?, string?]) => void,
 }
 
-const TimeSeriesChart = ({ chartData, handleRangeChange }: Props) => {
+const TimeSeriesChart = React.memo(({ chartData, handleRangeChange }: Props) => {
   
   const ref = React.useRef<Highcharts.Chart>()
   const [data, setData] = React.useState<any>()
@@ -120,7 +120,7 @@ const TimeSeriesChart = ({ chartData, handleRangeChange }: Props) => {
               format: chartData.freq === 'Q' && '{value:%YQ%q}',
             },
             events: {
-              afterSetExtremes: function(this: any, e: any) {
+              afterSetExtremes: function(_this: never, e: { min: number, max: number }) {
                 // let the parent component know that the user has changed the range
                 // so that the summary table could be updated too
                 const { min, max } = e
@@ -143,6 +143,6 @@ const TimeSeriesChart = ({ chartData, handleRangeChange }: Props) => {
       />
     </Box>
   )
-}
+})
 
-export default React.memo(TimeSeriesChart)
+export default TimeSeriesChart
