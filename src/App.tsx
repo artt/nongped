@@ -9,6 +9,7 @@ import Button from '@mui/material/Button';
 import { useLocation } from "react-router-dom";
 import Link from "components/Link";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import "styles/main.scss"
 
 const navItems = [
   {
@@ -34,7 +35,7 @@ export default function App() {
   const theme = createTheme({
     palette: {
       primary: {
-        main: '#3f708c',
+        main: '#107d98',
       },
       // mode: 'dark',
     },
@@ -52,11 +53,13 @@ export default function App() {
           }}
         >
           <Toolbar>
+            {/* add nongped.svg as the site's logo */}
+            <img src="/nongped.svg" alt="nongped" width="32" height="32" />
             <Typography
               variant="h6"
               noWrap
               component="div"
-              sx={{ flexGrow: 1 }}
+              sx={{ flexGrow: 1, ml: 1 }}
             >
               NongPed
             </Typography>
@@ -86,7 +89,7 @@ export default function App() {
             flex: '1 1 40px',
             overflow: 'hidden',
           }}>
-            {!page && <div>Home</div>}
+            {!page && <div className="center"><img src="/nongped.svg" alt="nongped" width="400" height="400" /></div>}
             {page === 'fx' && <Fx />}
             {page === 'inflation' && <Inflation />}
           </Box>
