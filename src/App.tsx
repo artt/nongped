@@ -15,10 +15,6 @@ import logoUrl from 'assets/nongped.svg'
 
 const navItems = [
   {
-    label: 'Home',
-    path: '',
-  },
-  {
     label: 'Inflation',
     path: 'inflation',
   },
@@ -55,16 +51,18 @@ export default function App() {
           }}
         >
           <Toolbar>
-            {/* add nongped.svg as the site's logo */}
-            <img src={logoUrl} alt="nongped" width="32" height="32" />
-            <Typography
-              variant="h6"
-              noWrap
-              component="div"
-              sx={{ flexGrow: 1, ml: 1 }}
-            >
-              NongPed
-            </Typography>
+            <Link to="/" color="#fff" sx={{ flexGrow: 1 }}>
+              <Typography
+                variant="h6"
+                noWrap
+                component="div"
+                sx={{ display: 'flex', alignItems: 'center' }}
+              >
+                <img src={logoUrl} alt="nongped" width="32" height="32" style={{ marginRight: '4px' }} />
+                NongPed
+              </Typography>
+            </Link>
+            <Box sx={{ flexGrow: 1, ml: 1 }} />
             <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
               {navItems.map((item, i) => (
                 <Button
