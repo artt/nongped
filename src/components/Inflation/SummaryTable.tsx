@@ -1,4 +1,3 @@
-import React from "react"
 import type { ProcessedData } from ".";
 import { labelDefs } from "./index"
 import deepmerge from "deepmerge"
@@ -18,16 +17,11 @@ interface Props {
 }
 
 export default function SummaryTable({ data, minDate, maxDate }: Props) {
-
-  React.useEffect(() => {
-    console.log('xxx', minDate, maxDate)
-  })
   
   if (!data) return null
 
   const tableData = deepmerge([], data)
   // find index of min and max in range
-  console.log(tableData)
   let minIndex = 0
   let maxIndex = tableData.series[0].data.length - 1
   if (minDate !== undefined) {
@@ -52,9 +46,6 @@ export default function SummaryTable({ data, minDate, maxDate }: Props) {
     })
     if (maxIndex === -1) maxIndex = tableData.series[0].data.length - 1
   }
-  console.log(minIndex, maxIndex)
-  // const minIndex = tableData.series[0].data.findIndex(p => p.t === minDate)
-  // const maxIndex = tableData.series[0].data.findIndex(p => p.t === maxDate)
   tableData?.series.forEach((series, i) => {
     tableData.series[i].data = series.data.slice(minIndex, maxIndex + 1)
   })

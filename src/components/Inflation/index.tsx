@@ -78,9 +78,6 @@ export default function Inflation() {
   const dataLoaded = React.useRef(false)
 
   const handleRangeChange = React.useCallback((minDate: string, maxDate: string) => {
-    console.log('handleRangeChange', minDate, maxDate)
-    // minDateRef.current = minDate
-    // maxDateRef.current = maxDate
     setMinDate(minDate)
     setMaxDate(maxDate)
   }, [])
@@ -166,7 +163,10 @@ export default function Inflation() {
               value={freq}
               size="small"
               exclusive
-              onChange={(_e, newFreq: keyof InflationDataWithFrequencies) => setFreq(newFreq)}
+              onChange={(_e, newFreq: keyof InflationDataWithFrequencies) => {
+                if (newFreq === null) return
+                setFreq(newFreq)
+              }}
               aria-label="text alignment"
               fullWidth
               sx={{marginBottom: 2}}

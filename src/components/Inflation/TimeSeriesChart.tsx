@@ -134,6 +134,7 @@ const TimeSeriesChart = React.memo(({ chartData, handleRangeChange }: Props) => 
               afterSetExtremes: function(_this: never, e: { min: number, max: number }) {
                 // let the parent component know that the user has changed the range
                 // so that the summary table could be updated too
+                if (!e) return
                 const { min, max } = e
                 if (!min || !max) return
                 const minDate = new Date(min).toISOString().slice(0, 7)
