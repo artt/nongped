@@ -4,7 +4,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import HighchartsWrapper from "components/HighchartsWrapper";
 import React from "react"
-import { serverAddress, curYear, getTedDataPromise } from "utils";
+import { serverAddress } from "utils";
 
 const availableSeries = [
   "reserves",
