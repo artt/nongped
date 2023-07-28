@@ -12,6 +12,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import "styles/main.scss"
 
 import logoUrl from 'assets/nongped.svg'
+import Countries from "components/Countries";
 
 const navItems = [
   {
@@ -22,6 +23,10 @@ const navItems = [
     label: 'FX',
     path: 'fx',
   },
+  {
+    label: 'Countries (Beta)',
+    path: 'countries',
+  }
 ]
 
 export default function App() {
@@ -92,6 +97,7 @@ export default function App() {
             {!page && <div className="center"><img src={logoUrl} alt="nongped" width="400" height="400" /></div>}
             {page === 'fx' && <Fx />}
             {page === 'inflation' && <Inflation />}
+            {page === 'countries' && <Countries />}
           </Box>
         </Box>
       </Box>
