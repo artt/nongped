@@ -76,11 +76,15 @@ export default function Countries() {
             //   inside: true,
             // },
           }],
-          xAxis: [
-            {
-              type: 'category',
+          xAxis: {
+            type: 'category',
+            scrollbar: {
+              enabled: true
             },
-          ],
+          },
+          yAxis: {
+            type: 'logarithmic',
+          },
           title: {
             text: "",
           },
