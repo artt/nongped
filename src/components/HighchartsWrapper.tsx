@@ -13,6 +13,12 @@ if (typeof Highcharts === "object") {
       return(Math.floor(date.getUTCMonth() / 3) + 1).toFixed(0);
     }
   }
+  Highcharts.setOptions({
+    lang: {
+      thousandsSep: ",",
+      numericSymbols: ["k", "M", "B", "T", "P", "E"],
+    },
+  })
 }
 
 interface Props {

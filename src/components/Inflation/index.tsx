@@ -167,17 +167,17 @@ export default function Inflation() {
                 if (newFreq === null) return
                 setFreq(newFreq)
               }}
-              aria-label="text alignment"
+              aria-label="frequency"
               fullWidth
               sx={{marginBottom: 2}}
             >
-              <ToggleButton value="M" aria-label="left aligned">
+              <ToggleButton value="M" aria-label="monthly">
                 M
               </ToggleButton>
-              <ToggleButton value="Q" aria-label="centered">
+              <ToggleButton value="Q" aria-label="quarterly">
                 Q
               </ToggleButton>
-              <ToggleButton value="Y" aria-label="right aligned">
+              <ToggleButton value="Y" aria-label="yearly">
                 Y
               </ToggleButton>
             </ToggleButtonGroup>
