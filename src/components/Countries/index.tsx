@@ -206,7 +206,7 @@ export default function Countries() {
               },
               series: [{
                 name: availableSeries[series].label,
-                data: data.filter(x => !useLogScale || x.y > 0).map(d => ({name: d.name, rank: d.rank, value: d.y})),
+                data: data.filter(x => !useLogScale || x.y > 0).map(d => ({name: d.name, rank: d.rank, value: d.y, y: d.y})),
                 mapData: worldMap,
                 // allAreas: true,
                 joinBy: ["iso-a2", "name"],
@@ -219,10 +219,11 @@ export default function Countries() {
               tooltip: {
                 formatter: function(this: Highcharts.TooltipFormatterContextObject, tooltip: Highcharts.Tooltip) {
                   const tmp = (tooltip.defaultFormatter.call(this, tooltip) as string[])
-                  const point = this.point as CustomPoint;
+                  const point = this.point as CustomPoint
                   tmp[1] = tmp[1]
-                    .replace(/: .*<br\/>/, `: <b>${customLocaleString(point.y)}${availableSeries[series].unit === "%" ? "%" : ` ${availableSeries[series].unit}</b><br/>`}`)
+                    .replace(/: .*<br\/>/, `: <b>${customLocaleString(point.y)}${availableSeries[series].unit === "%" ? "%" : ` ${availableSeries[series].unit}`}</b><br/>`)
                   tmp[2] = `Rank: ${point.rank}`
+                  console.log(point)
                   return tmp
                 },
               },
@@ -262,7 +263,7 @@ export default function Countries() {
                   tmp[0] = tmp[0].replace(point.name, availableSeries[series].label)
                   tmp[1] = tmp[1]
                     .replace(availableSeries[series].label, getCountryName(point.name))
-                    .replace(/<b>.*<\/b>/, `<b>${customLocaleString(point.y)}${availableSeries[series].unit === "%" ? "%" : ` ${availableSeries[series].unit}</b>`}`)
+                    .replace(/<b>.*<\/b>/, `<b>${customLocaleString(point.y)}${availableSeries[series].unit === "%" ? "%" : ` ${availableSeries[series].unit}`}</b>`)
                   tmp[2] = `Rank: ${point.rank}`
                   return tmp
                 },
