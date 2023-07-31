@@ -118,67 +118,6 @@ export default function Countries() {
     }))
   }, [group, worldData])
 
-  const mapOptions = {
-    chart: {
-      type: 'map',
-      map: worldMap,
-    },
-    colorAxis: {
-      // minColor: 'red',
-      // maxColor: 'green',
-      type: useLogScale ? "logarithmic" : "linear",
-    },
-    series: [{
-      name: availableSeries[series].label,
-      data: data.filter(x => !useLogScale || x.y > 0).map(d => ({name: d.name, value: d.y})),
-      mapData: worldMap,
-      // allAreas: true,
-      joinBy: ["iso-a2", "name"],
-    }],
-    mapView: {
-      projection: {
-        name: "Miller",
-      },
-    },
-  }
-
-  const barOptions ={
-    chart: {
-      type: 'bar',
-    },
-    series: [{
-      name: availableSeries[series].label,
-      data: data,
-      dataSorting: {
-        // don't really need this but it animates stuff
-        enabled: true,
-      },
-    }],
-    xAxis: {
-      type: 'category',
-      scrollbar: {
-        enabled: true
-      },
-      min: 0,
-    },
-    yAxis: {
-      type: useLogScale ? 'logarithmic' : 'linear',
-      title: {
-        text: `${availableSeries[series].label} (${availableSeries[series].unit})`,
-      }
-    },
-    plotOptions: {
-      series: {
-        enablRegionouseTracking: false,
-      },
-    },
-    legend: {
-      enabled: false,
-    },
-  }
-
-  console.log(data)
-
   return(
     <Box sx={{
       display: "flex",
@@ -239,11 +178,69 @@ export default function Countries() {
         ?  <HighchartsWrapper
             isLoading={!data}
             constructorType={"mapChart"}
-            options={data && mapOptions}
+            options={data && {
+              chart: {
+                type: 'map',
+                // map: worldMap,
+              },
+              colorAxis: {
+                stops: [
+                  [0, '#d7191c'],
+                  [0.5, '#ffffbf'],
+                  [1, '#2c7bb6'],
+                ],
+                type: useLogScale ? "logarithmic" : "linear",
+              },
+              series: [{
+                name: availableSeries[series].label,
+                data: data.filter(x => !useLogScale || x.y > 0).map(d => ({name: d.name, value: d.y})),
+                mapData: worldMap,
+                // allAreas: true,
+                joinBy: ["iso-a2", "name"],
+              }],
+              mapView: {
+                projection: {
+                  name: "Miller",
+                },
+              },
+            }}
           />
         : <HighchartsWrapper
             isLoading={!data}
-            options={data && barOptions}
+            options={data && {
+              chart: {
+                type: 'bar',
+              },
+              series: [{
+                name: availableSeries[series].label,
+                data: data,
+                dataSorting: {
+                  // don't really need this but it animates stuff
+                  enabled: true,
+                },
+              }],
+              xAxis: {
+                type: 'category',
+                scrollbar: {
+                  enabled: true
+                },
+                min: 0,
+              },
+              yAxis: {
+                type: useLogScale ? 'logarithmic' : 'linear',
+                title: {
+                  text: `${availableSeries[series].label} (${availableSeries[series].unit})`,
+                }
+              },
+              plotOptions: {
+                series: {
+                  enablRegionouseTracking: false,
+                },
+              },
+              legend: {
+                enabled: false,
+              },
+            }}
           />
       }
     </Box>
