@@ -219,7 +219,6 @@ export default function Countries() {
               tooltip: {
                 formatter: function(this: Highcharts.TooltipFormatterContextObject, tooltip: Highcharts.Tooltip) {
                   const tmp = (tooltip.defaultFormatter.call(this, tooltip) as string[])
-                  console.log(tmp)
                   const point = this.point as CustomPoint;
                   tmp[1] = tmp[1]
                     .replace(/: .*<br\/>/, `: <b>${customLocaleString(point.y)}${availableSeries[series].unit === "%" ? "%" : ` ${availableSeries[series].unit}</b><br/>`}`)
