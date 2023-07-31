@@ -130,7 +130,7 @@ export default function Countries() {
     },
     series: [{
       name: availableSeries[series].label,
-      data: data.map(d => ({name: d.name, value: d.y})),
+      data: data.filter(x => !useLogScale || x.y > 0).map(d => ({name: d.name, value: d.y})),
       mapData: worldMap,
       // allAreas: true,
       joinBy: ["iso-a2", "name"],
@@ -177,6 +177,8 @@ export default function Countries() {
     },
   }
 
+  console.log(data)
+
   return(
     <Box sx={{
       display: "flex",
@@ -213,7 +215,7 @@ export default function Countries() {
           }}
           aria-label="group"
         >
-          {Object.keys(groups).map(group => <ToggleButton value={group}>{group}</ToggleButton>)}
+          {Object.keys(groups).map(group => <ToggleButton value={group} key={group}>{group}</ToggleButton>)}
         </ToggleButtonGroup>
 
         <FormControlLabel control={<Switch checked={useLogScale} onChange={() => setUseLogScale(!useLogScale)}/>} label="Log scale" />
