@@ -41,3 +41,13 @@ export function monthToQuarter(monthString: string) {
   const month = parseInt(monthString.slice(-2))
   return `${year}Q${Math.ceil(month / 3)}`
 }
+
+// add thousands separator using toLocaleString
+// also format large numbers, like 1000000 -> 1M, 1000000000 -> 1B, etc.
+export function customLocaleString(n?: number) {
+  if (n === undefined) return ""
+  if (n < 1e3) return n.toLocaleString()
+  if (n < 1e6) return `${(n / 1e3).toLocaleString()}k`
+  if (n < 1e9) return `${(n / 1e6).toLocaleString()}M`
+  return `${(n / 1e9).toLocaleString()}B`
+}

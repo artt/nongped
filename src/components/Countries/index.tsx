@@ -9,10 +9,15 @@ import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import HighchartsWrapper from "components/HighchartsWrapper";
 import React from "react"
-import { serverAddress } from "utils";
+import { serverAddress, customLocaleString } from "utils";
 import worldMap from "@highcharts/map-collection/custom/world.topo.json";
 import MapIcon from '@mui/icons-material/Map';
 import BarChartIcon from '@mui/icons-material/BarChart';
+import Highcharts from "highcharts";
+
+function getCountryName(code: string) {
+  return worldMap.objects.default.geometries.find((g: {id: string}) => g.id === code)?.properties.name || "N/A"
+}
 
 // for now do this here
 // might be better to move this to a spreadsheet in the future if the list gets longer
@@ -67,6 +72,11 @@ type CountryData = {
   name: string,
   y: number,
   color?: string,
+  rank: number,
+}
+
+interface CustomPoint extends Highcharts.Point {
+  rank: number;
 }
 
 export default function Countries() {
@@ -76,7 +86,7 @@ export default function Countries() {
   const [worldData, setWorldData] = React.useState<CountryData[]>([])
   const [data, setData] = React.useState<CountryData[]>([])
   const [useLogScale, setUseLogScale] = React.useState<boolean>(true)
-  const [chartType, setChartType] = React.useState<string>("map")
+  const [chartType, setChartType] = React.useState<string>("bar")
 
   React.useEffect(() => {
     fetch(`${serverAddress}/imf`, {
@@ -91,12 +101,15 @@ export default function Countries() {
       .then(res => res.json())
       .then(res => {
         const tmp: CountryData[] = Object.entries(res)
-          .map(([name, y]) => ({
+          .sort((a: unknown, b: unknown) => {
+            return (b as CountryData).y - (a as CountryData).y
+          })
+          .map(([name, y], i) => ({
             name,
             y: (y as number) * availableSeries[series].multiplier,
-            color: name === "TH" ? "#ff0000" : undefined
+            color: name === "TH" ? "#ff0000" : undefined,
+            rank: i + 1,
           }))
-          .sort((a, b) => b.y - a.y)
         setWorldData(tmp)
       })
   }, [series])
@@ -107,7 +120,7 @@ export default function Countries() {
       if (tmp.findIndex(d => d.name === "TH") === -1) {
         // TH is not in top 20
         const thRank = worldData.findIndex(d => d.name === "TH")
-        if (thRank > 0) tmp.push({ ...worldData[thRank], name: `TH (${thRank})` })
+        if (thRank > 0) tmp.push({ ...worldData[thRank], name: `TH` })
       }
       setData(tmp)
       return
@@ -193,7 +206,7 @@ export default function Countries() {
               },
               series: [{
                 name: availableSeries[series].label,
-                data: data.filter(x => !useLogScale || x.y > 0).map(d => ({name: d.name, value: d.y})),
+                data: data.filter(x => !useLogScale || x.y > 0).map(d => ({name: d.name, rank: d.rank, value: d.y})),
                 mapData: worldMap,
                 // allAreas: true,
                 joinBy: ["iso-a2", "name"],
@@ -201,6 +214,17 @@ export default function Countries() {
               mapView: {
                 projection: {
                   name: "Miller",
+                },
+              },
+              tooltip: {
+                formatter: function(this: Highcharts.TooltipFormatterContextObject, tooltip: Highcharts.Tooltip) {
+                  const tmp = (tooltip.defaultFormatter.call(this, tooltip) as string[])
+                  console.log(tmp)
+                  const point = this.point as CustomPoint;
+                  tmp[1] = tmp[1]
+                    .replace(/: .*<br\/>/, `: <b>${customLocaleString(point.y)}${availableSeries[series].unit === "%" ? "%" : ` ${availableSeries[series].unit}</b><br/>`}`)
+                  tmp[2] = `Rank: ${point.rank}`
+                  return tmp
                 },
               },
             }}
@@ -231,6 +255,18 @@ export default function Countries() {
                 title: {
                   text: `${availableSeries[series].label} (${availableSeries[series].unit})`,
                 }
+              },
+              tooltip: {
+                formatter: function(this: Highcharts.TooltipFormatterContextObject, tooltip: Highcharts.Tooltip) {
+                  const tmp = (tooltip.defaultFormatter.call(this, tooltip) as string[])
+                  const point = this.point as CustomPoint;
+                  tmp[0] = tmp[0].replace(point.name, availableSeries[series].label)
+                  tmp[1] = tmp[1]
+                    .replace(availableSeries[series].label, getCountryName(point.name))
+                    .replace(/<b>.*<\/b>/, `<b>${customLocaleString(point.y)}${availableSeries[series].unit === "%" ? "%" : ` ${availableSeries[series].unit}</b>`}`)
+                  tmp[2] = `Rank: ${point.rank}`
+                  return tmp
+                },
               },
               plotOptions: {
                 series: {
