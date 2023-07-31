@@ -4,9 +4,11 @@ import HighchartsReact from 'highcharts-react-official';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import merge from "deepmerge"
+import highchartsMap from "highcharts/modules/map";
 
 
 if (typeof Highcharts === "object") {
+  highchartsMap(Highcharts)
   Highcharts.dateFormats = {
     q: function (timestamp) {
       const date = new Date(timestamp)
@@ -40,7 +42,12 @@ export const defaultOptions = {
     '#bcbd22',  // curry yellow-green
     '#17becf',  // blue-teal
   ],
-
+  title: {
+    text: "",
+  },
+  credits: {
+    enabled: false,
+  },
 }
 
 export function ticksPercentFormatter(this: {value:number}, _o: object, dontMultiply = false): string {

@@ -10,6 +10,9 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import HighchartsWrapper from "components/HighchartsWrapper";
 import React from "react"
 import { serverAddress } from "utils";
+import worldMap from "@highcharts/map-collection/custom/world.topo.json";
+import MapIcon from '@mui/icons-material/Map';
+import BarChartIcon from '@mui/icons-material/BarChart';
 
 // for now do this here
 // might be better to move this to a spreadsheet in the future if the list gets longer
@@ -73,6 +76,8 @@ export default function Countries() {
   const [worldData, setWorldData] = React.useState<CountryData[]>([])
   const [data, setData] = React.useState<CountryData[]>([])
   const [useLogScale, setUseLogScale] = React.useState<boolean>(true)
+  const [chartType, setChartType] = React.useState<string>("map")
+  const [options, setOptions] = React.useState<any>({})
 
   React.useEffect(() => {
     fetch(`${serverAddress}/imf`, {
@@ -113,6 +118,65 @@ export default function Countries() {
       return d.name === "TH" || groups[group].includes(d.name)
     }))
   }, [group, worldData])
+
+  const mapOptions = {
+    chart: {
+      type: 'map',
+      map: worldMap,
+    },
+    colorAxis: {
+      // minColor: 'red',
+      // maxColor: 'green',
+      type: useLogScale ? "logarithmic" : "linear",
+    },
+    series: [{
+      name: availableSeries[series].label,
+      data: data.map(d => ({name: d.name, value: d.y})),
+      mapData: worldMap,
+      // allAreas: true,
+      joinBy: ["iso-a2", "name"],
+    }],
+    mapView: {
+      projection: {
+        name: "Miller",
+      },
+    },
+  }
+
+  const barOptions ={
+    chart: {
+      type: 'bar',
+    },
+    series: [{
+      name: availableSeries[series].label,
+      data: data,
+      dataSorting: {
+        // don't really need this but it animates stuff
+        enabled: true,
+      },
+    }],
+    xAxis: {
+      type: 'category',
+      scrollbar: {
+        enabled: true
+      },
+      min: 0,
+    },
+    yAxis: {
+      type: useLogScale ? 'logarithmic' : 'linear',
+      title: {
+        text: `${availableSeries[series].label} (${availableSeries[series].unit})`,
+      }
+    },
+    plotOptions: {
+      series: {
+        enablRegionouseTracking: false,
+      },
+    },
+    legend: {
+      enabled: false,
+    },
+  }
 
   return(
     <Box sx={{
@@ -155,53 +219,32 @@ export default function Countries() {
 
         <FormControlLabel control={<Switch checked={useLogScale} onChange={() => setUseLogScale(!useLogScale)}/>} label="Log scale" />
 
+        <ToggleButtonGroup
+          value={chartType}
+          size="small"
+          exclusive
+          onChange={(_e, newChartType) => {
+            if (newChartType === null) return
+            setChartType(newChartType)
+          }}
+          aria-label="chart type"
+        >
+          <ToggleButton value={"bar"}><BarChartIcon /></ToggleButton>
+          <ToggleButton value={"map"}><MapIcon /></ToggleButton>
+        </ToggleButtonGroup>
+
       </Box>
-      <HighchartsWrapper
-        isLoading={!data}
-        options={data && {
-          chart: {
-            type: 'bar',
-          },
-          series: [{
-            name: availableSeries[series].label,
-            data: data,
-            dataSorting: {
-              // don't really need this but it animates stuff
-              enabled: true,
-            },
-          }],
-          xAxis: {
-            type: 'category',
-            scrollbar: {
-              enabled: true
-            },
-            min: 0,
-          },
-          yAxis: {
-            type: useLogScale ? 'logarithmic' : 'linear',
-            title: {
-              text: `${availableSeries[series].label} (${availableSeries[series].unit})`,
-            }
-          },
-          title: {
-            text: "",
-          },
-          plotOptions: {
-            series: {
-              enablRegionouseTracking: false,
-            },
-          },
-          // tooltip: {
-          //   formatter: percentFormatter,
-          // },
-          legend: {
-            enabled: false,
-          },
-          credits: {
-            enabled: false,
-          },
-        }}
-      />
+      {chartType === "map"
+        ?  <HighchartsWrapper
+            isLoading={!data}
+            constructorType={"mapChart"}
+            options={data && mapOptions}
+          />
+        : <HighchartsWrapper
+            isLoading={!data}
+            options={data && barOptions}
+          />
+      }
     </Box>
   )
 
