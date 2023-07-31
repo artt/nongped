@@ -77,7 +77,6 @@ export default function Countries() {
   const [data, setData] = React.useState<CountryData[]>([])
   const [useLogScale, setUseLogScale] = React.useState<boolean>(true)
   const [chartType, setChartType] = React.useState<string>("map")
-  const [options, setOptions] = React.useState<any>({})
 
   React.useEffect(() => {
     fetch(`${serverAddress}/imf`, {
