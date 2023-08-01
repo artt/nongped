@@ -15,6 +15,7 @@ import MapIcon from '@mui/icons-material/Map';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import Highcharts from "highcharts";
 
+// TODO: should add Hong Kong to worldMap later
 function getCountryName(code: string) {
   if (code === "HK") return "Hong Kong"
   return worldMap.objects.default.geometries.find((g: {id: string}) => g.id === code)?.properties.name || code
