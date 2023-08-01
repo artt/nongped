@@ -16,7 +16,8 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import Highcharts from "highcharts";
 
 function getCountryName(code: string) {
-  return worldMap.objects.default.geometries.find((g: {id: string}) => g.id === code)?.properties.name || "N/A"
+  if (code === "HK") return "Hong Kong"
+  return worldMap.objects.default.geometries.find((g: {id: string}) => g.id === code)?.properties.name || code
 }
 
 // for now do this here
