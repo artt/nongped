@@ -144,7 +144,6 @@ export default function Inflation() {
         <TimeSeriesChart
           chartData={data}
           handleRangeChange={handleRangeChange}
-          // setChartRange={setChartRange}
         />
       }
       bottom={

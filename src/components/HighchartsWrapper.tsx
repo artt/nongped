@@ -48,6 +48,11 @@ export const defaultOptions = {
   credits: {
     enabled: false,
   },
+  plotOptions: {
+    series: {
+      lineWidth: 2,
+    },
+  },
 }
 
 export function ticksPercentFormatter(this: {value:number}, _o: object, dontMultiply = false): string {
