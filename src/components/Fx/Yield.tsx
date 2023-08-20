@@ -134,8 +134,11 @@ export default function Yield() {
           }}
         />
         <FormControl>
-        <FormLabel>
-          Comparison <Switch value={enableComparison} onChange={() => setEnableComparison(!enableComparison)} />
+        <FormLabel sx={{
+          display: "flex",
+        }}>
+          <Box sx={{flexGrow: 1, display: "flex", alignItems: "center"}}>Comparison</Box>
+          <Switch value={enableComparison} onChange={() => setEnableComparison(!enableComparison)} sx={{marginRight: -1}} />
         </FormLabel>
           <RadioGroup
             defaultValue="3M"

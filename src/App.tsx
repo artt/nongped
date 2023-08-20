@@ -95,7 +95,7 @@ export default function App() {
             <Box sx={{
               m: 4,
               flex: '1 1 40px',
-              overflow: 'hidden',
+              // overflow: 'hidden',
             }}>
               {!page && <div className="center"><img src={logoUrl} alt="nongped" width="400" height="400" /></div>}
               {page === 'fx' && <Fx />}
