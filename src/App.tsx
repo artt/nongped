@@ -9,6 +9,8 @@ import Button from '@mui/material/Button';
 import { useLocation } from "react-router-dom";
 import Link from "components/Link";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import "styles/main.scss"
 
 import logoUrl from 'assets/nongped.svg'
@@ -45,62 +47,64 @@ export default function App() {
   })
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Box sx={{ display: 'flex' }}>
-        <AppBar
-          position="fixed"
-          elevation={0}
-          sx={{
-            zIndex: (theme) => theme.zIndex.drawer + 1
-          }}
-        >
-          <Toolbar>
-            <Link to="/" color="#fff" sx={{ flexGrow: 1 }}>
-              <Typography
-                variant="h6"
-                noWrap
-                component="div"
-                sx={{ display: 'flex', alignItems: 'center' }}
-              >
-                <img src={logoUrl} alt="nongped" width="32" height="32" style={{ marginRight: '4px' }} />
-                NongPed
-              </Typography>
-            </Link>
-            <Box sx={{ flexGrow: 1, ml: 1 }} />
-            <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-              {navItems.map((item, i) => (
-                <Button
-                  key={i}
-                  sx={{ color: '#fff' }}
-                  component={Link}
-                  to={item.path ? `/?p=${item.path}` : '/'}
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Box sx={{ display: 'flex' }}>
+          <AppBar
+            position="fixed"
+            elevation={0}
+            sx={{
+              zIndex: (theme) => theme.zIndex.drawer + 1
+            }}
+          >
+            <Toolbar>
+              <Link to="/" color="#fff" sx={{ flexGrow: 1 }}>
+                <Typography
+                  variant="h6"
+                  noWrap
+                  component="div"
+                  sx={{ display: 'flex', alignItems: 'center' }}
                 >
-                  {item.label}
-                </Button>
-              ))}
-            </Box>
-          </Toolbar>
-        </AppBar>
-        <Box sx={{
-          flexGrow: 1,
-          height: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-        }}>
-          <Toolbar sx={{ flex: 0 }}/>
+                  <img src={logoUrl} alt="nongped" width="32" height="32" style={{ marginRight: '4px' }} />
+                  NongPed
+                </Typography>
+              </Link>
+              <Box sx={{ flexGrow: 1, ml: 1 }} />
+              <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                {navItems.map((item, i) => (
+                  <Button
+                    key={i}
+                    sx={{ color: '#fff' }}
+                    component={Link}
+                    to={item.path ? `/?p=${item.path}` : '/'}
+                  >
+                    {item.label}
+                  </Button>
+                ))}
+              </Box>
+            </Toolbar>
+          </AppBar>
           <Box sx={{
-            m: 4,
-            flex: '1 1 40px',
-            overflow: 'hidden',
+            flexGrow: 1,
+            height: '100vh',
+            display: 'flex',
+            flexDirection: 'column',
           }}>
-            {!page && <div className="center"><img src={logoUrl} alt="nongped" width="400" height="400" /></div>}
-            {page === 'fx' && <Fx />}
-            {page === 'inflation' && <Inflation />}
-            {page === 'countries' && <Countries />}
+            <Toolbar sx={{ flex: 0 }}/>
+            <Box sx={{
+              m: 4,
+              flex: '1 1 40px',
+              overflow: 'hidden',
+            }}>
+              {!page && <div className="center"><img src={logoUrl} alt="nongped" width="400" height="400" /></div>}
+              {page === 'fx' && <Fx />}
+              {page === 'inflation' && <Inflation />}
+              {page === 'countries' && <Countries />}
+            </Box>
           </Box>
         </Box>
-      </Box>
-    </ThemeProvider>
+      </ThemeProvider>
+    </LocalizationProvider>
   );
 }

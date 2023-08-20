@@ -19,6 +19,8 @@
     "@highcharts/map-collection": "^2.1.0",
     "@mui/icons-material": "^5.14.1",
     "@mui/material": "^5.13.7",
+    "@mui/x-date-pickers": "^6.11.2",
+    "dayjs": "^1.11.9",
     "deepmerge": "^4.3.1",
     "highcharts": "^11.1.0",
     "highcharts-react-official": "^3.2.0",
