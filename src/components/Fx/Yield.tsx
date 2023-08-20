@@ -159,6 +159,7 @@ export default function Yield() {
           </RadioGroup>
           <DatePicker
             format="YYYY-MM-DD"
+            disabled={!enableComparison}
             disableFuture
             slotProps={{
               textField: {
