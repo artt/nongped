@@ -87,7 +87,7 @@ const TimeSeriesChart = React.memo(({ chartData, handleRangeChange }: Props) => 
           tooltip: {
             valueDecimals: 2,
             valueSuffix: chartData.showGrowth && '%',
-            formatter: chartData.showContribution && percentFormatter,
+            formatter: chartData.showGrowth && percentFormatter,
             // split: true,
           },
           scrollbar: {
