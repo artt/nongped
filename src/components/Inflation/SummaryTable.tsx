@@ -1,5 +1,5 @@
 import type { ProcessedData } from ".";
-import { labelDefs } from "./index"
+import { labelDefs } from "./common"
 import deepmerge from "deepmerge"
 import clsx from "clsx"
 import Box from "@mui/material/Box";

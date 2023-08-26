@@ -1,6 +1,6 @@
 import React from "react"
 import type { ProcessedData } from "./index"
-import { labelDefs } from "./index"
+import { labelDefs } from "./common"
 import HighchartsWrapper, { percentFormatter, ticksPercentFormatter } from "components/HighchartsWrapper"
 import Box from "@mui/material/Box"
 import { quarterToMonth } from "utils"
