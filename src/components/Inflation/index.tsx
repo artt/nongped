@@ -1,5 +1,4 @@
 import React from "react"
-import { defaultOptions } from "components/HighchartsWrapper"
 import Split from "components/Split";
 import { freqToNum, getTedDataPromise } from "utils"
 import TimeSeriesChart from "./TimeSeriesChart";
@@ -11,6 +10,14 @@ import Switch from "@mui/material/Switch";
 import FormGroup from "@mui/material/FormGroup";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ToggleButton from "@mui/material/ToggleButton";
+
+export type TedData = {
+  periods: string[],
+  series: {
+    name: string,
+    values: number[],
+  }[],
+}
 
 export type InflationDataWithFrequencies = {
   M: InflationData,
@@ -64,7 +71,8 @@ export default function Inflation() {
     setMaxDate(maxDate)
   }, [])
 
-  function processTedData(data: any, freq: string) {
+  function processTedData(data: TedData, freq: string) {
+    console.log(data)
     const numFreq = freq === "M" ? 12 : freq === "Q" ? 4 : 1
     return(data.series.map((series: {name: string, values: number[]}, seriesIndex: number) => ({
       name: series.name,
