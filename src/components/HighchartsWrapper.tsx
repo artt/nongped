@@ -53,6 +53,9 @@ export const defaultOptions = {
       lineWidth: 2,
     },
   },
+  chart: {
+    backgroundColor: 'transparent',
+  },
 }
 
 export function ticksPercentFormatter(this: {value:number}, _o: object, dontMultiply = false): string {

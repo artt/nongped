@@ -97,7 +97,7 @@ export default function App() {
               flex: '1 1 40px',
               // overflow: 'hidden',
             }}>
-              {!page && <div className="center"><img src={logoUrl} alt="nongped" width="400" height="400" /></div>}
+              {!page && <div className="center"><img src={logoUrl} alt="nongped" width="400" height="400" style={{maxWidth: "100%"}}/></div>}
               {page === 'fx' && <Fx />}
               {page === 'inflation' && <Inflation />}
               {page === 'countries' && <Countries />}

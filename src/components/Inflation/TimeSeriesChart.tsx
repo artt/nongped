@@ -145,7 +145,7 @@ const TimeSeriesChart = React.memo(({ chartData, handleRangeChange }: Props) => 
           },
           yAxis: {
             labels: {
-              formatter: ticksPercentFormatter,
+              formatter: chartData.showGrowth && ticksPercentFormatter,
             },
           },
           credits: {

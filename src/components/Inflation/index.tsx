@@ -61,6 +61,7 @@ export const labelDefs: {[x: string]: {label: string, color: string}} = {
 }
 
 // https://www.price.moc.go.th/price/fileuploader/file_cpi/cpi_note_2562.pdf
+// TODO: apply correct weights
 // const weights15 = [100, 72.56, 15.69, 11.75]
 const weights19 = [100, 67.06, 20.55, 12.39]
 
@@ -94,10 +95,6 @@ export default function Inflation() {
       })),
     })))
   }
-
-  // React.useEffect(() => {
-  //   console.log('yyyyy')
-  // })
 
   React.useEffect(() => {
 
