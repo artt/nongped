@@ -1,7 +1,7 @@
 import React from "react"
 import Split from "components/Split"
-import { freqDefs, freqToNum, freqToString, getTedDataPromise } from "utils"
-import type { freqType } from "utils"
+import { freqDefs, freqToNum, freqToString } from "utils"
+import type { freqType, TimeSeriesWithFrequenciesType } from "utils"
 import TimeSeriesChart from "./TimeSeriesChart"
 import SummaryTable from "./SummaryTable"
 import "./styles.scss"
@@ -12,32 +12,10 @@ import FormGroup from "@mui/material/FormGroup"
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
 import ToggleButton from "@mui/material/ToggleButton"
 
-export type TedData = {
-  periods: string[],
-  series: {
-    name: string,
-    values: number[],
-  }[],
-}
 
-export type InflationDataWithFrequencies = {
-  M: InflationData,
-  Q: InflationData,
-  Y: InflationData,
-}
-
-export type InflationData = {
-  name: string,
-  data: {
-    t: string,
-    v: number,
-    g: number,
-    c: number,
-  }[],
-}[]
 
 export type ProcessedData = {
-  freq: keyof InflationDataWithFrequencies,
+  freq: keyof TimeSeriesWithFrequenciesType,
   showGrowth: boolean,
   showContribution: boolean,
   series: {
@@ -49,58 +27,18 @@ export type ProcessedData = {
   }[],
 }
 
-// https://www.price.moc.go.th/price/fileuploader/file_cpi/cpi_note_2562.pdf
-// TODO: apply correct weights
-// const weights15 = [100, 72.56, 15.69, 11.75]
-const weights19 = [100, 67.06, 20.55, 12.39]
-
-export default function ChartAndTable() {
+export default function ChartAndTable({ rawData }: { rawData?: TimeSeriesWithFrequenciesType }) {
 
   const [data, setData] = React.useState<ProcessedData>()
-  const [rawData, setRawData] = React.useState<InflationDataWithFrequencies>()
-  const [freq, setFreq] = React.useState<keyof InflationDataWithFrequencies>("M")
+  const [freq, setFreq] = React.useState<keyof TimeSeriesWithFrequenciesType>("M")
   const [showGrowth, setShowGrowth] = React.useState(true)
   const [showContribution, setShowContribution] = React.useState(true)
   const [minDate, setMinDate] = React.useState<string>()
   const [maxDate, setMaxDate] = React.useState<string>()
-  const dataLoaded = React.useRef(false)
 
   const handleRangeChange = React.useCallback((minDate: string, maxDate: string) => {
     setMinDate(minDate)
     setMaxDate(maxDate)
-  }, [])
-
-  function processTedData(data: TedData, freq: freqType) {
-    const numFreq = freqToNum(freq)
-    return(data.series.map((series: {name: string, values: number[]}, seriesIndex: number) => ({
-      name: series.name,
-      data: series.values.map((p: number, i: number, a: number[]) => ({
-        t: data.periods[i],
-        v: p,
-        g: (p / a[i - numFreq] - 1),
-        c: (p / a[i - numFreq] - 1) * weights19[seriesIndex] / 100,
-      })),
-    })))
-  }
-
-  React.useEffect(() => {
-    if (dataLoaded.current) return
-    dataLoaded.current = true
-
-    // loop over freqTable
-    const promises = []
-    for (const freq of Object.keys(freqDefs)) {
-      promises.push(getTedDataPromise(["cpi", "cpi_core", "cpi_rawfood", "cpi_energy"], freq, 1986)
-        .then(res => processTedData(res, (freq as freqType)))
-      )
-    }
-    Promise.all(promises).then(res => {
-      setRawData({
-        M: res[0],
-        Q: res[1],
-        Y: res[2],
-      })
-    })
   }, [])
 
   React.useEffect(() => {
@@ -109,7 +47,7 @@ export default function ChartAndTable() {
       freq: freq,
       showGrowth: showGrowth,
       showContribution: showContribution,
-      series: rawData[freq].map(series => ({
+      series: rawData[freq]?.map(series => ({
         name: series.name,
         data: series.data.slice(showGrowth ? freqToNum(freq) : 0).map(d => ({
           t: d.t,
@@ -140,7 +78,7 @@ export default function ChartAndTable() {
               value={freq}
               size="small"
               exclusive
-              onChange={(_e, newFreq: keyof InflationDataWithFrequencies) => {
+              onChange={(_e, newFreq: keyof TimeSeriesWithFrequenciesType) => {
                 if (newFreq === null) return
                 setFreq(newFreq)
               }}

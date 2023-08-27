@@ -9,6 +9,31 @@ export const curYear = new Date().getFullYear()
 
 export type freqType = "M" | "Q" | "Y"
 
+export type TedDataType = {
+  periods: string[],
+  series: {
+    name: string,
+    values: number[],
+  }[],
+}
+
+export type TimeSeriesDataType = {
+  name: string,
+  data: {
+    t: string,
+    v: number,
+    g: number,
+    c: number,
+  }[],
+}[]
+
+export type TimeSeriesWithFrequenciesType = {
+  M: TimeSeriesDataType,
+  Q: TimeSeriesDataType,
+  Y: TimeSeriesDataType,
+}
+
+
 export function getTedDataPromise(series: string[], freq: string, start_period: string | number) {
   return fetch(`${serverAddress}/ted`, {
     method: "POST",

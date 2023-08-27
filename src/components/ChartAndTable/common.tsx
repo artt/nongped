@@ -1,4 +1,4 @@
-import { defaultOptions } from "components/HighchartsWrapper"
+import { defaultOptions } from "components/HighchartsWrapper/common"
 
 export const labelDefs: {[x: string]: {label: string, color: string}} = {
   cpi: {

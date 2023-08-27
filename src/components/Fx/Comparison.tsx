@@ -1,6 +1,85 @@
-import { tickersDef } from "./index"
 import type { FxData } from "./index"
-import HighchartsWrapper, { defaultOptions, ticksPercentFormatter, percentFormatter } from "components/HighchartsWrapper";
+import HighchartsWrapper from "components/HighchartsWrapper";
+import { defaultOptions, ticksPercentFormatter, percentFormatter } from "components/HighchartsWrapper/common";
+
+type TickerType = {
+  label: string,
+  group: string,
+  invert: boolean,
+}
+
+const tickersDef: {[x: string]: TickerType} = {
+  GBPUSD: {
+    label: "GBP",
+    group: "AE",
+    invert: true,
+  },
+  EURUSD: {
+    label: "EUR",
+    group: "AE",
+    invert: true,
+  },
+  USDJPY: {
+    label: "JPY",
+    group: "Region",
+    invert: false,
+  },
+  DXY: {
+    label: "DXY",
+    group: "AE",
+    invert: false,
+  },
+  USDTHB: {
+    label: "THB",
+    group: "Region",
+    invert: false,
+  },
+  USDKRW: {
+    label: "KRW",
+    group: "Region",
+    invert: false,
+  },
+  USDPHP: {
+    label: "PHP",
+    group: "Region",
+    invert: false,
+  },
+  USDCNY: {
+    label: "CNY",
+    group: "Region",
+    invert: false,
+  },
+  USDINR: {
+    label: "INR",
+    group: "Region",
+    invert: false,
+  },
+  USDSGD: {
+    label: "SGD",
+    group: "Region",
+    invert: false,
+  },
+  USDIDR: {
+    label: "IDR",
+    group: "Region",
+    invert: false,
+  },
+  USDMYR: {
+    label: "MYR",
+    group: "Region",
+    invert: false,
+  },
+  USDTWD: {
+    label: "TWD",
+    group: "Region",
+    invert: false,
+  },
+  USDVND: {
+    label: "VND",
+    group: "Region",
+    invert: false,
+  },
+}
 
 interface Props {
   data?: FxData
@@ -12,7 +91,7 @@ interface Props {
 export default function Comparison({ data, curYear, yearOffset, whatToCompare }: Props) {
 
   function getSeriesByGroup(group: string) {
-    return data!.series.filter(x => tickersDef[x.name].group === group)
+    return data?.series.filter(x => tickersDef[x.name].group === group)
   }
 
   return(

@@ -1,6 +1,6 @@
 import React from "react";
-import type { TooltipPoint } from "components/HighchartsWrapper";
-import HighchartsWrapper, { percentFormatterNumber, ticksPercentFormatter, defaultOptions } from "components/HighchartsWrapper";
+import HighchartsWrapper from "components/HighchartsWrapper";
+import { TooltipPoint, percentFormatterNumber, ticksPercentFormatter, defaultOptions } from "components/HighchartsWrapper/common";
 import Box from '@mui/material/Box';
 import { serverAddress } from "utils";
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
