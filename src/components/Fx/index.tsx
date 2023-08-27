@@ -76,6 +76,7 @@ export default function Fx() {
     {
       label: "Returns",
       component:
+        // TODO: set the same max for the three charts
         <>
           {[2, 1, 0].map(i =>
             <Comparison
@@ -90,6 +91,7 @@ export default function Fx() {
     {
       label: "Volatility",
       component:
+        // TODO: set the same max for the three charts
         <>
           {[2, 1, 0].map(i =>
             <Comparison
