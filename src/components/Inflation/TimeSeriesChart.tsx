@@ -8,9 +8,7 @@ import deepmerge from "deepmerge"
 
 interface Props {
   chartData: ProcessedData,
-  // setX: (x: number) => void,
   handleRangeChange: (minDate: string, maxDate: string) => void,
-  // setChartRange: (range: [string?, string?]) => void,
 }
 
 type DataType = {
