@@ -92,12 +92,14 @@ export default function Fx() {
       component:
         <>
           {[2, 1, 0].map(i =>
-            <Comparison key={i}
-            data={fxData}
-            curYear={curYear}
-            yearOffset={i}
-            whatToCompare="yearlyVolatility"
-          />)}
+            <Comparison
+              key={i}
+              data={fxData}
+              curYear={curYear}
+              yearOffset={i}
+              whatToCompare="yearlyVolatility"
+            />
+          )}
         </>,
     },
     {
