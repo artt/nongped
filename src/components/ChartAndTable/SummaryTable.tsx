@@ -20,6 +20,7 @@ export default function SummaryTable({ data, minDate, maxDate }: Props) {
   
   if (!data) return null
 
+  // TODO: can refactor these "cases" out to a function foo(p.t, date, freq, side)
   const tableData = deepmerge([], data)
   // find index of min and max in range
   let minIndex = 0
@@ -31,7 +32,6 @@ export default function SummaryTable({ data, minDate, maxDate }: Props) {
         case 'Q': return new Date(quarterToMonth(p.t)) <= new Date(minDate)
         case 'Y': return new Date(p.t.slice(0, 4)) <= new Date(minDate)
       }
-      return false
     })
     if (minIndex === -1) minIndex = 0
   }
@@ -42,7 +42,6 @@ export default function SummaryTable({ data, minDate, maxDate }: Props) {
         case 'Q': return new Date(quarterToMonth(p.t)) >= new Date(maxDate)
         case 'Y': return new Date(p.t.slice(0, 4)) >= new Date(maxDate)
       }
-      return false
     })
     if (maxIndex === -1) maxIndex = tableData.series[0].data.length - 1
   }

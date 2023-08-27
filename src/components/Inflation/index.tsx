@@ -13,7 +13,7 @@ export default function Inflation() {
   const [rawData, setRawData] = React.useState<TimeSeriesWithFrequenciesType>()
   const dataLoaded = React.useRef(false)
 
-  function processTedData(data: TedDataType, freq: freqType) {
+  function processInflationData(data: TedDataType, freq: freqType) {
     const numFreq = freqToNum(freq)
     return(data.series.map((series: {name: string, values: number[]}, seriesIndex: number) => ({
       name: series.name,
@@ -34,7 +34,7 @@ export default function Inflation() {
     const promises = []
     for (const freq of Object.keys(freqDefs)) {
       promises.push(getTedDataPromise(["cpi", "cpi_core", "cpi_rawfood", "cpi_energy"], freq, 1986)
-        .then(res => processTedData(res, (freq as freqType)))
+        .then(res => processInflationData(res, (freq as freqType)))
       )
     }
     Promise.all(promises).then(res => {

@@ -34,7 +34,7 @@ export type TimeSeriesWithFrequenciesType = {
 }
 
 
-export function getTedDataPromise(series: string[], freq: string, start_period: string | number) {
+export async function getTedDataPromise(series: string[], freq: string, start_period: string | number) {
   return fetch(`${serverAddress}/ted`, {
     method: "POST",
     headers: {
