@@ -15,8 +15,13 @@ import "styles/main.scss"
 
 import logoUrl from 'assets/nongped.svg'
 import Countries from "components/Countries";
+import Gdp from "components/Gdp";
 
 const navItems = [
+  {
+    label: 'GDP',
+    path: 'gdp'
+  },
   {
     label: 'Inflation',
     path: 'inflation',
@@ -98,8 +103,9 @@ export default function App() {
               // overflow: 'hidden',
             }}>
               {!page && <div className="center"><img src={logoUrl} alt="nongped" width="400" height="400" style={{maxWidth: "100%"}}/></div>}
-              {page === 'fx' && <Fx />}
+              {page === 'gdp' && <Gdp />}
               {page === 'inflation' && <Inflation />}
+              {page === 'fx' && <Fx />}
               {page === 'countries' && <Countries />}
             </Box>
           </Box>

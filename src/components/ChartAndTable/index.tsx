@@ -1,7 +1,7 @@
 import React from "react"
 import Split from "components/Split"
-import { freqDefs, freqToNum, freqToString } from "utils"
-import type { freqType, TimeSeriesWithFrequenciesType } from "utils"
+import { freqToNum } from "utils"
+import type { freqType, LabelDefType, TimeSeriesWithFrequenciesType } from "utils"
 import TimeSeriesChart from "./TimeSeriesChart"
 import SummaryTable from "./SummaryTable"
 import "./styles.scss"
@@ -11,8 +11,6 @@ import Switch from "@mui/material/Switch"
 import FormGroup from "@mui/material/FormGroup"
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
 import ToggleButton from "@mui/material/ToggleButton"
-
-
 
 export type ProcessedData = {
   freq: keyof TimeSeriesWithFrequenciesType,
@@ -27,10 +25,16 @@ export type ProcessedData = {
   }[],
 }
 
-export default function ChartAndTable({ rawData }: { rawData?: TimeSeriesWithFrequenciesType }) {
+type Props = {
+  freqList: string[],
+  labelDefs: LabelDefType,
+  rawData?: TimeSeriesWithFrequenciesType,
+}
+
+export default function ChartAndTable({ freqList, labelDefs, rawData }: Props) {
 
   const [data, setData] = React.useState<ProcessedData>()
-  const [freq, setFreq] = React.useState<keyof TimeSeriesWithFrequenciesType>("M")
+  const [freq, setFreq] = React.useState<freqType>((freqList[0] as freqType))
   const [showGrowth, setShowGrowth] = React.useState(true)
   const [showContribution, setShowContribution] = React.useState(true)
   const [minDate, setMinDate] = React.useState<string>()
@@ -63,6 +67,8 @@ export default function ChartAndTable({ rawData }: { rawData?: TimeSeriesWithFre
     <Split
       top={
         <TimeSeriesChart
+          freqList={freqList}
+          labelDefs={labelDefs}
           chartData={data}
           handleRangeChange={handleRangeChange}
         />
@@ -80,15 +86,15 @@ export default function ChartAndTable({ rawData }: { rawData?: TimeSeriesWithFre
               exclusive
               onChange={(_e, newFreq: keyof TimeSeriesWithFrequenciesType) => {
                 if (newFreq === null) return
-                setFreq(newFreq)
+                setFreq((newFreq as freqType))
               }}
               aria-label="frequency"
               fullWidth
               sx={{marginBottom: 2}}
             >
-              {Object.keys(freqDefs).map(freq => (
+              {freqList.map(freq => (
                 <ToggleButton key={freq} value={freq} aria-label={`${freq}ly`}>
-                  {freqToString(freq as freqType)}
+                  {freq}
                 </ToggleButton>
               ))}
             </ToggleButtonGroup>
@@ -111,7 +117,7 @@ export default function ChartAndTable({ rawData }: { rawData?: TimeSeriesWithFre
               />
             </FormGroup>
           </Box>
-          <SummaryTable data={data} minDate={minDate} maxDate={maxDate} />
+          <SummaryTable freqList={freqList} labelDefs={labelDefs} data={data} minDate={minDate} maxDate={maxDate} />
         </Box>
       }
     />

@@ -1,13 +1,15 @@
 import React from "react"
 import type { ProcessedData } from "./index"
-import { labelDefs } from "./common"
 import HighchartsWrapper from "components/HighchartsWrapper"
 import { percentFormatter, ticksPercentFormatter } from "components/HighchartsWrapper/common"
+import type { LabelDefType } from "utils"
 import Box from "@mui/material/Box"
 import { quarterToMonth } from "utils"
 import deepmerge from "deepmerge"
 
 interface Props {
+  freqList: string[],
+  labelDefs: LabelDefType,
   chartData: ProcessedData,
   handleRangeChange: (minDate: string, maxDate: string) => void,
 }
@@ -23,7 +25,7 @@ type DataType = {
   pointInterval: number,
 }[]
 
-const TimeSeriesChart = React.memo(({ chartData, handleRangeChange }: Props) => {
+const TimeSeriesChart = React.memo(({ chartData, labelDefs, handleRangeChange }: Props) => {
   
   const ref = React.useRef<Highcharts.Chart>()
   const [data, setData] = React.useState<DataType>()
@@ -41,12 +43,12 @@ const TimeSeriesChart = React.memo(({ chartData, handleRangeChange }: Props) => 
       pointInterval: tmp.freq === 'Q' ? 3 : 1,
     }))
     if (tmp.showContribution && tmp.showGrowth) {
-      [1, 2, 3].forEach(i => {
-        series[i].type = 'column'
+      tmp.series.forEach((_, i) => {
+        if (i > 0) series[i].type = 'column'
       })
     }
     setData(series)
-  }, [chartData])
+  }, [chartData, labelDefs])
 
   return(
     <Box sx={{

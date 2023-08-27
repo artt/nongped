@@ -1,5 +1,5 @@
 import type { ProcessedData } from ".";
-import { labelDefs } from "./common"
+import type { LabelDefType } from "utils"
 import deepmerge from "deepmerge"
 import clsx from "clsx"
 import Box from "@mui/material/Box";
@@ -11,12 +11,14 @@ function getMonthName(month: number) {
 }
 
 interface Props {
+  freqList: string[]
+  labelDefs: LabelDefType
   data?: ProcessedData
   minDate?: string
   maxDate?: string
 }
 
-export default function SummaryTable({ data, minDate, maxDate }: Props) {
+export default function SummaryTable({ labelDefs, data, minDate, maxDate }: Props) {
   
   if (!data) return null
 

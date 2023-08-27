@@ -9,6 +9,13 @@ export const curYear = new Date().getFullYear()
 
 export type freqType = "M" | "Q" | "Y"
 
+export type LabelDefType = {
+  [x: string]: {
+    label: string,
+    color: string
+  }
+}
+
 export type TedDataType = {
   periods: string[],
   series: {
@@ -28,9 +35,7 @@ export type TimeSeriesDataType = {
 }[]
 
 export type TimeSeriesWithFrequenciesType = {
-  M: TimeSeriesDataType,
-  Q: TimeSeriesDataType,
-  Y: TimeSeriesDataType,
+  [x: string]: TimeSeriesDataType,
 }
 
 
