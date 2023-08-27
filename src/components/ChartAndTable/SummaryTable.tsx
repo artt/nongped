@@ -13,12 +13,14 @@ function getMonthName(month: number) {
 interface Props {
   freqList: string[]
   labelDefs: LabelDefType
+  headerWidth?: number,
+  cellWidth?: number,
   data?: ProcessedData
   minDate?: string
   maxDate?: string
 }
 
-export default function SummaryTable({ labelDefs, data, minDate, maxDate }: Props) {
+export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50, data, minDate, maxDate }: Props) {
   
   if (!data) return null
 
@@ -72,7 +74,7 @@ export default function SummaryTable({ labelDefs, data, minDate, maxDate }: Prop
       <table>
         <thead>
           <tr>
-            <th className="sticky-column-header">Year</th>
+            <th className="sticky-column-header" style={{minWidth: `${headerWidth}px`}}>Year</th>
             {/* merge all the years that are the same together and make them span all the cells with the same year */}
             {/* note that there might not be 12 periods in a year */}
             {tmp.map((p, i) => <th className="right-border" key={i} colSpan={p.span} rowSpan={tableData.freq === "Y" ? 2 : 1}>{p.year}</th>)}
@@ -100,6 +102,7 @@ export default function SummaryTable({ labelDefs, data, minDate, maxDate }: Prop
                 <td
                   key={i}
                   className={clsx(yearCutoffs.includes(i + 1) && "right-border")}
+                  style={{minWidth: `${cellWidth}px`, maxWidth: `${cellWidth}px`}}
                 >
                   {(p.v * (tableData.showGrowth ? 100 : 1)).toFixed(2)}
                 </td>

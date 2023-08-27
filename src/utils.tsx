@@ -12,7 +12,7 @@ export type freqType = "M" | "Q" | "Y"
 export type LabelDefType = {
   [x: string]: {
     label: string,
-    color: string
+    color?: string
   }
 }
 

@@ -28,10 +28,12 @@ export type ProcessedData = {
 type Props = {
   freqList: string[],
   labelDefs: LabelDefType,
+  headerWidth?: number,
+  cellWidth?: number,
   rawData?: TimeSeriesWithFrequenciesType,
 }
 
-export default function ChartAndTable({ freqList, labelDefs, rawData }: Props) {
+export default function ChartAndTable({ freqList, labelDefs, headerWidth, cellWidth, rawData }: Props) {
 
   const [data, setData] = React.useState<ProcessedData>()
   const [freq, setFreq] = React.useState<freqType>((freqList[0] as freqType))
@@ -117,7 +119,15 @@ export default function ChartAndTable({ freqList, labelDefs, rawData }: Props) {
               />
             </FormGroup>
           </Box>
-          <SummaryTable freqList={freqList} labelDefs={labelDefs} data={data} minDate={minDate} maxDate={maxDate} />
+          <SummaryTable
+            freqList={freqList}
+            labelDefs={labelDefs}
+            headerWidth={headerWidth}
+            cellWidth={cellWidth}
+            data={data}
+            minDate={minDate}
+            maxDate={maxDate}
+          />
         </Box>
       }
     />

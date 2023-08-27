@@ -1,26 +1,48 @@
 import React from 'react'
 import ChartAndTable from 'components/ChartAndTable'
-import { freqToNum, getTedDataPromise } from "utils"
-import type { freqType, LabelDefType, TedDataType, TimeSeriesWithFrequenciesType } from "utils"
-import { defaultOptions } from "components/HighchartsWrapper/common"
+import { getTedDataPromise } from "utils"
+import type { LabelDefType, TedDataType, TimeSeriesWithFrequenciesType } from "utils"
 
 const freqList = ["Q", "Y"]
 
-const gdpSeries = ["gdpr", "gder", "cpr"]
+const gdpSeries = ["gdpr", "gder", "cpr", "cgovr", "ipr", "ipubr", "stockr", "xgr", "xsr", "mgr", "msr"]
 
 const labelDefs: LabelDefType = {
   gdpr: {
     label: 'GDP',
-    color: defaultOptions.colors[0],
   },
   gder: {
     label: 'GDE',
-    color: defaultOptions.colors[1],
   },
   cpr: {
     label: 'Private Consumption',
-    color: defaultOptions.colors[2],
   },
+  cgovr: {
+    label: "Gov't Consumption",
+  },
+  ipr: {
+    label: "Private Investment",
+  },
+  ipubr: {
+    label: "Public Investment",
+  },
+  stockr: {
+    label: "Stock Change",
+  },
+  xgr: {
+    label: "Exports of Goods",
+  },
+  xsr: {
+    label: "Exports of Services",
+  },
+  mgr: {
+    label: "Imports of Goods",
+  },
+  msr: {
+    label: "Imports of Services",
+  },
+
+
 }
 
 export default function Gdp() {
@@ -70,13 +92,12 @@ export default function Gdp() {
             t: data.Q.periods[i],
             v: a[i],
             g: (a[i] / a[i - 4] - 1),
+            // whattttttttttt
             c: yi < 2 ? NaN : (((a[i] - a[i - 4]) / gderQuarterly[i - 4] * deflator[yi - 1] / gdeDeflator[yi - 1]) + (a[i - 4] / gderQuarterly[i - 4] - seriesYearly[yi - 1] / gderYearly[yi - 1]) * (deflator[yi - 1] / gdeDeflator[yi - 1] - deflator[yi - 2] / gdeDeflator[yi - 2])),
           })
         }),
       })
     })
-
-    console.log(processedQuarterlyData)
 
     return({
       Q: processedQuarterlyData,
@@ -94,9 +115,7 @@ export default function Gdp() {
     for (const freq of freqList) {
       // for quarterly data, just get the *r
       // for yearly data, get deflators as well
-      promises.push(getTedDataPromise(freq === "Q" ? gdpSeries : gdpSeries.concat(deflatorSeries), freq, 1993)
-        // .then(res => processGdpData(res, (freq as freqType)))
-      )
+      promises.push(getTedDataPromise(freq === "Q" ? gdpSeries : gdpSeries.concat(deflatorSeries), freq, 1993))
     }
     Promise.all(promises).then(res => {
       setRawData(processGdpData(res))
@@ -107,6 +126,8 @@ export default function Gdp() {
     <ChartAndTable
       freqList={freqList}
       labelDefs={labelDefs}
+      headerWidth={150}
+      cellWidth={55}
       rawData={rawData}
     />
   )

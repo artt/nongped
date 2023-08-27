@@ -16,7 +16,7 @@ interface Props {
 
 type DataType = {
   name: string,
-  color: string,
+  color?: string,
   zIndex: number,
   data: number[],
   type: string,
