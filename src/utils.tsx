@@ -31,6 +31,7 @@ export type TimeSeriesDataType = {
     v: number,
     g: number,
     c: number,
+    deflator?: number,
   }[],
 }[]
 

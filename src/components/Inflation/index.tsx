@@ -39,11 +39,11 @@ export default function Inflation() {
     const numFreq = freqToNum(freq)
     return(data.series.map((series: {name: string, values: number[]}, seriesIndex: number) => ({
       name: series.name,
-      data: series.values.map((p: number, i: number, a: number[]) => ({
+      data: series.values.map((_, i: number, a: number[]) => ({
         t: data.periods[i],
-        v: p,
-        g: (p / a[i - numFreq] - 1),
-        c: (p / a[i - numFreq] - 1) * weights19[seriesIndex] / 100,
+        v: a[i],
+        g: (a[i] / a[i - numFreq] - 1),
+        c: (a[i] / a[i - numFreq] - 1) * weights19[seriesIndex] / 100,
       })),
     })))
   }
