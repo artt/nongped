@@ -1,8 +1,8 @@
 import React from 'react'
 import { defaultOptions, getTedDataPromise } from "utils"
 import Split from "components/Split"
-import { freqToNum } from "utils"
-import type { freqType, LabelDefType, TedDataType, TimeSeriesWithFrequenciesType, ProcessedDataType } from "types"
+import { freqToNum, quarterToMonth } from "utils"
+import type { freqType, LabelDefType, TedDataType, TimeSeriesWithFrequenciesType, ProcessedDataType, ComponentChartDataType } from "types"
 import ComponentChart from "components/ComponentChart"
 import SummaryTable from "components/SummaryTable"
 import Box from "@mui/material/Box"
@@ -12,6 +12,7 @@ import FormGroup from "@mui/material/FormGroup"
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
 import ToggleButton from "@mui/material/ToggleButton"
 import Color from 'color'
+import deepmerge from 'deepmerge'
 
 const freqList = ["Q", "Y"]
 
@@ -71,6 +72,7 @@ export default function Gdp() {
   const [rawData, setRawData] = React.useState<TimeSeriesWithFrequenciesType>()
   const dataLoaded = React.useRef(false)
 
+  const [data, setData] = React.useState<ComponentChartDataType>()
   const [chartData, setChartData] = React.useState<ProcessedDataType>()
   const [freq, setFreq] = React.useState<freqType>((freqList[0] as freqType))
   const [showGrowth, setShowGrowth] = React.useState(true)
@@ -169,9 +171,6 @@ export default function Gdp() {
   React.useEffect(() => {
     if (!rawData) return
     setChartData({
-      freq: freq,
-      showGrowth: showGrowth,
-      showContribution: showContribution,
       series: rawData[freq].map(series => ({
         name: series.name,
         data: series.data.slice(showGrowth ? freqToNum(freq) : 0).map(d => ({
@@ -182,7 +181,27 @@ export default function Gdp() {
     })
   }, [freq, rawData, showGrowth, showContribution])
 
-  if (!chartData) return null
+  React.useEffect(() => {
+    if (!chartData) return
+    const tmp = deepmerge([], chartData)
+    const series = tmp.series
+      .filter(series => !(showGrowth && !showContribution) || !labelDefs[series.name].hideInGrowthChart)
+      .filter(series => !(showGrowth && showContribution) || !labelDefs[series.name].hideInContributionChart)
+      .map((series, i) => ({
+        name: labelDefs[series.name].label,
+        color: labelDefs[series.name].color,
+        zIndex: i === 0 ? 99 : i,
+        data: series.data.map(p => p.v),
+        // in contribution mode, only the first series is a line chart
+        type: showGrowth && showContribution && i > 0 ? 'column' : 'spline',
+        pointStart: Date.parse(freq === 'Q' ? quarterToMonth(series.data[0].t) : series.data[0].t),
+        pointIntervalUnit: freq === 'Y' ? 'year' : 'month',
+        pointInterval: freq === 'Q' ? 3 : 1,
+      }))
+    setData({freq, showGrowth, showContribution, series})
+  }, [chartData, freq, showGrowth, showContribution])
+
+  if (!data) return null
 
   return (
     <Split
@@ -190,7 +209,7 @@ export default function Gdp() {
         <ComponentChart
           freqList={freqList}
           labelDefs={labelDefs}
-          chartData={chartData}
+          data={data}
           handleRangeChange={handleRangeChange}
         />
       }

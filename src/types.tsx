@@ -34,9 +34,6 @@ export type TimeSeriesWithFrequenciesType = {
 }
 
 export type ProcessedDataType = {
-  freq: keyof TimeSeriesWithFrequenciesType,
-  showGrowth: boolean,
-  showContribution: boolean,
   series: {
     name: string,
     data: {
@@ -73,12 +70,17 @@ export type NeerData = {
 }
 
 export type ComponentChartDataType = {
-  name: string,
-  color?: string,
-  zIndex: number,
-  data: number[],
-  type: string,
-  pointStart: number,
-  pointIntervalUnit: string,
-  pointInterval: number,
-}[]
+  freq: freqType,
+  showGrowth: boolean,
+  showContribution: boolean,
+  series: {
+    name: string,
+    color?: string,
+    zIndex: number,
+    data: number[],
+    type: string,
+    pointStart: number,
+    pointIntervalUnit: string,
+    pointInterval: number,
+  }[]
+}
