@@ -12,7 +12,6 @@ import FormGroup from "@mui/material/FormGroup"
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
 import ToggleButton from "@mui/material/ToggleButton"
 import Color from 'color'
-import deepmerge from 'deepmerge'
 
 const freqList = ["Q", "Y"]
 
@@ -122,9 +121,6 @@ export default function Gdp() {
       const deflator = data.Y.series[seriesIndex + gdpSeries.length].values
       const seriesYearly = data.Y.series[seriesIndex].values
       const negativeContribution = labelDefs[series.name].negativeContribution
-      if (series.name === "mgr" || series.name === "msr") {
-        console.log("xx", negativeContribution)
-      }
       return({
         name: series.name,
         data: series.values.map((_, i: number, a: number[]) => {
@@ -176,7 +172,8 @@ export default function Gdp() {
         v: (showContribution && showGrowth) ? d.c : showGrowth ? d.g : d.v,
       })),
     }))
-    const chartSeries = deepmerge([], tableSeries)
+    // const chartSeries = deepmerge([], tableSeries)
+    const chartSeries = tableSeries
       .filter(series => !(showGrowth && !showContribution) || !labelDefs[series.name].hideInGrowthChart)
       .filter(series => !(showGrowth && showContribution) || !labelDefs[series.name].hideInContributionChart)
       .map((series, i) => ({

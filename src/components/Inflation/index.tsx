@@ -11,7 +11,6 @@ import Switch from "@mui/material/Switch"
 import FormGroup from "@mui/material/FormGroup"
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
 import ToggleButton from "@mui/material/ToggleButton"
-import deepmerge from 'deepmerge'
 
 const labelDefs: LabelDefType = {
   cpi: {
@@ -95,7 +94,7 @@ export default function Inflation() {
       })),
     }))
     // TODO: see if we need deepmerge here
-    const chartSeries = deepmerge([], tableSeries)
+    const chartSeries = tableSeries
       .map((series, i) => ({
         name: labelDefs[series.name].label,
         color: labelDefs[series.name].color,
