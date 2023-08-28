@@ -3,7 +3,7 @@ import { freqToNum, getTedDataPromise } from "utils"
 import type { freqType, LabelDefType, TedDataType, TimeSeriesWithFrequenciesType, ProcessedDataType } from "types"
 import { defaultOptions } from "utils"
 import Split from "components/Split"
-import TimeSeriesChart from "components/ComponentChart"
+import ComponentChart from "components/ComponentChart"
 import SummaryTable from "components/SummaryTable"
 import Box from "@mui/material/Box"
 import FormControlLabel from "@mui/material/FormControlLabel"
@@ -43,7 +43,7 @@ export default function Inflation() {
   const [rawData, setRawData] = React.useState<TimeSeriesWithFrequenciesType>()
   const dataLoaded = React.useRef(false)
 
-  const [data, setData] = React.useState<ProcessedDataType>()
+  const [chartData, setChartData] = React.useState<ProcessedDataType>()
   const [freq, setFreq] = React.useState<freqType>((freqList[0] as freqType))
   const [showGrowth, setShowGrowth] = React.useState(true)
   const [showContribution, setShowContribution] = React.useState(true)
@@ -90,7 +90,7 @@ export default function Inflation() {
 
   React.useEffect(() => {
     if (!rawData) return
-    setData({
+    setChartData({
       freq: freq,
       showGrowth: showGrowth,
       showContribution: showContribution,
@@ -104,15 +104,15 @@ export default function Inflation() {
     })
   }, [freq, rawData, showGrowth, showContribution])
 
-  if (!data) return null
+  if (!chartData) return null
 
   return (
     <Split
       top={
-        <TimeSeriesChart
+        <ComponentChart
           freqList={freqList}
           labelDefs={labelDefs}
-          chartData={data}
+          chartData={chartData}
           handleRangeChange={handleRangeChange}
         />
       }
@@ -163,7 +163,7 @@ export default function Inflation() {
           <SummaryTable
             freqList={freqList}
             labelDefs={labelDefs}
-            data={data}
+            data={chartData}
             minDate={minDate}
             maxDate={maxDate}
           />

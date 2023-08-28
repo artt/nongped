@@ -1,9 +1,9 @@
 import React from 'react'
-import { getTedDataPromise } from "utils"
+import { defaultOptions, getTedDataPromise } from "utils"
 import Split from "components/Split"
 import { freqToNum } from "utils"
 import type { freqType, LabelDefType, TedDataType, TimeSeriesWithFrequenciesType, ProcessedDataType } from "types"
-import TimeSeriesChart from "components/ComponentChart"
+import ComponentChart from "components/ComponentChart"
 import SummaryTable from "components/SummaryTable"
 import Box from "@mui/material/Box"
 import FormControlLabel from "@mui/material/FormControlLabel"
@@ -11,12 +11,14 @@ import Switch from "@mui/material/Switch"
 import FormGroup from "@mui/material/FormGroup"
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
 import ToggleButton from "@mui/material/ToggleButton"
+import Color from 'color'
 
 const freqList = ["Q", "Y"]
 
 const labelDefs: LabelDefType = {
   gdpr: {
     label: 'GDP',
+    color: defaultOptions.colors[0],
   },
   gder: {
     label: 'GDE',
@@ -24,32 +26,41 @@ const labelDefs: LabelDefType = {
   },
   cpr: {
     label: 'Private Consumption',
+    color: defaultOptions.colors[2],
   },
   cgovr: {
     label: "Gov't Consumption",
+    color: Color(defaultOptions.colors[2]).lighten(-0.3).hex(),
   },
   ipr: {
     label: "Private Investment",
+    color: defaultOptions.colors[1],
   },
   ipubr: {
     label: "Public Investment",
+    color: Color(defaultOptions.colors[1]).lighten(-0.2).hex(),
   },
   stockr: {
-    label: "Stock Change",
+    label: "Change in Inventories",
+    color: defaultOptions.colors[7],
     hideInGrowthChart: true,
   },
   xgr: {
     label: "Exports of Goods",
+    color: defaultOptions.colors[4],
   },
   xsr: {
     label: "Exports of Services",
+    color: Color(defaultOptions.colors[4]).lighten(-0.3).hex(),
   },
   mgr: {
     label: "Imports of Goods",
+    color: defaultOptions.colors[3],
     negativeContribution: true,
   },
   msr: {
     label: "Imports of Services",
+    color: Color(defaultOptions.colors[3]).lighten(-0.3).hex(),
     negativeContribution: true,
   },
 }
@@ -60,7 +71,7 @@ export default function Gdp() {
   const [rawData, setRawData] = React.useState<TimeSeriesWithFrequenciesType>()
   const dataLoaded = React.useRef(false)
 
-  const [data, setData] = React.useState<ProcessedDataType>()
+  const [chartData, setChartData] = React.useState<ProcessedDataType>()
   const [freq, setFreq] = React.useState<freqType>((freqList[0] as freqType))
   const [showGrowth, setShowGrowth] = React.useState(true)
   const [showContribution, setShowContribution] = React.useState(true)
@@ -132,8 +143,6 @@ export default function Gdp() {
       })
     })
 
-    console.log(processedYearlyData)
-
     return({
       Q: processedQuarterlyData,
       Y: processedYearlyData,
@@ -159,7 +168,7 @@ export default function Gdp() {
 
   React.useEffect(() => {
     if (!rawData) return
-    setData({
+    setChartData({
       freq: freq,
       showGrowth: showGrowth,
       showContribution: showContribution,
@@ -173,15 +182,15 @@ export default function Gdp() {
     })
   }, [freq, rawData, showGrowth, showContribution])
 
-  if (!data) return null
+  if (!chartData) return null
 
   return (
     <Split
       top={
-        <TimeSeriesChart
+        <ComponentChart
           freqList={freqList}
           labelDefs={labelDefs}
-          chartData={data}
+          chartData={chartData}
           handleRangeChange={handleRangeChange}
         />
       }
@@ -234,7 +243,7 @@ export default function Gdp() {
             labelDefs={labelDefs}
             headerWidth={150}
             cellWidth={55}
-            data={data}
+            data={chartData}
             minDate={minDate}
             maxDate={maxDate}
           />

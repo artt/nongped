@@ -10,9 +10,10 @@ interface Props {
   labelDefs: LabelDefType,
   chartData: ProcessedDataType,
   handleRangeChange: (minDate: string, maxDate: string) => void,
+  override?: {[x: string]: unknown},
 }
 
-const TimeSeriesChart = React.memo(({ chartData, labelDefs, handleRangeChange }: Props) => {
+const TimeSeriesChart = React.memo(({ chartData, labelDefs, handleRangeChange, override }: Props) => {
   
   const ref = React.useRef<Highcharts.Chart>()
   const [data, setData] = React.useState<ComponentChartDataType>()
@@ -27,16 +28,12 @@ const TimeSeriesChart = React.memo(({ chartData, labelDefs, handleRangeChange }:
         color: labelDefs[series.name].color,
         zIndex: i === 0 ? 99 : i,
         data: series.data.map(p => p.v),
-        type: tmp.showGrowth && tmp.showContribution && !series.name.startsWith('gd') ? 'column' : 'spline',
+        // in contribution mode, only the first series is a line chart
+        type: tmp.showGrowth && tmp.showContribution && i > 0 ? 'column' : 'spline',
         pointStart: Date.parse(tmp.freq === 'Q' ? quarterToMonth(series.data[0].t) : series.data[0].t),
         pointIntervalUnit: tmp.freq === 'Y' ? 'year' : 'month',
         pointInterval: tmp.freq === 'Q' ? 3 : 1,
       }))
-    // if (tmp.showContribution && tmp.showGrowth) {
-    //   tmp.series.forEach((_, i) => {
-    //     if (i > 0) series[i].type = 'column'
-    //   })
-    // }
     setData(series)
   }, [chartData, labelDefs])
 
@@ -49,7 +46,7 @@ const TimeSeriesChart = React.memo(({ chartData, labelDefs, handleRangeChange }:
         ref={ref}
         isLoading={!data}
         constructorType={'stockChart'}
-        options={data && {
+        options={deepmerge({
           chart: {
             // type: 'spline',
           },
@@ -73,7 +70,7 @@ const TimeSeriesChart = React.memo(({ chartData, labelDefs, handleRangeChange }:
             layout: 'vertical',
             align: 'left',
             verticalAlign: 'top',
-            floating: true,
+            // floating: true,
           },
           tooltip: {
             valueDecimals: 2,
@@ -142,7 +139,7 @@ const TimeSeriesChart = React.memo(({ chartData, labelDefs, handleRangeChange }:
           credits: {
             enabled: false,
           },
-        }}
+        }, override || {})}
       />
     </Box>
   )
