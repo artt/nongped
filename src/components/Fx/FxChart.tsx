@@ -1,4 +1,4 @@
-import type { FxData } from "./index"
+import type { FxData } from "types"
 import HighchartsWrapper from "components/HighchartsWrapper";
 
 const graphTickers = ["USDTHB"]

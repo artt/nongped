@@ -1,16 +1,14 @@
 import React from "react"
-import type { ProcessedData } from "./index"
 import HighchartsWrapper from "components/HighchartsWrapper"
-import { percentFormatter, ticksPercentFormatter } from "components/HighchartsWrapper/common"
-import type { LabelDefType } from "utils"
+import type { LabelDefType, ProcessedDataType } from "types"
 import Box from "@mui/material/Box"
-import { quarterToMonth } from "utils"
+import { quarterToMonth, percentFormatter, ticksPercentFormatter } from "utils"
 import deepmerge from "deepmerge"
 
 interface Props {
   freqList: string[],
   labelDefs: LabelDefType,
-  chartData: ProcessedData,
+  chartData: ProcessedDataType,
   handleRangeChange: (minDate: string, maxDate: string) => void,
 }
 

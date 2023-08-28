@@ -1,6 +1,6 @@
-import type { NeerData } from "./index"
+import type { NeerData } from "types"
 import HighchartsWrapper from "components/HighchartsWrapper";
-import { percentFormatter, ticksPercentFormatter } from "components/HighchartsWrapper/common";
+import { percentFormatter, ticksPercentFormatter } from "utils";
 
 interface Props {
   data?: NeerData,

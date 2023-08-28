@@ -1,8 +1,8 @@
 import React from 'react'
 import ChartAndTable from 'components/ChartAndTable'
 import { freqToNum, getTedDataPromise } from "utils"
-import type { freqType, LabelDefType, TedDataType, TimeSeriesWithFrequenciesType } from "utils"
-import { defaultOptions } from "components/HighchartsWrapper/common"
+import type { freqType, LabelDefType, TedDataType, TimeSeriesWithFrequenciesType } from "types"
+import { defaultOptions } from "utils"
 
 const labelDefs: LabelDefType = {
   cpi: {

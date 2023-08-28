@@ -2,12 +2,13 @@ import React from "react"
 import Box from "@mui/material/Box"
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import TimeSeriesChart from "./TimeSeriesChart";
+import FxChart from "./FxChart";
 import Comparison from "./Comparison";
 import Neer from "./Neer";
 import Yield from "./Yield";
 import { createTheme } from '@mui/material/styles';
 import { serverAddress, curYear, getTedDataPromise } from "utils";
+import type { FxData, NeerData } from "types"
 import Split from "components/Split";
 
 function calculateAverage(data: number[]) {
@@ -21,21 +22,6 @@ function getIndexOfTimestamp(ticks: number[], timestamp: number, goBackIfNotFoun
   if (ticks[tmp - 1] === timestamp)
     return tmp - 1
   return goBackIfNotFoundExactly ? tmp - 1 : tmp
-}
-
-export type FxData = {
-  ticks: number[],
-  series: {
-    name: string
-    data: number[]
-    yearlyReturns: number[]
-    yearlyVolatility: number[]
-  }[]
-}
-
-export type NeerData = {
-  periods: string[]
-  returns: number[]
 }
 
 export default function Fx() {
@@ -185,7 +171,7 @@ export default function Fx() {
   return(
     <Split
       top={
-        <TimeSeriesChart data={fxData} />
+        <FxChart data={fxData} />
       }
       bottom={
         <>

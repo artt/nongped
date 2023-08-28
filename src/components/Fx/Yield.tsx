@@ -1,6 +1,7 @@
 import React from "react";
 import HighchartsWrapper from "components/HighchartsWrapper";
-import { TooltipPoint, percentFormatterNumber, ticksPercentFormatter, defaultOptions } from "components/HighchartsWrapper/common";
+import { percentFormatterNumber, ticksPercentFormatter, defaultOptions } from "utils";
+import type { TooltipPoint } from "types"
 import Box from '@mui/material/Box';
 import { serverAddress } from "utils";
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -42,8 +43,11 @@ export default function Yield() {
       .then(data => setData(data.reverse()))
   }, [mainDate, compareValue])
   React.useEffect(() => {
-    if (!compareDate) setCompareData(null)
-    fetch(`${serverAddress}/yield/${compareDate?.format("YYYY-MM-DD")}`)
+    if (!compareDate) {
+      setCompareData(null)
+      return
+    }
+    fetch(`${serverAddress}/yield/${compareDate.format("YYYY-MM-DD")}`)
       .then(res => res.json())
       .then(data => setCompareData(data.reverse()))
   }, [compareDate])

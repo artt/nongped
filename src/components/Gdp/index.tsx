@@ -1,7 +1,7 @@
 import React from 'react'
 import ChartAndTable from 'components/ChartAndTable'
 import { getTedDataPromise } from "utils"
-import type { LabelDefType, TedDataType, TimeSeriesWithFrequenciesType } from "utils"
+import type { LabelDefType, TedDataType, TimeSeriesWithFrequenciesType } from "types"
 
 const freqList = ["Q", "Y"]
 
@@ -93,11 +93,13 @@ export default function Gdp() {
             v: a[i],
             g: (a[i] / a[i - 4] - 1),
             // whattttttttttt
-            c: yi < 2 ? NaN : (((a[i] - a[i - 4]) / gderQuarterly[i - 4] * deflator[yi - 1] / gdeDeflator[yi - 1]) + (a[i - 4] / gderQuarterly[i - 4] - seriesYearly[yi - 1] / gderYearly[yi - 1]) * (deflator[yi - 1] / gdeDeflator[yi - 1] - deflator[yi - 2] / gdeDeflator[yi - 2])),
+            c: yi < 2 ? NaN : seriesIndex < 2 ? (a[i] / a[i - 4] - 1) : (((a[i] - a[i - 4]) / gderQuarterly[i - 4] * deflator[yi - 1] / gdeDeflator[yi - 1]) + (a[i - 4] / gderQuarterly[i - 4] - seriesYearly[yi - 1] / gderYearly[yi - 1]) * (deflator[yi - 1] / gdeDeflator[yi - 1] - deflator[yi - 2] / gdeDeflator[yi - 2])),
           })
         }),
       })
     })
+
+    console.log(processedQuarterlyData)
 
     return({
       Q: processedQuarterlyData,

@@ -1,6 +1,6 @@
-import type { FxData } from "./index"
+import type { FxData } from "types"
 import HighchartsWrapper from "components/HighchartsWrapper";
-import { defaultOptions, ticksPercentFormatter, percentFormatter } from "components/HighchartsWrapper/common";
+import { defaultOptions, ticksPercentFormatter, percentFormatter } from "utils";
 
 type TickerType = {
   label: string,

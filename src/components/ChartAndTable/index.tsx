@@ -1,29 +1,15 @@
 import React from "react"
 import Split from "components/Split"
 import { freqToNum } from "utils"
-import type { freqType, LabelDefType, TimeSeriesWithFrequenciesType } from "utils"
+import type { freqType, LabelDefType, TimeSeriesWithFrequenciesType, ProcessedDataType } from "types"
 import TimeSeriesChart from "./TimeSeriesChart"
-import SummaryTable from "./SummaryTable"
-import "./styles.scss"
+import SummaryTable from "components/SummaryTable"
 import Box from "@mui/material/Box"
 import FormControlLabel from "@mui/material/FormControlLabel"
 import Switch from "@mui/material/Switch"
 import FormGroup from "@mui/material/FormGroup"
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
 import ToggleButton from "@mui/material/ToggleButton"
-
-export type ProcessedData = {
-  freq: keyof TimeSeriesWithFrequenciesType,
-  showGrowth: boolean,
-  showContribution: boolean,
-  series: {
-    name: string,
-    data: {
-      t: string,
-      v: number,
-    }[],
-  }[],
-}
 
 type Props = {
   freqList: string[],
@@ -35,7 +21,7 @@ type Props = {
 
 export default function ChartAndTable({ freqList, labelDefs, headerWidth, cellWidth, rawData }: Props) {
 
-  const [data, setData] = React.useState<ProcessedData>()
+  const [data, setData] = React.useState<ProcessedDataType>()
   const [freq, setFreq] = React.useState<freqType>((freqList[0] as freqType))
   const [showGrowth, setShowGrowth] = React.useState(true)
   const [showContribution, setShowContribution] = React.useState(true)

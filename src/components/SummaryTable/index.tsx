@@ -1,21 +1,17 @@
-import type { ProcessedData } from ".";
-import type { LabelDefType } from "utils"
+import type { LabelDefType, ProcessedDataType } from "types"
+import { quarterToMonth, getMonthName } from "utils";
 import deepmerge from "deepmerge"
 import clsx from "clsx"
 import Box from "@mui/material/Box";
-import { quarterToMonth } from "utils";
 
-// return month name, like 1 -> Jan, 2 -> Feb, etc.
-function getMonthName(month: number) {
-  return new Date(0, month - 1).toLocaleString('en-US', { month: 'short' })
-}
+import "./styles.scss"
 
 interface Props {
   freqList: string[]
   labelDefs: LabelDefType
-  headerWidth?: number,
-  cellWidth?: number,
-  data?: ProcessedData
+  headerWidth?: number
+  cellWidth?: number
+  data?: ProcessedDataType
   minDate?: string
   maxDate?: string
 }

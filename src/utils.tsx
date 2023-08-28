@@ -1,3 +1,5 @@
+import { TooltipPoint, freqType } from "types"
+
 // export const serverAddress = process.env.NODE_ENV === "development"
 //   ? `http://localhost:1443`
 //   : `https://nongped.api.artt.dev`
@@ -6,39 +8,6 @@
 export const serverAddress = "https://ted.api.artt.dev"
 
 export const curYear = new Date().getFullYear()
-
-export type freqType = "M" | "Q" | "Y"
-
-export type LabelDefType = {
-  [x: string]: {
-    label: string,
-    color?: string
-  }
-}
-
-export type TedDataType = {
-  periods: string[],
-  series: {
-    name: string,
-    values: number[],
-  }[],
-}
-
-export type TimeSeriesDataType = {
-  name: string,
-  data: {
-    t: string,
-    v: number,
-    g: number,
-    c: number,
-    deflator?: number,
-  }[],
-}[]
-
-export type TimeSeriesWithFrequenciesType = {
-  [x: string]: TimeSeriesDataType,
-}
-
 
 export async function getTedDataPromise(series: string[], freq: string, start_period: string | number) {
   return fetch(`${serverAddress}/ted`, {
@@ -100,4 +69,51 @@ export function customLocaleString(n?: number) {
   if (n < 1e6) return `${(n / 1e3).toLocaleString()}k`
   if (n < 1e9) return `${(n / 1e6).toLocaleString()}M`
   return `${(n / 1e9).toLocaleString()}B`
+}
+
+// return month name, like 1 -> Jan, 2 -> Feb, etc.
+export function getMonthName(month: number) {
+  return new Date(0, month - 1).toLocaleString('en-US', { month: 'short' })
+}
+
+export const defaultOptions = {
+  colors: [
+    '#3f708c',
+    '#f7af1c',
+    '#2ca02c',  // cooked asparagus green
+    '#d62728',  // brick red
+    '#9467bd',  // muted purple
+    '#8c564b',  // chestnut brown
+    '#e377c2',  // raspberry yogurt pink
+    '#7f7f7f',  // middle gray
+    '#bcbd22',  // curry yellow-green
+    '#17becf',  // blue-teal
+  ],
+  title: {
+    text: "",
+  },
+  credits: {
+    enabled: false,
+  },
+  plotOptions: {
+    series: {
+      lineWidth: 2,
+    },
+  },
+  chart: {
+    backgroundColor: 'transparent',
+  },
+}
+
+export function ticksPercentFormatter(this: {value:number}, _o: object, dontMultiply = false): string {
+  return `${(this.value * (dontMultiply ? 1 : 100)).toFixed(0)}%`
+}
+export function percentFormatterNumber(y: number, dontMultiply = false): string {
+  return `${(y * (dontMultiply ? 1 : 100)).toFixed(2)}%`
+}
+export function percentFormatter(this: TooltipPoint, _o: object, dontMultiply = false): string {
+  if (this.points !== undefined) {
+    return this.points.map(point => `${point.series.name}: <b>${(point.y * (dontMultiply ? 1 : 100)).toFixed(2)}%</b>`).join('<br/>')
+  }
+  return percentFormatterNumber(this.y, dontMultiply)
 }

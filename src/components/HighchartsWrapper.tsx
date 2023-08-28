@@ -5,7 +5,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import merge from "deepmerge"
 import highchartsMap from "highcharts/modules/map";
-import { defaultOptions } from "./common";
+import { defaultOptions } from "utils";
 
 
 if (typeof Highcharts === "object") {
