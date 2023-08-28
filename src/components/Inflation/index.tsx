@@ -1,8 +1,16 @@
 import React from 'react'
-import ChartAndTable from 'components/ChartAndTable'
 import { freqToNum, getTedDataPromise } from "utils"
-import type { freqType, LabelDefType, TedDataType, TimeSeriesWithFrequenciesType } from "types"
+import type { freqType, LabelDefType, TedDataType, TimeSeriesWithFrequenciesType, ProcessedDataType } from "types"
 import { defaultOptions } from "utils"
+import Split from "components/Split"
+import TimeSeriesChart from "components/ComponentChart"
+import SummaryTable from "components/SummaryTable"
+import Box from "@mui/material/Box"
+import FormControlLabel from "@mui/material/FormControlLabel"
+import Switch from "@mui/material/Switch"
+import FormGroup from "@mui/material/FormGroup"
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
+import ToggleButton from "@mui/material/ToggleButton"
 
 const labelDefs: LabelDefType = {
   cpi: {
@@ -35,6 +43,18 @@ export default function Inflation() {
   const [rawData, setRawData] = React.useState<TimeSeriesWithFrequenciesType>()
   const dataLoaded = React.useRef(false)
 
+  const [data, setData] = React.useState<ProcessedDataType>()
+  const [freq, setFreq] = React.useState<freqType>((freqList[0] as freqType))
+  const [showGrowth, setShowGrowth] = React.useState(true)
+  const [showContribution, setShowContribution] = React.useState(true)
+  const [minDate, setMinDate] = React.useState<string>()
+  const [maxDate, setMaxDate] = React.useState<string>()
+
+  const handleRangeChange = React.useCallback((minDate: string, maxDate: string) => {
+    setMinDate(minDate)
+    setMaxDate(maxDate)
+  }, [])
+
   function processInflationData(data: TedDataType, freq: freqType) {
     const numFreq = freqToNum(freq)
     return(data.series.map((series: {name: string, values: number[]}, seriesIndex: number) => ({
@@ -55,7 +75,7 @@ export default function Inflation() {
     // loop over freqTable
     const promises = []
     for (const freq of freqList) {
-      promises.push(getTedDataPromise(["cpi", "cpi_core", "cpi_rawfood", "cpi_energy"], freq, 1986)
+      promises.push(getTedDataPromise(Object.keys(labelDefs), freq, 1986)
         .then(res => processInflationData(res, (freq as freqType)))
       )
     }
@@ -68,11 +88,88 @@ export default function Inflation() {
     })
   }, [])
 
-  return(
-    <ChartAndTable
-      freqList={freqList}
-      labelDefs={labelDefs}
-      rawData={rawData}
+  React.useEffect(() => {
+    if (!rawData) return
+    setData({
+      freq: freq,
+      showGrowth: showGrowth,
+      showContribution: showContribution,
+      series: rawData[freq].map(series => ({
+        name: series.name,
+        data: series.data.slice(showGrowth ? freqToNum(freq) : 0).map(d => ({
+          t: d.t,
+          v: (showContribution && showGrowth) ? d.c : showGrowth ? d.g : d.v,
+        })),
+      })),
+    })
+  }, [freq, rawData, showGrowth, showContribution])
+
+  if (!data) return null
+
+  return (
+    <Split
+      top={
+        <TimeSeriesChart
+          freqList={freqList}
+          labelDefs={labelDefs}
+          chartData={data}
+          handleRangeChange={handleRangeChange}
+        />
+      }
+      bottom={
+        <Box sx={{
+          display: "flex",
+          width: '100%',
+          gap: 4,
+        }}>
+          <Box>
+            <ToggleButtonGroup
+              value={freq}
+              size="small"
+              exclusive
+              onChange={(_e, newFreq: keyof TimeSeriesWithFrequenciesType) => {
+                if (newFreq === null) return
+                setFreq((newFreq as freqType))
+              }}
+              aria-label="frequency"
+              fullWidth
+              sx={{marginBottom: 2}}
+            >
+              {freqList.map(freq => (
+                <ToggleButton key={freq} value={freq} aria-label={`${freq}ly`}>
+                  {freq}
+                </ToggleButton>
+              ))}
+            </ToggleButtonGroup>
+
+            <FormGroup>
+              <FormControlLabel
+                control={<Switch
+                  checked={showGrowth}
+                  onChange={() => setShowGrowth(!showGrowth)}
+                />}
+                label="Growth"
+              />
+              <FormControlLabel
+                control={<Switch
+                  checked={showContribution}
+                  onChange={() => setShowContribution(!showContribution)}
+                />}
+                label="Contribution"
+                disabled={!showGrowth}
+              />
+            </FormGroup>
+          </Box>
+          <SummaryTable
+            freqList={freqList}
+            labelDefs={labelDefs}
+            data={data}
+            minDate={minDate}
+            maxDate={maxDate}
+          />
+        </Box>
+      }
     />
   )
+  
 }

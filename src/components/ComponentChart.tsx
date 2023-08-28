@@ -19,21 +19,24 @@ const TimeSeriesChart = React.memo(({ chartData, labelDefs, handleRangeChange }:
 
   React.useEffect(() => {
     const tmp = deepmerge([], chartData)
-    const series = tmp.series.map((series, i) => ({
-      name: labelDefs[series.name].label,
-      color: labelDefs[series.name].color,
-      zIndex: i === 0 ? 99 : i,
-      data: series.data.map(p => p.v),
-      type: 'spline',
-      pointStart: Date.parse(tmp.freq === 'Q' ? quarterToMonth(series.data[0].t) : series.data[0].t),
-      pointIntervalUnit: tmp.freq === 'Y' ? 'year' : 'month',
-      pointInterval: tmp.freq === 'Q' ? 3 : 1,
-    }))
-    if (tmp.showContribution && tmp.showGrowth) {
-      tmp.series.forEach((_, i) => {
-        if (i > 0) series[i].type = 'column'
-      })
-    }
+    const series = tmp.series
+      .filter(series => !(tmp.showGrowth && !tmp.showContribution) || !labelDefs[series.name].hideInGrowthChart)
+      .filter(series => !(tmp.showGrowth && tmp.showContribution) || !labelDefs[series.name].hideInContributionChart)
+      .map((series, i) => ({
+        name: labelDefs[series.name].label,
+        color: labelDefs[series.name].color,
+        zIndex: i === 0 ? 99 : i,
+        data: series.data.map(p => p.v),
+        type: tmp.showGrowth && tmp.showContribution && !series.name.startsWith('gd') ? 'column' : 'spline',
+        pointStart: Date.parse(tmp.freq === 'Q' ? quarterToMonth(series.data[0].t) : series.data[0].t),
+        pointIntervalUnit: tmp.freq === 'Y' ? 'year' : 'month',
+        pointInterval: tmp.freq === 'Q' ? 3 : 1,
+      }))
+    // if (tmp.showContribution && tmp.showGrowth) {
+    //   tmp.series.forEach((_, i) => {
+    //     if (i > 0) series[i].type = 'column'
+    //   })
+    // }
     setData(series)
   }, [chartData, labelDefs])
 

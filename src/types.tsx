@@ -4,6 +4,9 @@ export type LabelDefType = {
   [x: string]: {
     label: string,
     color?: string
+    hideInGrowthChart?: boolean,
+    hideInContributionChart?: boolean,
+    negativeContribution?: boolean,
   }
 }
 
