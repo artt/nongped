@@ -2,7 +2,7 @@ import React from 'react'
 import { defaultOptions, getTedDataPromise } from "utils"
 import Split from "components/Split"
 import { freqToNum, quarterToMonth } from "utils"
-import type { freqType, LabelDefType, TedDataType, TimeSeriesWithFrequenciesType, ProcessedDataType, ComponentChartDataType } from "types"
+import type { freqType, LabelDefType, TedDataType, TimeSeriesWithFrequenciesType, ComponentChartDataType } from "types"
 import ComponentChart from "components/ComponentChart"
 import SummaryTable from "components/SummaryTable"
 import Box from "@mui/material/Box"
@@ -73,7 +73,6 @@ export default function Gdp() {
   const dataLoaded = React.useRef(false)
 
   const [data, setData] = React.useState<ComponentChartDataType>()
-  const [chartData, setChartData] = React.useState<ProcessedDataType>()
   const [freq, setFreq] = React.useState<freqType>((freqList[0] as freqType))
   const [showGrowth, setShowGrowth] = React.useState(true)
   const [showContribution, setShowContribution] = React.useState(true)
@@ -170,21 +169,14 @@ export default function Gdp() {
 
   React.useEffect(() => {
     if (!rawData) return
-    setChartData({
-      series: rawData[freq].map(series => ({
-        name: series.name,
-        data: series.data.slice(showGrowth ? freqToNum(freq) : 0).map(d => ({
-          t: d.t,
-          v: (showContribution && showGrowth) ? d.c : showGrowth ? d.g : d.v,
-        })),
+    const tableSeries = rawData[freq].map(series => ({
+      name: series.name,
+      data: series.data.slice(showGrowth ? freqToNum(freq) : 0).map(d => ({
+        t: d.t,
+        v: (showContribution && showGrowth) ? d.c : showGrowth ? d.g : d.v,
       })),
-    })
-  }, [freq, rawData, showGrowth, showContribution])
-
-  React.useEffect(() => {
-    if (!chartData) return
-    const tmp = deepmerge([], chartData)
-    const series = tmp.series
+    }))
+    const chartSeries = deepmerge([], tableSeries)
       .filter(series => !(showGrowth && !showContribution) || !labelDefs[series.name].hideInGrowthChart)
       .filter(series => !(showGrowth && showContribution) || !labelDefs[series.name].hideInContributionChart)
       .map((series, i) => ({
@@ -198,8 +190,8 @@ export default function Gdp() {
         pointIntervalUnit: freq === 'Y' ? 'year' : 'month',
         pointInterval: freq === 'Q' ? 3 : 1,
       }))
-    setData({freq, showGrowth, showContribution, series})
-  }, [chartData, freq, showGrowth, showContribution])
+    setData({freq, showGrowth, showContribution, tableSeries, chartSeries})
+  }, [rawData, freq, showGrowth, showContribution])
 
   if (!data) return null
 
@@ -262,7 +254,7 @@ export default function Gdp() {
             labelDefs={labelDefs}
             headerWidth={150}
             cellWidth={55}
-            data={chartData}
+            data={data}
             minDate={minDate}
             maxDate={maxDate}
           />

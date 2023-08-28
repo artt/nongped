@@ -1,4 +1,4 @@
-import type { LabelDefType, ProcessedDataType } from "types"
+import type { LabelDefType, ComponentChartDataType } from "types"
 import { quarterToMonth, getMonthName } from "utils";
 import deepmerge from "deepmerge"
 import clsx from "clsx"
@@ -11,7 +11,7 @@ interface Props {
   labelDefs: LabelDefType
   headerWidth?: number
   cellWidth?: number
-  data?: ProcessedDataType
+  data?: ComponentChartDataType
   minDate?: string
   maxDate?: string
 }
@@ -21,13 +21,13 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
   if (!data) return null
 
   // TODO: can refactor these "cases" out to a function foo(p.t, date, freq, side)
-  const tableData = deepmerge([], data)
+  const tableData = deepmerge([], data.tableSeries)
   // find index of min and max in range
   let minIndex = 0
-  let maxIndex = tableData.series[0].data.length - 1
+  let maxIndex = tableData[0].data.length - 1
   if (minDate !== undefined) {
-    minIndex = tableData.series[0].data.findLastIndex((p: {t: string}) => {
-      switch(tableData.freq) {
+    minIndex = tableData[0].data.findLastIndex((p: {t: string}) => {
+      switch(data.freq) {
         case 'M': return new Date(p.t) <= new Date(minDate)
         case 'Q': return new Date(quarterToMonth(p.t)) <= new Date(minDate)
         case 'Y': return new Date(p.t.slice(0, 4)) <= new Date(minDate)
@@ -36,20 +36,20 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
     if (minIndex === -1) minIndex = 0
   }
   if (maxDate !== undefined) {
-    maxIndex = tableData.series[0].data.findIndex(p => {
-      switch(tableData.freq) {
+    maxIndex = tableData[0].data.findIndex(p => {
+      switch(data.freq) {
         case 'M': return new Date(p.t) >= new Date(maxDate)
         case 'Q': return new Date(quarterToMonth(p.t)) >= new Date(maxDate)
         case 'Y': return new Date(p.t.slice(0, 4)) >= new Date(maxDate)
       }
     })
-    if (maxIndex === -1) maxIndex = tableData.series[0].data.length - 1
+    if (maxIndex === -1) maxIndex = tableData[0].data.length - 1
   }
-  tableData?.series.forEach((series, i) => {
-    tableData.series[i].data = series.data.slice(minIndex, maxIndex + 1)
+  tableData?.forEach((series, i) => {
+    tableData[i].data = series.data.slice(minIndex, maxIndex + 1)
   })
 
-  const tmp = tableData.series[0].data.reduce((acc, p, i, a) => {
+  const tmp = tableData[0].data.reduce((acc, p, i, a) => {
     if (i === 0) return acc
     if (p.t.slice(0, 4) === a[i - 1].t.slice(0, 4)) {
       acc[acc.length - 1].span ++
@@ -57,7 +57,7 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
       acc.push({ year: p.t.slice(0, 4), span: 1 })
     }
     return acc
-  }, [{ year: tableData.series[0].data[0].t.slice(0, 4), span: 1 }])
+  }, [{ year: tableData[0].data[0].t.slice(0, 4), span: 1 }])
 
   const yearCutoffs = tmp.map(p => p.span).reduce((acc, _p, i, a) => {
     if (i === 0) return acc
@@ -73,25 +73,25 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
             <th className="sticky-column-header" style={{minWidth: `${headerWidth}px`}}>Year</th>
             {/* merge all the years that are the same together and make them span all the cells with the same year */}
             {/* note that there might not be 12 periods in a year */}
-            {tmp.map((p, i) => <th className="right-border" key={i} colSpan={p.span} rowSpan={tableData.freq === "Y" ? 2 : 1}>{p.year}</th>)}
+            {tmp.map((p, i) => <th className="right-border" key={i} colSpan={p.span} rowSpan={data.freq === "Y" ? 2 : 1}>{p.year}</th>)}
           </tr>
           <tr>
             <th className="sticky-column-header">Period</th>
-            {tableData.freq !== "Y" && tableData.series[0].data.map((p, i) => (
+            {data.freq !== "Y" && tableData[0].data.map((p, i) => (
               <th
                 key={i}
                 className={clsx(yearCutoffs.includes(i + 1) && "right-border")}
               >
-                {tableData.freq === "M"
+                {data.freq === "M"
                   ? getMonthName(parseInt(p.t.slice(-2)))
-                  : tableData.freq === "Q" ? p.t.slice(-2) : ""
+                  : data.freq === "Q" ? p.t.slice(-2) : ""
                 }
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {tableData.series.map((series, i) => (
+          {tableData.map((series, i) => (
             <tr key={i}>
               <td className="sticky-column-header">{labelDefs[series.name].label}</td>
               {series.data.map((p, i) => (
@@ -100,7 +100,7 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
                   className={clsx(yearCutoffs.includes(i + 1) && "right-border")}
                   style={{minWidth: `${cellWidth}px`, maxWidth: `${cellWidth}px`}}
                 >
-                  {(p.v * (tableData.showGrowth ? 100 : 1)).toFixed(2)}
+                  {(p.v * (data.showGrowth ? 100 : 1)).toFixed(2)}
                 </td>
               ))}
             </tr>

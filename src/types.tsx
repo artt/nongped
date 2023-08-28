@@ -33,14 +33,17 @@ export type TimeSeriesWithFrequenciesType = {
   [x: string]: TimeSeriesDataType,
 }
 
-export type ProcessedDataType = {
-  series: {
-    name: string,
-    data: {
-      t: string,
-      v: number,
-    }[],
+type SimpleSeriesType = {
+  name: string,
+  data: {
+    t: string,
+    v: number,
   }[],
+}
+
+export type ProcessedDataType = {
+  freq: freqType,
+  series: SimpleSeriesType[],
 }
 
 export type Point = {
@@ -73,7 +76,8 @@ export type ComponentChartDataType = {
   freq: freqType,
   showGrowth: boolean,
   showContribution: boolean,
-  series: {
+  tableSeries: SimpleSeriesType[]
+  chartSeries: {
     name: string,
     color?: string,
     zIndex: number,

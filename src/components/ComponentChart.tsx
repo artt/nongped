@@ -53,7 +53,7 @@ const TimeSeriesChart = React.memo(({ data, handleRangeChange, override }: Props
           navigator: {
             // adaptToUpdatedData: false,
           },
-          series: data.series,
+          series: data.chartSeries,
           plotOptions: {
             column: {
               stacking: 'normal',
