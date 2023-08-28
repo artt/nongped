@@ -68,3 +68,14 @@ export type NeerData = {
   periods: string[]
   returns: number[]
 }
+
+export type ComponentChartDataType = {
+  name: string,
+  color?: string,
+  zIndex: number,
+  data: number[],
+  type: string,
+  pointStart: number,
+  pointIntervalUnit: string,
+  pointInterval: number,
+}[]
