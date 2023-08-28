@@ -19,7 +19,7 @@ import Gdp from "components/Gdp";
 
 const navItems = [
   {
-    label: 'GDP',
+    label: 'GDP (Beta)',
     path: 'gdp'
   },
   {
