@@ -42,6 +42,15 @@ const TimeSeriesChart = React.memo(({ data, handleRangeChange, override }: Props
             areaspline: {
               stacking: 'normal',
             },
+            spline: {
+              // marker: {
+              //   enabled: true,
+              //   fillColor: 'white',
+              //   lineColor: null,
+              //   lineWidth: 2,
+              //   radius: 4,
+              // },
+            },
             series: {
               dataGrouping: {
                 enabled: false,
@@ -117,7 +126,15 @@ const TimeSeriesChart = React.memo(({ data, handleRangeChange, override }: Props
           yAxis: {
             labels: {
               formatter: data.mode !== "level" && ticksPercentFormatter,
+              align: 'left',
             },
+            offset: 10,
+            plotLines: [{
+              color: 'black',
+              value: 0,
+              width: 2,
+              zIndex: 3,
+            }]
           },
           credits: {
             enabled: false,

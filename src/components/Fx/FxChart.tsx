@@ -28,6 +28,12 @@ export default function TimeSeriesChart({ data }: Props) {
             // showInNavigator: true,
           }
         },
+        yAxis: {
+          offset: 10,
+          labels: {
+            align: 'left',
+          },
+        },
         credits: {
           enabled: false,
         },

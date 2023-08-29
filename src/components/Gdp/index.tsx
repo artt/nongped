@@ -22,7 +22,7 @@ const labelDefs: LabelDefType = {
   },
   gder: {
     label: 'GDE',
-    hideInContributionChart: true,
+    hide: ["level", "growth", "contribution"],
   },
   cpr: {
     label: 'Private Consumption',
@@ -61,7 +61,7 @@ const labelDefs: LabelDefType = {
   stockr: {
     label: "Change in Inventories",
     color: defaultOptions.colors[7],
-    hideInGrowthChart: true,
+    hide: ["growth"],
   },
 }
 const gdpSeries = Object.keys(labelDefs)
@@ -69,7 +69,7 @@ const gdpSeries = Object.keys(labelDefs)
 function getSeriesType(mode: modeType, seriesIndex: number) {
   switch(mode) {
     case "level":
-      return 'areaspline'
+      return seriesIndex > 0 ? 'column' : 'spline'
     case "growth":
       return 'spline'
     case "contribution":
@@ -119,7 +119,7 @@ export default function Gdp() {
         name: series.name,
         data: series.values.map((_, i: number, a: number[]) => ({
           t: data.Y.periods[i],
-          level: a[i],
+          level: (negativeContribution ? -1 : 1) * a[i],
           growth: (a[i] / a[i - 1] - 1),
           contribution: seriesIndex < 2
               ? (a[i] / a[i - 1] - 1)
@@ -139,7 +139,7 @@ export default function Gdp() {
           const yi = Math.floor(i / 4) // yearly index
           return({
             t: data.Q.periods[i],
-            level: a[i],
+            level: (negativeContribution ? -1 : 1) * a[i],
             growth: (a[i] / a[i - 4] - 1),
             // whattttttttttt
             contribution: yi < 2
@@ -175,6 +175,7 @@ export default function Gdp() {
     })
   }, [])
 
+  // set mode from toggles
   React.useEffect(() => {
     if (!showGrowth) {
       setMode("level")
@@ -211,11 +212,17 @@ export default function Gdp() {
     }))
     // const chartSeries = deepmerge([], tableSeries)
     const chartSeries = tableSeries
-      .filter(series => !(mode === "growth") || !labelDefs[series.name].hideInGrowthChart)
-      .filter(series => !(mode === "contribution") || !labelDefs[series.name].hideInContributionChart)
       .map((series, i) => ({
+        visible: !labelDefs[series.name].hide?.includes(mode),
         name: labelDefs[series.name].label,
         color: labelDefs[series.name].color,
+        marker: {
+          enabled: i === 0,
+          fillColor: 'white',
+          lineColor: null,
+          lineWidth: 2,
+          radius: 4,
+        },
         zIndex: i === 0 ? 99 : i,
         data: series.data.map(p => p.v),
         // in contribution mode, only the first series is a line chart

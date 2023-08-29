@@ -4,8 +4,7 @@ export type LabelDefType = {
   [x: string]: {
     label: string,
     color?: string
-    hideInGrowthChart?: boolean,
-    hideInContributionChart?: boolean,
+    hide?: modeType[],
     negativeContribution?: boolean,
   }
 }
