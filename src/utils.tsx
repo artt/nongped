@@ -112,6 +112,7 @@ export function percentFormatterNumber(y: number, dontMultiply = false): string 
   return `${(y * (dontMultiply ? 1 : 100)).toFixed(2)}%`
 }
 export function percentFormatter(this: TooltipPoint, _o: object, dontMultiply = false): string {
+  console.log(this)
   if (this.points !== undefined) {
     return this.points.map(point => `${point.series.name}: <b>${(point.y * (dontMultiply ? 1 : 100)).toFixed(2)}%</b>`).join('<br/>')
   }

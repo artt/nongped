@@ -65,7 +65,7 @@ const TimeSeriesChart = React.memo(({ data, handleRangeChange, override }: Props
             // floating: true,
           },
           tooltip: {
-            valueDecimals: 2,
+            valueDecimals: data.mode === "level" ? 0 : 2,
             valueSuffix: data.mode !== "level" && '%',
             formatter: data.mode !== "level" && percentFormatter,
             // split: true,

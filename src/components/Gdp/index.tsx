@@ -63,6 +63,11 @@ const labelDefs: LabelDefType = {
     color: defaultOptions.colors[7],
     hide: ["growth"],
   },
+  // statr: {
+  //   label: "Statistical Discrepancy",
+  //   color: Color(defaultOptions.colors[7]).lighten(0.3).hex(),
+  //   skipLoading: true,
+  // },
 }
 const gdpSeries = Object.keys(labelDefs)
 
@@ -152,6 +157,8 @@ export default function Gdp() {
       })
     })
 
+    console.log(processedQuarterlyData)
+
     return({
       Q: processedQuarterlyData,
       Y: processedYearlyData,
@@ -165,6 +172,7 @@ export default function Gdp() {
     // loop over freqTable
     const deflatorSeries = gdpSeries.map(getDeflatorName)
     const promises = []
+
     for (const freq of freqList) {
       // for quarterly data, just get the *r
       // for yearly data, get deflators as well
@@ -214,6 +222,7 @@ export default function Gdp() {
     const chartSeries = tableSeries
       .map((series, i) => ({
         visible: !labelDefs[series.name].hide?.includes(mode),
+        showInLegend: !labelDefs[series.name].hide?.includes(mode),
         name: labelDefs[series.name].label,
         color: labelDefs[series.name].color,
         marker: {

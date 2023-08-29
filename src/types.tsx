@@ -6,6 +6,7 @@ export type LabelDefType = {
     color?: string
     hide?: modeType[],
     negativeContribution?: boolean,
+    skipLoading?: boolean,
   }
 }
 

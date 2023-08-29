@@ -24,7 +24,6 @@ export default function Neer({ data }: Props) {
         }],
         tooltip: {
           enabled: false,
-          // formatter: percentFormatter,
         },
         xAxis: {
           categories: data.periods,
