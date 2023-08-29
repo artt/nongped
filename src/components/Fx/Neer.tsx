@@ -1,6 +1,6 @@
 import type { NeerData } from "types"
 import HighchartsWrapper from "components/HighchartsWrapper";
-import { percentFormatter, ticksPercentFormatter } from "utils";
+import { dataLabelsPercentFormatter, ticksPercentFormatter } from "utils";
 
 interface Props {
   data?: NeerData,
@@ -19,7 +19,7 @@ export default function Neer({ data }: Props) {
           data: data.returns,
           dataLabels: {
             enabled: true,
-            formatter: percentFormatter,
+            formatter: dataLabelsPercentFormatter,
           },
         }],
         tooltip: {

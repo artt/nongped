@@ -1,6 +1,6 @@
 import type { FxData } from "types"
 import HighchartsWrapper from "components/HighchartsWrapper";
-import { defaultOptions, ticksPercentFormatter, percentFormatter } from "utils";
+import { dataLabelsPercentFormatter, defaultOptions, ticksPercentFormatter } from "utils";
 
 type TickerType = {
   label: string,
@@ -111,12 +111,12 @@ export default function Comparison({ data, curYear, yearOffset, whatToCompare }:
           dataSorting: {
             enabled: true,
           },
-          // dataLabels: {
-          //   enabled: true,
-          //   formatter: percentFormatter,
-          //   align: 'left',
-          //   inside: true,
-          // },
+          dataLabels: {
+            enabled: true,
+            formatter: dataLabelsPercentFormatter,
+            // align: 'left',
+            // inside: true,
+          },
           xAxis: group === "AE" ? 0 : 1,
         })),
         xAxis: [
@@ -146,9 +146,6 @@ export default function Comparison({ data, curYear, yearOffset, whatToCompare }:
           series: {
             enablRegionouseTracking: false,
           },
-        },
-        tooltip: {
-          formatter: percentFormatter,
         },
         legend: {
           enabled: false,

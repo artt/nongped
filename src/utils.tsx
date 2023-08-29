@@ -47,23 +47,29 @@ export function freqToString(freq: freqType) {
   return freqDefs[freq].label
 }
 
-// convert from YYYYQ# to YYYY-MM
-export function quarterToMonth(quarterString: string) {
+/**
+ * Convert from YYYYQ# to YYYY-MM
+ */
+export function quarterToMonth(quarterString: string): string {
   const year = quarterString.slice(0, 4)
   const quarter = quarterString.slice(-1)
   return `${year}-${parseInt(quarter) * 3 - 2}`
 }
 
-// convert from YYYY-MM to YYYYQ#
-export function monthToQuarter(monthString: string) {
+/**
+ * Convert from YYYY-MM to YYYYQ#
+ */
+export function monthToQuarter(monthString: string): string {
   const year = monthString.slice(0, 4)
   const month = parseInt(monthString.slice(-2))
   return `${year}Q${Math.ceil(month / 3)}`
 }
 
-// add thousands separator using toLocaleString
-// also format large numbers, like 1000000 -> 1M, 1000000000 -> 1B, etc.
-export function customLocaleString(n?: number) {
+/**
+ * Add thousands separator using toLocaleString.
+ * Also format large numbers, like 1000000 → 1M, 1000000000 → 1B, etc.
+ */
+export function customLocaleString(n?: number): string {
   if (n === undefined) return ""
   if (n < 1e3) return n.toLocaleString()
   if (n < 1e6) return `${(n / 1e3).toLocaleString()}k`
@@ -71,8 +77,10 @@ export function customLocaleString(n?: number) {
   return `${(n / 1e9).toLocaleString()}B`
 }
 
-// return month name, like 1 -> Jan, 2 -> Feb, etc.
-export function getMonthName(month: number) {
+/**
+ * Return month name from number; 1 → Jan, 2 → Feb, etc.
+ */
+export function getMonthName(month: number): string {
   return new Date(0, month - 1).toLocaleString('en-US', { month: 'short' })
 }
 
@@ -105,16 +113,46 @@ export const defaultOptions = {
   },
 }
 
-export function ticksPercentFormatter(this: {value:number}, _o: object, dontMultiply = false): string {
+/**
+ * A formatter for Highcharts ticks without decimal points
+ */
+export function ticksPercentFormatter(this: { value: number }, _o: object, dontMultiply=false): string {
   return `${(this.value * (dontMultiply ? 1 : 100)).toFixed(0)}%`
 }
-export function percentFormatterNumber(y: number, dontMultiply = false): string {
+
+/**
+ * Convert percentage decimals to percentage string with 2 decimals
+ */
+export function percentFormatterNumber(y: number, dontMultiply=false): string {
   return `${(y * (dontMultiply ? 1 : 100)).toFixed(2)}%`
 }
-export function percentFormatter(this: TooltipPoint, _o: object, dontMultiply = false): string {
-  console.log(this)
-  if (this.points !== undefined) {
-    return this.points.map(point => `${point.series.name}: <b>${(point.y * (dontMultiply ? 1 : 100)).toFixed(2)}%</b>`).join('<br/>')
+
+/**
+ * Convert ticks to nicely formatted date string
+ */
+export function ticksDateFormatter(tick: number, freq: freqType): string {
+  const date = new Date(tick)
+  const iso = date.toISOString().slice(0, 7)
+  switch (freq) {
+    case "M": return date.toLocaleString('default', { month: 'short', year: 'numeric' })
+    case "Q": return monthToQuarter(iso)
+    case "Y": return iso.slice(0, 4)
+
   }
-  return percentFormatterNumber(this.y, dontMultiply)
+  // return `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`
+}
+
+export function tooltipPercentFormatter(tooltipPoint: TooltipPoint, tooltip: Highcharts.Tooltip, freq: freqType) {
+  console.log(tooltipPoint)
+  const tmp = tooltip.defaultFormatter.call(tooltipPoint, tooltip)
+  if (typeof tmp === "string") return tmp
+  return tmp.map((line: string, i: number) => {
+    if (line === "" || !tooltipPoint.points) return line
+    if (i === 0) return ticksDateFormatter(tooltipPoint.x, freq)
+    return line.replace(/<b>.*<\/b>/, `<b>${percentFormatterNumber(tooltipPoint.points[i - 1].y)}</b>`)
+  })
+}
+
+export function dataLabelsPercentFormatter(this: TooltipPoint) {
+  return percentFormatterNumber(this.y)
 }

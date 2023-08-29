@@ -1,8 +1,8 @@
 import React from "react"
 import HighchartsWrapper from "components/HighchartsWrapper"
-import type { LabelDefType, ComponentChartDataType } from "types"
+import type { LabelDefType, ComponentChartDataType, TooltipPoint } from "types"
 import Box from "@mui/material/Box"
-import { percentFormatter, ticksPercentFormatter } from "utils"
+import { tooltipPercentFormatter, ticksPercentFormatter } from "utils"
 import deepmerge from "deepmerge"
 
 interface Props {
@@ -66,9 +66,9 @@ const TimeSeriesChart = React.memo(({ data, handleRangeChange, override }: Props
           },
           tooltip: {
             valueDecimals: data.mode === "level" ? 0 : 2,
-            valueSuffix: data.mode !== "level" && '%',
-            formatter: data.mode !== "level" && percentFormatter,
-            // split: true,
+            formatter: data.mode !== "level" && function(this: TooltipPoint, tooltip: Highcharts.Tooltip) {
+              return tooltipPercentFormatter(this, tooltip, data.freq)
+            },
           },
           scrollbar: {
             enabled: false
