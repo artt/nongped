@@ -1,6 +1,6 @@
 import React from 'react'
 import { freqToNum, getTedDataPromise } from "utils"
-import type { freqType, LabelDefType, TedDataType, TimeSeriesWithFrequenciesType, ComponentChartDataType } from "types"
+import type { freqType, LabelDefType, TedDataType, TimeSeriesWithFrequenciesType, ComponentChartDataType, modeType } from "types"
 import { quarterToMonth } from "utils"
 import Split from "components/Split"
 import ComponentChart from "components/ComponentChart"
@@ -43,6 +43,7 @@ export default function Inflation() {
   const [freq, setFreq] = React.useState<freqType>((freqList[0] as freqType))
   const [showGrowth, setShowGrowth] = React.useState(true)
   const [showContribution, setShowContribution] = React.useState(true)
+  const [mode, setMode] = React.useState<modeType>("contribution")
   const [minDate, setMinDate] = React.useState<string>()
   const [maxDate, setMaxDate] = React.useState<string>()
 
@@ -57,9 +58,9 @@ export default function Inflation() {
       name: series.name,
       data: series.values.map((_, i: number, a: number[]) => ({
         t: data.periods[i],
-        v: a[i],
-        g: (a[i] / a[i - numFreq] - 1),
-        c: (a[i] / a[i - numFreq] - 1) * weights19[seriesIndex] / 100,
+        level: a[i],
+        growth: (a[i] / a[i - numFreq] - 1),
+        contribution: (a[i] / a[i - numFreq] - 1) * weights19[seriesIndex] / 100,
       })),
     })))
   }
@@ -85,15 +86,26 @@ export default function Inflation() {
   }, [])
 
   React.useEffect(() => {
+    if (!showGrowth) {
+      setMode("level")
+    }
+    else if (!showContribution) {
+      setMode("growth")
+    }
+    else {
+      setMode("contribution")
+    }
+  }, [showGrowth, showContribution])
+
+  React.useEffect(() => {
     if (!rawData) return
     const tableSeries = rawData[freq].map(series => ({
       name: series.name,
-      data: series.data.slice(showGrowth ? freqToNum(freq) : 0).map(d => ({
+      data: series.data.slice(mode === "level" ? 0 : freqToNum(freq)).map(d => ({
         t: d.t,
-        v: (showContribution && showGrowth) ? d.c : showGrowth ? d.g : d.v,
+        v: d[mode],
       })),
     }))
-    // TODO: see if we need deepmerge here
     const chartSeries = tableSeries
       .map((series, i) => ({
         name: labelDefs[series.name].label,
@@ -101,13 +113,13 @@ export default function Inflation() {
         zIndex: i === 0 ? 99 : i,
         data: series.data.map(p => p.v),
         // in contribution mode, only the first series is a line chart
-        type: showGrowth && showContribution && i > 0 ? 'column' : 'spline',
+        type: mode === "contribution" && i > 0 ? 'column' : 'spline',
         pointStart: Date.parse(freq === 'Q' ? quarterToMonth(series.data[0].t) : series.data[0].t),
         pointIntervalUnit: freq === 'Y' ? 'year' : 'month',
         pointInterval: freq === 'Q' ? 3 : 1,
       }))
-    setData({freq, showGrowth, showContribution, tableSeries, chartSeries})
-  }, [rawData, freq, showGrowth, showContribution])
+    setData({freq, mode, tableSeries, chartSeries})
+  }, [rawData, freq, mode])
 
   if (!data) return null
 

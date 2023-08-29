@@ -100,7 +100,7 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
                   className={clsx(yearCutoffs.includes(i + 1) && "right-border")}
                   style={{minWidth: `${cellWidth}px`, maxWidth: `${cellWidth}px`}}
                 >
-                  {(p.v * (data.showGrowth ? 100 : 1)).toFixed(2)}
+                  {(p.v * (data.mode === "level" ? 1 : 100)).toFixed(2)}
                 </td>
               ))}
             </tr>

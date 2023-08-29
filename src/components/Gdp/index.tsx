@@ -2,7 +2,7 @@ import React from 'react'
 import { defaultOptions, getTedDataPromise } from "utils"
 import Split from "components/Split"
 import { freqToNum, quarterToMonth } from "utils"
-import type { freqType, LabelDefType, TedDataType, TimeSeriesWithFrequenciesType, ComponentChartDataType } from "types"
+import type { freqType, LabelDefType, TedDataType, TimeSeriesWithFrequenciesType, ComponentChartDataType, modeType } from "types"
 import ComponentChart from "components/ComponentChart"
 import SummaryTable from "components/SummaryTable"
 import Box from "@mui/material/Box"
@@ -40,11 +40,6 @@ const labelDefs: LabelDefType = {
     label: "Public Investment",
     color: Color(defaultOptions.colors[1]).lighten(-0.2).hex(),
   },
-  stockr: {
-    label: "Change in Inventories",
-    color: defaultOptions.colors[7],
-    hideInGrowthChart: true,
-  },
   xgr: {
     label: "Exports of Goods",
     color: defaultOptions.colors[4],
@@ -63,8 +58,24 @@ const labelDefs: LabelDefType = {
     color: Color(defaultOptions.colors[3]).lighten(-0.3).hex(),
     negativeContribution: true,
   },
+  stockr: {
+    label: "Change in Inventories",
+    color: defaultOptions.colors[7],
+    hideInGrowthChart: true,
+  },
 }
 const gdpSeries = Object.keys(labelDefs)
+
+function getSeriesType(mode: modeType, seriesIndex: number) {
+  switch(mode) {
+    case "level":
+      return 'areaspline'
+    case "growth":
+      return 'spline'
+    case "contribution":
+      return seriesIndex > 0 ? 'column' : 'spline'
+  }
+}
 
 export default function Gdp() {
 
@@ -75,6 +86,7 @@ export default function Gdp() {
   const [freq, setFreq] = React.useState<freqType>((freqList[0] as freqType))
   const [showGrowth, setShowGrowth] = React.useState(true)
   const [showContribution, setShowContribution] = React.useState(true)
+  const [mode, setMode] = React.useState<modeType>("contribution")
   const [minDate, setMinDate] = React.useState<string>()
   const [maxDate, setMaxDate] = React.useState<string>()
 
@@ -107,9 +119,9 @@ export default function Gdp() {
         name: series.name,
         data: series.values.map((_, i: number, a: number[]) => ({
           t: data.Y.periods[i],
-          v: a[i],
-          g: (a[i] / a[i - 1] - 1),
-          c: seriesIndex < 2
+          level: a[i],
+          growth: (a[i] / a[i - 1] - 1),
+          contribution: seriesIndex < 2
               ? (a[i] / a[i - 1] - 1)
               : (negativeContribution ? -1 : 1) * ((a[i] - a[i - 1]) / gderYearly[i - 1] * (deflator[i - 1] / gdeDeflator[i - 1])),
         })),
@@ -127,10 +139,10 @@ export default function Gdp() {
           const yi = Math.floor(i / 4) // yearly index
           return({
             t: data.Q.periods[i],
-            v: a[i],
-            g: (a[i] / a[i - 4] - 1),
+            level: a[i],
+            growth: (a[i] / a[i - 4] - 1),
             // whattttttttttt
-            c: yi < 2
+            contribution: yi < 2
                 ? NaN
                 : seriesIndex < 2
                   ? (a[i] / a[i - 4] - 1)
@@ -164,31 +176,56 @@ export default function Gdp() {
   }, [])
 
   React.useEffect(() => {
+    if (!showGrowth) {
+      setMode("level")
+    }
+    else if (!showContribution) {
+      setMode("growth")
+    }
+    else {
+      setMode("contribution")
+    }
+  }, [showGrowth, showContribution])
+
+  React.useEffect(() => {
     if (!rawData) return
+    let toBeSliced: number
+    switch(mode) {
+      case "level":
+        toBeSliced = 0
+        break
+      case "growth":
+        toBeSliced = freqToNum(freq)
+        break
+      case "contribution":
+        // need to take out 2 to calculate CVM contribution
+        toBeSliced = freqToNum(freq) * 2
+        break
+    }
     const tableSeries = rawData[freq].map(series => ({
       name: series.name,
-      data: series.data.slice(showGrowth ? freqToNum(freq) : 0).map(d => ({
+      data: series.data.slice(toBeSliced).map(d => ({
         t: d.t,
-        v: (showContribution && showGrowth) ? d.c : showGrowth ? d.g : d.v,
+        v: d[mode],
       })),
     }))
     // const chartSeries = deepmerge([], tableSeries)
     const chartSeries = tableSeries
-      .filter(series => !(showGrowth && !showContribution) || !labelDefs[series.name].hideInGrowthChart)
-      .filter(series => !(showGrowth && showContribution) || !labelDefs[series.name].hideInContributionChart)
+      .filter(series => !(mode === "growth") || !labelDefs[series.name].hideInGrowthChart)
+      .filter(series => !(mode === "contribution") || !labelDefs[series.name].hideInContributionChart)
       .map((series, i) => ({
         name: labelDefs[series.name].label,
         color: labelDefs[series.name].color,
         zIndex: i === 0 ? 99 : i,
         data: series.data.map(p => p.v),
         // in contribution mode, only the first series is a line chart
-        type: showGrowth && showContribution && i > 0 ? 'column' : 'spline',
+        type: getSeriesType(mode, i),
         pointStart: Date.parse(freq === 'Q' ? quarterToMonth(series.data[0].t) : series.data[0].t),
         pointIntervalUnit: freq === 'Y' ? 'year' : 'month',
         pointInterval: freq === 'Q' ? 3 : 1,
       }))
-    setData({freq, showGrowth, showContribution, tableSeries, chartSeries})
-  }, [rawData, freq, showGrowth, showContribution])
+    setData({freq, mode, tableSeries, chartSeries})
+  }, [rawData, freq, mode])
 
   if (!data) return null
 

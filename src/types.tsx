@@ -22,9 +22,9 @@ export type TimeSeriesDataType = {
   name: string,
   data: {
     t: string,
-    v: number,
-    g: number,
-    c: number,
+    level: number,
+    growth: number,
+    contribution: number,
     deflator?: number,
   }[],
 }[]
@@ -72,10 +72,11 @@ export type NeerData = {
   returns: number[]
 }
 
+export type modeType = "level" | "growth" | "contribution"
+
 export type ComponentChartDataType = {
   freq: freqType,
-  showGrowth: boolean,
-  showContribution: boolean,
+  mode: modeType,
   tableSeries: SimpleSeriesType[]
   chartSeries: {
     name: string,

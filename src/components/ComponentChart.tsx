@@ -16,26 +16,6 @@ interface Props {
 const TimeSeriesChart = React.memo(({ data, handleRangeChange, override }: Props) => {
   
   const ref = React.useRef<Highcharts.Chart>()
-  // const [data, setData] = React.useState<ComponentChartDataType>()
-
-  // React.useEffect(() => {
-  //   const tmp = deepmerge([], chartData)
-  //   const series = tmp.series
-  //     .filter(series => !(tmp.showGrowth && !tmp.showContribution) || !labelDefs[series.name].hideInGrowthChart)
-  //     .filter(series => !(tmp.showGrowth && tmp.showContribution) || !labelDefs[series.name].hideInContributionChart)
-  //     .map((series, i) => ({
-  //       name: labelDefs[series.name].label,
-  //       color: labelDefs[series.name].color,
-  //       zIndex: i === 0 ? 99 : i,
-  //       data: series.data.map(p => p.v),
-  //       // in contribution mode, only the first series is a line chart
-  //       type: tmp.showGrowth && tmp.showContribution && i > 0 ? 'column' : 'spline',
-  //       pointStart: Date.parse(tmp.freq === 'Q' ? quarterToMonth(series.data[0].t) : series.data[0].t),
-  //       pointIntervalUnit: tmp.freq === 'Y' ? 'year' : 'month',
-  //       pointInterval: tmp.freq === 'Q' ? 3 : 1,
-  //     }))
-  //   setData(series)
-  // }, [chartData, labelDefs])
 
   return(
     <Box sx={{
@@ -59,6 +39,9 @@ const TimeSeriesChart = React.memo(({ data, handleRangeChange, override }: Props
               stacking: 'normal',
               crisp: false,
             },
+            areaspline: {
+              stacking: 'normal',
+            },
             series: {
               dataGrouping: {
                 enabled: false,
@@ -74,8 +57,8 @@ const TimeSeriesChart = React.memo(({ data, handleRangeChange, override }: Props
           },
           tooltip: {
             valueDecimals: 2,
-            valueSuffix: data.showGrowth && '%',
-            formatter: data.showGrowth && percentFormatter,
+            valueSuffix: data.mode !== "level" && '%',
+            formatter: data.mode !== "level" && percentFormatter,
             // split: true,
           },
           scrollbar: {
@@ -133,7 +116,7 @@ const TimeSeriesChart = React.memo(({ data, handleRangeChange, override }: Props
           },
           yAxis: {
             labels: {
-              formatter: data.showGrowth && ticksPercentFormatter,
+              formatter: data.mode !== "level" && ticksPercentFormatter,
             },
           },
           credits: {
