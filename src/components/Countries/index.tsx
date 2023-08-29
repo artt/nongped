@@ -225,7 +225,6 @@ export default function Countries() {
                   tmp[1] = tmp[1]
                     .replace(/: .*<br\/>/, `: <b>${customLocaleString(point.y)}${availableSeries[series].unit === "%" ? "%" : ` ${availableSeries[series].unit}`}</b><br/>`)
                   tmp[2] = `Rank: ${point.rank}`
-                  console.log(point)
                   return tmp
                 },
               },

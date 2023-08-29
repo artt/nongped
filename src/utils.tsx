@@ -143,7 +143,6 @@ export function ticksDateFormatter(tick: number, freq: freqType): string {
 }
 
 export function tooltipPercentFormatter(tooltipPoint: TooltipPoint, tooltip: Highcharts.Tooltip, freq: freqType) {
-  console.log(tooltipPoint)
   const tmp = tooltip.defaultFormatter.call(tooltipPoint, tooltip)
   if (typeof tmp === "string") return tmp
   return tmp.map((line: string, i: number) => {

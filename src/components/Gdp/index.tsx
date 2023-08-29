@@ -157,8 +157,6 @@ export default function Gdp() {
       })
     })
 
-    console.log(processedQuarterlyData)
-
     return({
       Q: processedQuarterlyData,
       Y: processedYearlyData,
