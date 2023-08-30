@@ -147,7 +147,7 @@ export function tooltipPercentFormatter(tooltipPoint: TooltipPoint, tooltip: Hig
   if (typeof tmp === "string") return tmp
   return tmp.map((line: string, i: number) => {
     if (line === "" || !tooltipPoint.points) return line
-    if (i === 0) return ticksDateFormatter(tooltipPoint.x, freq)
+    if (i === 0) return ticksDateFormatter(tooltipPoint.x, freq) + "<br>"
     return line.replace(/<b>.*<\/b>/, `<b>${percentFormatterNumber(tooltipPoint.points[i - 1].y)}</b>`)
   })
 }

@@ -69,6 +69,8 @@ const TimeSeriesChart = React.memo(({ data, handleRangeChange, override }: Props
             formatter: data.mode !== "level" && function(this: TooltipPoint, tooltip: Highcharts.Tooltip) {
               return tooltipPercentFormatter(this, tooltip, data.freq)
             },
+            split: false,
+            shared: true,
           },
           scrollbar: {
             enabled: false
@@ -122,6 +124,7 @@ const TimeSeriesChart = React.memo(({ data, handleRangeChange, override }: Props
                 handleRangeChange(minDate, maxDate)
               },
             },
+            crosshair: false,
           },
           yAxis: {
             labels: {
@@ -134,7 +137,7 @@ const TimeSeriesChart = React.memo(({ data, handleRangeChange, override }: Props
               value: 0,
               width: 2,
               zIndex: 3,
-            }]
+            }],
           },
           credits: {
             enabled: false,
