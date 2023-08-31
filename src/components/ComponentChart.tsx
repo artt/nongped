@@ -18,12 +18,12 @@ const ComponentChart = React.forwardRef(({ data, handleRangeChange }: Props, _re
 
   // universal keyboard handler
   function handleKeyDown(e: KeyboardEvent) {
-    if (e.key === 't') {
+    if (e.key === 'c') {
       setExplodeKeyHeld(true)
     }
   }
   function handleKeyUp(e: KeyboardEvent) {
-    if (e.key === 't') {
+    if (e.key === 'c') {
       setExplodeKeyHeld(false)
     }
   }
