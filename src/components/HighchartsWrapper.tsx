@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import merge from "deepmerge"
 import highchartsMap from "highcharts/modules/map";
 import { defaultOptions } from "utils";
-
+import equal from "deep-equal"
 
 if (typeof Highcharts === "object") {
   highchartsMap(Highcharts)
@@ -30,7 +30,7 @@ interface Props {
   [x: string]: unknown,
 }
 
-const HighchartsWrapper = React.forwardRef(({ isLoading, options, ...rest }: Props, ref) => {
+const HighchartsWrapper = React.memo(React.forwardRef(({ isLoading, options, ...rest }: Props, ref) => {
   if (isLoading)
     return(
       <Box sx={{
@@ -52,6 +52,17 @@ const HighchartsWrapper = React.forwardRef(({ isLoading, options, ...rest }: Pro
       {...rest}
     />
   )
+}), (prevProps, nextProps) => {
+  try {
+    const isEqual = equal(
+      (prevProps.options as { series: object; }).series,
+      (nextProps.options as { series: object; }).series
+    )
+    return isEqual
+  }
+  catch {
+    return false
+  }
 })
 
 export default HighchartsWrapper

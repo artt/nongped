@@ -1,3 +1,4 @@
+import React from "react";
 import Fx from "components/Fx"
 import Inflation from 'components/Inflation';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -41,7 +42,8 @@ export default function App() {
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   const page = query.get('p')
-
+  const [explodeKeyHeld, setExplodeKeyHeld] = React.useState(false)
+  
   const theme = createTheme({
     palette: {
       primary: {
@@ -50,6 +52,27 @@ export default function App() {
       // mode: 'dark',
     },
   })
+
+  // universal keyboard handler
+  function handleKeyDown(e: KeyboardEvent) {
+    if (e.key === 't') {
+      setExplodeKeyHeld(true)
+    }
+  }
+  function handleKeyUp(e: KeyboardEvent) {
+    if (e.key === 't') {
+      setExplodeKeyHeld(false)
+    }
+  }
+
+  React.useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keyup', handleKeyUp)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keyup', handleKeyUp)
+    }
+  }, [])
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -103,8 +126,11 @@ export default function App() {
               // overflow: 'hidden',
             }}>
               {!page && <div className="center"><img src={logoUrl} alt="nongped" width="400" height="400" style={{maxWidth: "100%"}}/></div>}
-              {page === 'gdp' && <Gdp />}
-              {page === 'inflation' && <Inflation />}
+              {page === 'gdp' && <Gdp explodeKeyHeld={explodeKeyHeld} />
+                // TODO: need to check if the mouse is in the chart
+                // otherwise this will be passed on to all the charts
+              }
+              {page === 'inflation' && <Inflation explodeKeyHeld={explodeKeyHeld} />}
               {page === 'fx' && <Fx />}
               {page === 'countries' && <Countries />}
             </Box>

@@ -1,6 +1,13 @@
 import React from 'react'
 import { freqToNum, getTedDataPromise } from "utils"
-import type { freqType, LabelDefType, TedDataType, TimeSeriesWithFrequenciesType, ComponentChartDataType, modeType } from "types"
+import type {
+  freqType,
+  LabelDefType,
+  TedDataType,
+  TimeSeriesWithFrequenciesType,
+  ComponentChartDataType,
+  modeType
+} from "types"
 import { quarterToMonth } from "utils"
 import Split from "components/Split"
 import ComponentChart from "components/ComponentChart"
@@ -11,6 +18,7 @@ import Switch from "@mui/material/Switch"
 import FormGroup from "@mui/material/FormGroup"
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
 import ToggleButton from "@mui/material/ToggleButton"
+import { HighchartsReact } from 'highcharts-react-official'
 
 const labelDefs: LabelDefType = {
   cpi: {
@@ -34,8 +42,10 @@ const freqList = ["M", "Q", "Y"]
 // const weights15 = [100, 72.56, 15.69, 11.75]
 const weights19 = [100, 67.06, 20.55, 12.39]
 
-export default function Inflation() {
+export default function Inflation({ explodeKeyHeld }: { explodeKeyHeld?: boolean } ) {
 
+  const ref = React.useRef<typeof HighchartsReact>(null)
+  
   const [rawData, setRawData] = React.useState<TimeSeriesWithFrequenciesType>()
   const dataLoaded = React.useRef(false)
 
@@ -85,6 +95,17 @@ export default function Inflation() {
     })
   }, [])
 
+  // React.useEffect(() => {
+  //   if (ref.current === null) return
+  //   if ('chart' in ref.current) {
+  //     (ref.current.chart as Highcharts.Chart).update({
+  //       tooltip: {
+  //         shared: !explodeKeyHeld,
+  //       }
+  //     })
+  //   }
+  // }, [explodeKeyHeld])
+
   React.useEffect(() => {
     if (!showGrowth) {
       setMode("level")
@@ -110,6 +131,7 @@ export default function Inflation() {
       .map((series, i) => ({
         name: labelDefs[series.name].label,
         color: labelDefs[series.name].color,
+        findNearestPointBy: i === 0 ? 'x' : 'xy',
         zIndex: i === 0 ? 99 : i,
         data: series.data.map(p => p.v),
         // in contribution mode, only the first series is a line chart
@@ -127,9 +149,9 @@ export default function Inflation() {
     <Split
       top={
         <ComponentChart
-          freqList={freqList}
-          labelDefs={labelDefs}
+          ref={ref}
           data={data}
+          explodeKeyHeld={explodeKeyHeld}
           handleRangeChange={handleRangeChange}
         />
       }

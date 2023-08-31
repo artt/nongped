@@ -1,35 +1,42 @@
 import React from "react"
 import HighchartsWrapper from "components/HighchartsWrapper"
-import type { LabelDefType, ComponentChartDataType, TooltipPoint } from "types"
+import type { ComponentChartDataType, TooltipPoint } from "types"
 import Box from "@mui/material/Box"
 import { tooltipPercentFormatter, ticksPercentFormatter } from "utils"
-import deepmerge from "deepmerge"
 
 interface Props {
-  freqList: string[],
-  labelDefs: LabelDefType,
   data: ComponentChartDataType,
+  explodeKeyHeld?: boolean,
   handleRangeChange: (minDate: string, maxDate: string) => void,
-  override?: {[x: string]: unknown},
 }
 
-const TimeSeriesChart = React.memo(({ data, handleRangeChange, override }: Props) => {
+const ComponentChart = React.forwardRef(({ data, explodeKeyHeld, handleRangeChange }: Props) => {
   
   const ref = React.useRef<Highcharts.Chart>()
 
+  React.useEffect(() => {
+    if (ref.current === undefined) return
+    if ('chart' in ref.current) {
+      (ref.current.chart as Highcharts.Chart).update({
+        tooltip: {
+          shared: !explodeKeyHeld,
+        }
+      })
+    }
+  }, [explodeKeyHeld])
+
   return(
-    <Box sx={{
-      height: '100%',
-      position: 'relative',
-    }}>
+    <Box
+      sx={{
+        height: '100%',
+        position: 'relative',
+      }}
+    >
       <HighchartsWrapper
         ref={ref}
         isLoading={!data}
         constructorType={'stockChart'}
-        options={deepmerge({
-          chart: {
-            // type: 'spline',
-          },
+        options={{
           navigator: {
             // adaptToUpdatedData: false,
           },
@@ -43,13 +50,7 @@ const TimeSeriesChart = React.memo(({ data, handleRangeChange, override }: Props
               stacking: 'normal',
             },
             spline: {
-              // marker: {
-              //   enabled: true,
-              //   fillColor: 'white',
-              //   lineColor: null,
-              //   lineWidth: 2,
-              //   radius: 4,
-              // },
+              //
             },
             series: {
               dataGrouping: {
@@ -71,6 +72,7 @@ const TimeSeriesChart = React.memo(({ data, handleRangeChange, override }: Props
             },
             split: false,
             shared: true,
+            // shared: !explodeKeyHeld,
           },
           scrollbar: {
             enabled: false
@@ -142,10 +144,10 @@ const TimeSeriesChart = React.memo(({ data, handleRangeChange, override }: Props
           credits: {
             enabled: false,
           },
-        }, override || {})}
+        }}
       />
     </Box>
   )
 })
 
-export default TimeSeriesChart
+export default ComponentChart

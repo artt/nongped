@@ -82,7 +82,7 @@ function getSeriesType(mode: modeType, seriesIndex: number) {
   }
 }
 
-export default function Gdp() {
+export default function Gdp({ explodeKeyHeld }: { explodeKeyHeld?: boolean } ) {
 
   const [rawData, setRawData] = React.useState<TimeSeriesWithFrequenciesType>()
   const dataLoaded = React.useRef(false)
@@ -247,9 +247,8 @@ export default function Gdp() {
     <Split
       top={
         <ComponentChart
-          freqList={freqList}
-          labelDefs={labelDefs}
           data={data}
+          explodeKeyHeld={explodeKeyHeld}
           handleRangeChange={handleRangeChange}
         />
       }
