@@ -20,6 +20,7 @@
     "@mui/icons-material": "^5.14.1",
     "@mui/material": "^5.13.7",
     "@mui/x-date-pickers": "^6.11.2",
+    "@silevis/reactgrid": "^4.1.0",
     "color": "^4.2.3",
     "dayjs": "^1.11.9",
     "deepmerge": "^4.3.1",
