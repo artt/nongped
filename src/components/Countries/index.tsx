@@ -81,6 +81,111 @@ interface CustomPoint extends Highcharts.Point {
   rank: number;
 }
 
+interface ChartProps {
+  data: CountryData[],
+  useLogScale: boolean,
+  series: string,
+}
+
+const Map = ({ data, useLogScale, series }: ChartProps) => <HighchartsWrapper
+  isLoading={!data}
+  constructorType={"mapChart"}
+  options={data && {
+    chart: {
+      type: 'map',
+    },
+    colorAxis: {
+      stops: [
+        [0, '#d7191c'],
+        [0.5, '#ffffbf'],
+        [1, '#2c7bb6'],
+      ],
+      type: useLogScale ? "logarithmic" : "linear",
+    },
+    series: [{
+      name: availableSeries[series].label,
+      data: data.filter(x => !useLogScale || x.y > 0).map(d => ({name: d.name, rank: d.rank, value: d.y, y: d.y})),
+      mapData: worldMap,
+      // allAreas: true,
+      joinBy: ["iso-a2", "name"],
+    }],
+    mapView: {
+      projection: {
+        name: "Miller",
+      },
+    },
+    tooltip: {
+      formatter: function(this: Highcharts.TooltipFormatterContextObject, tooltip: Highcharts.Tooltip) {
+        const tmp = (tooltip.defaultFormatter.call(this, tooltip) as string[])
+        const point = this.point as CustomPoint
+        tmp[1] = tmp[1]
+          .replace(/: .*<br\/>/, `: <b>${customLocaleString(point.y)}${availableSeries[series].unit === "%" ? "%" : ` ${availableSeries[series].unit}`}</b><br/>`)
+        tmp[2] = `Rank: ${point.rank}`
+        return tmp
+      },
+    },
+  }}
+/>
+
+const Bar = ({ data, useLogScale, series }: ChartProps) => <HighchartsWrapper
+  isLoading={!data}
+  options={data && {
+    chart: {
+      type: 'column',
+      zooming: {
+        type: 'x',
+      },
+    },
+    series: [{
+      name: availableSeries[series].label,
+      data: data,
+      dataSorting: {
+        // don't really need this but it animates stuff
+        enabled: true,
+      },
+    }],
+    xAxis: {
+      type: 'category',
+      scrollbar: {
+        // enabled: true
+      },
+      labels: {
+        step: 1,
+        rotation: -90,
+      },
+    },
+    legend: {
+      enabled: false,
+    },
+    yAxis: {
+      type: useLogScale ? 'logarithmic' : 'linear',
+      title: {
+        text: `${availableSeries[series].label} (${availableSeries[series].unit})`,
+      }
+    },
+    tooltip: {
+      formatter: function(this: Highcharts.TooltipFormatterContextObject, tooltip: Highcharts.Tooltip) {
+        const tmp = (tooltip.defaultFormatter.call(this, tooltip) as string[])
+        const point = this.point as CustomPoint;
+        tmp[0] = tmp[0].replace(point.name, availableSeries[series].label)
+        tmp[1] = tmp[1]
+          .replace(availableSeries[series].label, getCountryName(point.name))
+          .replace(/<b>.*<\/b>/, `<b>${customLocaleString(point.y)}${availableSeries[series].unit === "%" ? "%" : ` ${availableSeries[series].unit}`}</b>`)
+        tmp[2] = `Rank: ${point.rank}`
+        return tmp
+      },
+    },
+    plotOptions: {
+      series: {
+        enablRegionouseTracking: false,
+      },
+      column: {
+        crisp: false,
+      },
+    },
+  }}
+/>
+
 export default function Countries() {
 
   const [series, setSeries] = React.useState<string>("reserves")
@@ -89,110 +194,6 @@ export default function Countries() {
   const [data, setData] = React.useState<CountryData[]>([])
   const [useLogScale, setUseLogScale] = React.useState<boolean>(true)
   const [chartType, setChartType] = React.useState<string>("bar")
-
-  const Map = () => <HighchartsWrapper
-    isLoading={!data}
-    constructorType={"mapChart"}
-    options={data && {
-      chart: {
-        type: 'map',
-      },
-      colorAxis: {
-        stops: [
-          [0, '#d7191c'],
-          [0.5, '#ffffbf'],
-          [1, '#2c7bb6'],
-        ],
-        type: useLogScale ? "logarithmic" : "linear",
-      },
-      series: [{
-        name: availableSeries[series].label,
-        data: data.filter(x => !useLogScale || x.y > 0).map(d => ({name: d.name, rank: d.rank, value: d.y, y: d.y})),
-        mapData: worldMap,
-        // allAreas: true,
-        joinBy: ["iso-a2", "name"],
-      }],
-      mapView: {
-        projection: {
-          name: "Miller",
-        },
-      },
-      tooltip: {
-        formatter: function(this: Highcharts.TooltipFormatterContextObject, tooltip: Highcharts.Tooltip) {
-          const tmp = (tooltip.defaultFormatter.call(this, tooltip) as string[])
-          const point = this.point as CustomPoint
-          tmp[1] = tmp[1]
-            .replace(/: .*<br\/>/, `: <b>${customLocaleString(point.y)}${availableSeries[series].unit === "%" ? "%" : ` ${availableSeries[series].unit}`}</b><br/>`)
-          tmp[2] = `Rank: ${point.rank}`
-          return tmp
-        },
-      },
-    }}
-  />
-
-  const Bar = () => <HighchartsWrapper
-    isLoading={!data}
-    options={data && {
-      chart: {
-        type: 'column',
-        zooming: {
-          type: 'x',
-        },
-      },
-      series: [{
-        name: availableSeries[series].label,
-        data: data,
-        dataSorting: {
-          // don't really need this but it animates stuff
-          enabled: true,
-        },
-      }],
-      xAxis: {
-        type: 'category',
-        scrollbar: {
-          // enabled: true
-        },
-        labels: {
-          step: 1,
-          // rotation: -90,
-          // staggerLines: 3,
-        },
-      },
-      legend: {
-        enabled: false,
-      },
-      yAxis: {
-        type: useLogScale ? 'logarithmic' : 'linear',
-        title: {
-          text: `${availableSeries[series].label} (${availableSeries[series].unit})`,
-        }
-      },
-      tooltip: {
-        formatter: function(this: Highcharts.TooltipFormatterContextObject, tooltip: Highcharts.Tooltip) {
-          const tmp = (tooltip.defaultFormatter.call(this, tooltip) as string[])
-          const point = this.point as CustomPoint;
-          tmp[0] = tmp[0].replace(point.name, availableSeries[series].label)
-          tmp[1] = tmp[1]
-            .replace(availableSeries[series].label, getCountryName(point.name))
-            .replace(/<b>.*<\/b>/, `<b>${customLocaleString(point.y)}${availableSeries[series].unit === "%" ? "%" : ` ${availableSeries[series].unit}`}</b>`)
-          tmp[2] = `Rank: ${point.rank}`
-          return tmp
-        },
-      },
-      // plotOptions: {
-      //   series: {
-      //     enablRegionouseTracking: false,
-      //   },
-      //   column: {
-      //     crisp: false,
-      //   },
-      // },
-      // legend: {
-      //   enabled: false,
-      // },
-    }}
-  />
-
 
   React.useEffect(() => {
     fetch(`${serverAddress}/imf`, {
@@ -294,8 +295,8 @@ export default function Countries() {
 
       </Box>
       {chartType === "map"
-        ? <Map />
-        : <Bar />
+        ? <Map data={data} series={series} useLogScale={useLogScale} />
+        : <Bar data={data} series={series} useLogScale={useLogScale} />
       }
     </Box>
   )

@@ -89,3 +89,5 @@ export type ComponentChartDataType = {
     pointInterval: number,
   }[]
 }
+
+export type HighchartsConstructorType = "chart" | "stockChart" | "mapChart"

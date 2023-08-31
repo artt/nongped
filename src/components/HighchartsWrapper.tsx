@@ -1,51 +1,44 @@
 import React from "react";
 import Highcharts from 'highcharts';
 import HighchartsStock from 'highcharts/highstock';
+import HighchartsMap from 'highcharts/highmaps';
 import HighchartsReact from 'highcharts-react-official';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
-import highchartsMap from "highcharts/modules/map";
 import { defaultOptions } from "utils";
+import type { HighchartsConstructorType } from "types"
 
-if (typeof Highcharts === "object") {
-  highchartsMap(Highcharts)
-  Highcharts.dateFormats = {
-    q: function (timestamp) {
-      const date = new Date(timestamp)
-      return(Math.floor(date.getUTCMonth() / 3) + 1).toFixed(0);
+if (document) {
+  [Highcharts, HighchartsStock, HighchartsMap].forEach((Highcharts) => {
+    Highcharts.dateFormats = {
+      q: function (timestamp) {
+        const date = new Date(timestamp)
+        return(Math.floor(date.getUTCMonth() / 3) + 1).toFixed(0);
+      }
     }
-  }
-  Highcharts.setOptions({
-    lang: {
-      thousandsSep: ",",
-      numericSymbols: ["k", "M", "B", "T", "P", "E"],
-    },
+    Highcharts.setOptions({
+      lang: {
+        thousandsSep: ",",
+        numericSymbols: ["k", "M", "B", "T", "P", "E"],
+      },
+    })
   })
 }
 
-if (typeof HighchartsStock === "object") {
-  HighchartsStock.dateFormats = {
-    q: function (timestamp) {
-      const date = new Date(timestamp)
-      return(Math.floor(date.getUTCMonth() / 3) + 1).toFixed(0);
-    }
-  }
-  HighchartsStock.setOptions({
-    lang: {
-      thousandsSep: ",",
-      numericSymbols: ["k", "M", "B", "T", "P", "E"],
-    },
-  })
+const constructor: Record<HighchartsConstructorType, unknown> = {
+  chart: Highcharts,
+  stockChart: HighchartsStock,
+  mapChart: HighchartsMap,
 }
 
 interface Props {
-  useHighchartsStock: boolean,
+  constructorType: HighchartsConstructorType,
   isLoading: boolean,
   options?: object,
   [x: string]: unknown,
 }
 
-const HighchartsWrapper = React.forwardRef(({ useHighchartsStock, isLoading, options, ...rest }: Props, ref) => {
+const HighchartsWrapper = React.forwardRef(({ constructorType="chart", isLoading, options, ...rest }: Props, ref) => {
 
   // use state (instead of props) so to minimize rerenderings
   // https://github.com/highcharts/highcharts-react#optimal-way-to-update
@@ -73,7 +66,8 @@ const HighchartsWrapper = React.forwardRef(({ useHighchartsStock, isLoading, opt
   return(
     <HighchartsReact
       ref={ref}
-      highcharts={useHighchartsStock ? HighchartsStock : Highcharts}
+      highcharts={constructor[constructorType]}
+      constructorType={constructorType}
       containerProps={{ style: { height: "100%", width: "100%" } }}
       options={chartOptions}
       {...rest}
