@@ -7,7 +7,7 @@ interface Props {
   data?: FxData
 }
 
-export default function TimeSeriesChart({ data }: Props) {
+export default function FxChart({ data }: Props) {
   return (
     <HighchartsWrapper
       isLoading={!data}

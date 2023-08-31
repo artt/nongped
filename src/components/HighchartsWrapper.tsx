@@ -3,7 +3,6 @@ import Highcharts from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
-import deepmerge from "deepmerge"
 import highchartsMap from "highcharts/modules/map";
 import { defaultOptions } from "utils";
 
@@ -25,18 +24,18 @@ if (typeof Highcharts === "object") {
 
 interface Props {
   isLoading: boolean,
-  staticOptions: object,
-  dynamicOptions: object,
+  options?: object,
   [x: string]: unknown,
 }
 
-const HighchartsWrapper = React.forwardRef(({ isLoading, staticOptions, dynamicOptions, ...rest }: Props, ref) => {
+const HighchartsWrapper = React.forwardRef(({ isLoading, options, ...rest }: Props, ref) => {
 
-  const [chartOptions, setChartOptions] = React.useState<object>(deepmerge(defaultOptions, staticOptions))
+  const [chartOptions, setChartOptions] = React.useState<object>(defaultOptions)
 
   React.useEffect(() => {
-    setChartOptions(dynamicOptions)
-  }, [dynamicOptions])
+    if (options)
+      setChartOptions(options)
+  }, [options])
 
   if (isLoading) {
     return(
