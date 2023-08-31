@@ -5,7 +5,7 @@ import Box from "@mui/material/Box"
 import { tooltipPercentFormatter, ticksPercentFormatter } from "utils"
 
 interface Props {
-  data: ComponentChartDataType,
+  data?: ComponentChartDataType,
   explodeKeyHeld?: boolean,
   handleRangeChange: (minDate: string, maxDate: string) => void,
 }
@@ -48,7 +48,7 @@ const ComponentChart = React.forwardRef(({ data, handleRangeChange }: Props, _re
         ref={ref}
         isLoading={!data}
         constructorType={'stockChart'}
-        options={{
+        options={data && {
           series: data.chartSeries,
           plotOptions: {
             column: {

@@ -241,8 +241,6 @@ export default function Gdp() {
     setData({freq, mode, tableSeries, chartSeries})
   }, [rawData, freq, mode])
 
-  if (!data) return null
-
   return (
     <Split
       top={

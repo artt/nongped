@@ -143,8 +143,6 @@ export default function Inflation() {
     setData({freq, mode, tableSeries, chartSeries})
   }, [rawData, freq, mode])
 
-  if (!data) return null
-
   return (
     <Split
       top={

@@ -30,6 +30,8 @@ interface Props {
 
 const HighchartsWrapper = React.forwardRef(({ isLoading, options, ...rest }: Props, ref) => {
 
+  // use state (instead of props) so to minimize rerenderings
+  // https://github.com/highcharts/highcharts-react#optimal-way-to-update
   const [chartOptions, setChartOptions] = React.useState<object>(defaultOptions)
 
   React.useEffect(() => {
