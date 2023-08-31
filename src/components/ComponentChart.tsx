@@ -60,20 +60,11 @@ const ComponentChart = React.forwardRef(({ data, handleRangeChange }: Props, _re
         isLoading={!data}
         constructorType={'stockChart'}
         options={{
-          navigator: {
-            // adaptToUpdatedData: false,
-          },
           series: data.chartSeries,
           plotOptions: {
             column: {
               stacking: 'normal',
               crisp: false,
-            },
-            areaspline: {
-              stacking: 'normal',
-            },
-            spline: {
-              //
             },
             series: {
               dataGrouping: {
@@ -86,7 +77,6 @@ const ComponentChart = React.forwardRef(({ data, handleRangeChange }: Props, _re
             layout: 'vertical',
             align: 'left',
             verticalAlign: 'top',
-            // floating: true,
           },
           tooltip: {
             valueDecimals: data.mode === "level" ? 0 : 2,
@@ -95,7 +85,6 @@ const ComponentChart = React.forwardRef(({ data, handleRangeChange }: Props, _re
             },
             split: false,
             shared: true,
-            // shared: !explodeKeyHeld,
           },
           scrollbar: {
             enabled: false
@@ -163,9 +152,6 @@ const ComponentChart = React.forwardRef(({ data, handleRangeChange }: Props, _re
               width: 2,
               zIndex: 3,
             }],
-          },
-          credits: {
-            enabled: false,
           },
         }}
       />
