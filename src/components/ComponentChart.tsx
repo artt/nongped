@@ -46,6 +46,7 @@ const ComponentChart = React.forwardRef(({ data, handleRangeChange }: Props, _re
     >
       <HighchartsWrapper
         ref={ref}
+        useHighchartsStock={true}
         isLoading={!data}
         constructorType={'stockChart'}
         options={data && {

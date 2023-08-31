@@ -134,7 +134,10 @@ export default function Countries() {
     isLoading={!data}
     options={data && {
       chart: {
-        type: 'bar',
+        type: 'column',
+        zooming: {
+          type: 'x',
+        },
       },
       series: [{
         name: availableSeries[series].label,
@@ -147,9 +150,16 @@ export default function Countries() {
       xAxis: {
         type: 'category',
         scrollbar: {
-          enabled: true
+          // enabled: true
         },
-        min: 0,
+        labels: {
+          step: 1,
+          // rotation: -90,
+          // staggerLines: 3,
+        },
+      },
+      legend: {
+        enabled: false,
       },
       yAxis: {
         type: useLogScale ? 'logarithmic' : 'linear',
@@ -169,17 +179,17 @@ export default function Countries() {
           return tmp
         },
       },
-      plotOptions: {
-        series: {
-          enablRegionouseTracking: false,
-        },
-        column: {
-          crisp: false,
-        },
-      },
-      legend: {
-        enabled: false,
-      },
+      // plotOptions: {
+      //   series: {
+      //     enablRegionouseTracking: false,
+      //   },
+      //   column: {
+      //     crisp: false,
+      //   },
+      // },
+      // legend: {
+      //   enabled: false,
+      // },
     }}
   />
 

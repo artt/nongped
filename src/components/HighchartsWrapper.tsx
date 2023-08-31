@@ -1,5 +1,6 @@
 import React from "react";
-import Highcharts from 'highcharts/highstock';
+import Highcharts from 'highcharts';
+import HighchartsStock from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
@@ -22,13 +23,29 @@ if (typeof Highcharts === "object") {
   })
 }
 
+if (typeof HighchartsStock === "object") {
+  HighchartsStock.dateFormats = {
+    q: function (timestamp) {
+      const date = new Date(timestamp)
+      return(Math.floor(date.getUTCMonth() / 3) + 1).toFixed(0);
+    }
+  }
+  HighchartsStock.setOptions({
+    lang: {
+      thousandsSep: ",",
+      numericSymbols: ["k", "M", "B", "T", "P", "E"],
+    },
+  })
+}
+
 interface Props {
+  useHighchartsStock: boolean,
   isLoading: boolean,
   options?: object,
   [x: string]: unknown,
 }
 
-const HighchartsWrapper = React.forwardRef(({ isLoading, options, ...rest }: Props, ref) => {
+const HighchartsWrapper = React.forwardRef(({ useHighchartsStock, isLoading, options, ...rest }: Props, ref) => {
 
   // use state (instead of props) so to minimize rerenderings
   // https://github.com/highcharts/highcharts-react#optimal-way-to-update
@@ -56,7 +73,7 @@ const HighchartsWrapper = React.forwardRef(({ isLoading, options, ...rest }: Pro
   return(
     <HighchartsReact
       ref={ref}
-      highcharts={Highcharts}
+      highcharts={useHighchartsStock ? HighchartsStock : Highcharts}
       containerProps={{ style: { height: "100%", width: "100%" } }}
       options={chartOptions}
       {...rest}

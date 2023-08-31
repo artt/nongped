@@ -10,6 +10,7 @@ interface Props {
 export default function FxChart({ data }: Props) {
   return (
     <HighchartsWrapper
+      useHighchartsStock={true}
       isLoading={!data}
       constructorType={'stockChart'}
       options={data && {
