@@ -37,17 +37,6 @@ const ComponentChart = React.forwardRef(({ data, handleRangeChange }: Props, _re
     }
   }, [])
 
-  React.useEffect(() => {
-    if (ref.current === undefined) return
-    if ('chart' in ref.current) {
-      (ref.current.chart as Highcharts.Chart).update({
-        tooltip: {
-          shared: !explodeKeyHeld,
-        }
-      })
-    }
-  }, [explodeKeyHeld])
-
   return(
     <Box
       sx={{
@@ -84,7 +73,7 @@ const ComponentChart = React.forwardRef(({ data, handleRangeChange }: Props, _re
               return tooltipPercentFormatter(this, tooltip, data.freq)
             },
             split: false,
-            shared: true,
+            shared: !explodeKeyHeld,
           },
           scrollbar: {
             enabled: false

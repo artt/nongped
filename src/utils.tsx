@@ -111,6 +111,38 @@ export const defaultOptions = {
   chart: {
     backgroundColor: 'transparent',
   },
+  rangeSelector: {
+    buttons: [
+      {
+        type: 'ytd',
+        text: 'YTD',
+      },
+      {
+        type: 'year',
+        count: 1,
+        text: '1Y',
+      },
+      {
+        type: 'year',
+        count: 3,
+        text: '3Y',
+      },
+      {
+        type: 'year',
+        count: 5,
+        text: '5Y',
+      },
+      {
+        type: 'year',
+        count: 10,
+        text: '10Y',
+      },
+      {
+        type: 'all',
+        text: 'All',
+      },
+    ],
+  },
 }
 
 /**
