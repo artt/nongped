@@ -142,13 +142,18 @@ export function ticksDateFormatter(tick: number, freq: freqType): string {
   // return `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`
 }
 
+function formatPercentLine(str: string, y: number) {
+  return str.replace(/<b>.*<\/b>/, `<b>${percentFormatterNumber(y)}</b>`)
+}
+
 export function tooltipPercentFormatter(tooltipPoint: TooltipPoint, tooltip: Highcharts.Tooltip, freq: freqType) {
   const tmp = tooltip.defaultFormatter.call(tooltipPoint, tooltip)
   if (typeof tmp === "string") return tmp
   return tmp.map((line: string, i: number) => {
-    if (line === "" || !tooltipPoint.points) return line
+    if (line === "") return line
     if (i === 0) return ticksDateFormatter(tooltipPoint.x, freq) + "<br>"
-    return line.replace(/<b>.*<\/b>/, `<b>${percentFormatterNumber(tooltipPoint.points[i - 1].y)}</b>`)
+    if (!tooltipPoint.points) return formatPercentLine(line, tooltipPoint.y)
+    return formatPercentLine(line, tooltipPoint.points[i - 1].y)
   })
 }
 
