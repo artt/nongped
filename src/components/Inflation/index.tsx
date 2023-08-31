@@ -42,7 +42,7 @@ const freqList = ["M", "Q", "Y"]
 // const weights15 = [100, 72.56, 15.69, 11.75]
 const weights19 = [100, 67.06, 20.55, 12.39]
 
-export default function Inflation({ explodeKeyHeld }: { explodeKeyHeld?: boolean } ) {
+export default function Inflation() {
 
   const ref = React.useRef<typeof HighchartsReact>(null)
   
@@ -151,7 +151,6 @@ export default function Inflation({ explodeKeyHeld }: { explodeKeyHeld?: boolean
         <ComponentChart
           ref={ref}
           data={data}
-          explodeKeyHeld={explodeKeyHeld}
           handleRangeChange={handleRangeChange}
         />
       }

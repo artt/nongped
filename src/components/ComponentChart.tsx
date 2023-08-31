@@ -10,9 +10,32 @@ interface Props {
   handleRangeChange: (minDate: string, maxDate: string) => void,
 }
 
-const ComponentChart = React.forwardRef(({ data, explodeKeyHeld, handleRangeChange }: Props) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const ComponentChart = React.forwardRef(({ data, handleRangeChange }: Props, _refJustInCase) => {
   
+  const [explodeKeyHeld, setExplodeKeyHeld] = React.useState(false)
   const ref = React.useRef<Highcharts.Chart>()
+
+  // universal keyboard handler
+  function handleKeyDown(e: KeyboardEvent) {
+    if (e.key === 't') {
+      setExplodeKeyHeld(true)
+    }
+  }
+  function handleKeyUp(e: KeyboardEvent) {
+    if (e.key === 't') {
+      setExplodeKeyHeld(false)
+    }
+  }
+
+  React.useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keyup', handleKeyUp)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keyup', handleKeyUp)
+    }
+  }, [])
 
   React.useEffect(() => {
     if (ref.current === undefined) return
