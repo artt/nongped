@@ -173,6 +173,9 @@ export default function Countries() {
         series: {
           enablRegionouseTracking: false,
         },
+        column: {
+          crisp: false,
+        },
       },
       legend: {
         enabled: false,
