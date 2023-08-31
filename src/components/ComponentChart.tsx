@@ -138,7 +138,6 @@ const ComponentChart = React.forwardRef(({ data, handleRangeChange }: Props, _re
                 handleRangeChange(minDate, maxDate)
               },
             },
-            crosshair: false,
           },
           yAxis: {
             labels: {
