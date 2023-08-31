@@ -3,10 +3,9 @@ import Highcharts from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
-import merge from "deepmerge"
+import deepmerge from "deepmerge"
 import highchartsMap from "highcharts/modules/map";
 import { defaultOptions } from "utils";
-import equal from "deep-equal"
 
 if (typeof Highcharts === "object") {
   highchartsMap(Highcharts)
@@ -26,12 +25,20 @@ if (typeof Highcharts === "object") {
 
 interface Props {
   isLoading: boolean,
-  options: unknown,
+  staticOptions: object,
+  dynamicOptions: object,
   [x: string]: unknown,
 }
 
-const HighchartsWrapper = React.memo(React.forwardRef(({ isLoading, options, ...rest }: Props, ref) => {
-  if (isLoading)
+const HighchartsWrapper = React.forwardRef(({ isLoading, staticOptions, dynamicOptions, ...rest }: Props, ref) => {
+
+  const [chartOptions, setChartOptions] = React.useState<object>(deepmerge(defaultOptions, staticOptions))
+
+  React.useEffect(() => {
+    setChartOptions(dynamicOptions)
+  }, [dynamicOptions])
+
+  if (isLoading) {
     return(
       <Box sx={{
         display: 'flex',
@@ -43,26 +50,18 @@ const HighchartsWrapper = React.memo(React.forwardRef(({ isLoading, options, ...
         <CircularProgress />
       </Box>
     )
+  }
+
   return(
     <HighchartsReact
       ref={ref}
       highcharts={Highcharts}
       containerProps={{ style: { height: "100%", width: "100%" } }}
-      options={merge(defaultOptions, (options as {[x: string]: unknown}))}
+      options={chartOptions}
       {...rest}
     />
   )
-}), (prevProps, nextProps) => {
-  try {
-    const isEqual = equal(
-      (prevProps.options as { series: object; }).series,
-      (nextProps.options as { series: object; }).series
-    )
-    return isEqual
-  }
-  catch {
-    return false
-  }
+
 })
 
 export default HighchartsWrapper
