@@ -2,6 +2,7 @@ import type { LabelDefType, ComponentChartDataType, freqType } from "types"
 import { quarterToMonth, getMonthName } from "utils";
 import deepmerge from "deepmerge"
 import Box from "@mui/material/Box";
+import clsx from "clsx";
 
 import { ReactGrid, Column, Row, NumberCell, HeaderCell } from "@silevis/reactgrid";
 
@@ -103,14 +104,18 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
     ],
   }
 
-  const dataRows: Row[] = tableData.map((series) => ({
+  const dataRows: Row[] = tableData.map((series, seriesIndex) => ({
     rowId: series.name,
     cells: [
-      { type: "header", text: labelDefs[series.name].label },
+      {
+        type: "header",
+        text: labelDefs[series.name].label,
+        className: clsx("series-name", seriesIndex === 0 && "first-series"),
+      },
       ...series.data.map<NumberCell>((p, i) => ({
         type: "number",
         value: (p.v * (data.mode === "level" ? 1 : 100)),
-        className: isLastPeriodOfBlock(p.t, data.freq) && i < series.data.length - 1 ? "last-period" : ""
+        className: clsx(isLastPeriodOfBlock(p.t, data.freq) && i < series.data.length - 1 && "last-period", seriesIndex === 0 && "first-series"),
       }))
     ],
   }))
