@@ -1,8 +1,6 @@
-import React from "react"
-import type { LabelDefType, ComponentChartDataType } from "types"
+import type { LabelDefType, ComponentChartDataType, freqType } from "types"
 import { quarterToMonth, getMonthName } from "utils";
 import deepmerge from "deepmerge"
-import clsx from "clsx"
 import Box from "@mui/material/Box";
 
 import { ReactGrid, Column, Row, NumberCell, HeaderCell } from "@silevis/reactgrid";
@@ -17,6 +15,17 @@ interface Props {
   data?: ComponentChartDataType
   minDate?: string
   maxDate?: string
+}
+
+/**
+ * Check if the period is the last period of the block
+ */
+function isLastPeriodOfBlock(period: string, freq: freqType) {
+  switch(freq) {
+    case "M": return period.slice(-2) === "12"
+    case "Q": return period.slice(-2) === "Q4"
+    case "Y": return parseInt(period) % 10 === 9
+  }
 }
 
 export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50, data, minDate, maxDate }: Props) {
@@ -62,21 +71,17 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
     return acc
   }, [{ year: tableData[0].data[0].t.slice(0, 4), span: 1 }])
 
-  // const yearCutoffs = tmp.map(p => p.span).reduce((acc, _p, i, a) => {
-  //   if (i === 0) return acc
-  //   acc.push(acc[i - 1] + a[i - 1])
-  //   return acc
-  // }, [0])
-
-  // const columns: Column[] = [{ columnId: "series"}, ...Array(tableData[0].data.length).fill({ columnId: "data", width: 50 })]
-  const columns: Column[] = [{ columnId: "series"}, ...Array.from({length: tableData[0].data.length}, (_, i) => ({ columnId: `data-${i}`, width: cellWidth }))]
+  const columns: Column[] = [
+    { columnId: "series", width: headerWidth },
+    ...Array.from({length: tableData[0].data.length}, (_, i) => ({ columnId: `data-${i}`, width: cellWidth }))
+  ]
 
   const yearRow: Row = {
     rowId: "year",
     cells: [
       { type: "header", text: "Year" },
-      ...tmp.reduce<HeaderCell[]>((acc, cur) => acc.concat([
-        { type: "header", text: cur.year, colspan: cur.span },
+      ...tmp.reduce<HeaderCell[]>((acc, cur, i) => acc.concat([
+        { type: "header", text: cur.year, colspan: cur.span, className: i < tmp.length - 1 ? "last-period" : "" },
         ...Array(cur.span - 1).fill({ type: "header", text: "" })
       ]), [])
     ],
@@ -86,90 +91,45 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
     rowId: "period",
     cells: [
       { type: "header", text: "Period" },
-      ...tableData[0].data.map<HeaderCell>(p => ({ type: "header", text: data.freq === "M" ? getMonthName(parseInt(p.t.slice(-2))) : data.freq === "Q" ? p.t.slice(-2) : "" }))
+      ...tableData[0].data.map<HeaderCell>((p, i) => ({
+        type: "header",
+        text: data.freq === "M"
+          ? getMonthName(parseInt(p.t.slice(-2)))
+          : data.freq === "Q"
+            ? p.t.slice(-2)
+            : "",
+        className: isLastPeriodOfBlock(p.t, data.freq) && i < tableData[0].data.length - 1 ? "last-period" : ""
+      }))
     ],
   }
 
-  const dataRows: Row[] = tableData.map((series, i) => ({
+  const dataRows: Row[] = tableData.map((series) => ({
     rowId: series.name,
     cells: [
       { type: "header", text: labelDefs[series.name].label },
-      ...series.data.map<NumberCell>(p => ({ type: "number", value: (p.v * (data.mode === "level" ? 1 : 100)) }))
+      ...series.data.map<NumberCell>((p, i) => ({
+        type: "number",
+        value: (p.v * (data.mode === "level" ? 1 : 100)),
+        className: isLastPeriodOfBlock(p.t, data.freq) && i < series.data.length - 1 ? "last-period" : ""
+      }))
     ],
   }))
 
-  const xRows: Row[] = [
-    yearRow,
-    periodRow,
-    ...dataRows,
-  ]
-
-  // const columns: Column[] = [
-  //   { columnId: "name", width: 150 },
-  //   { columnId: "surname", width: 150 },
-  //   { columnId: "age", width: 150 },
-  // ];
-  // const xRows: Row[] = [
-  //   { rowId: "header", cells: [{ type: "header", text: "Name" }, { type: "header", text: "Surname" }, { type: "header", text: "Surname" }] },
-  //   { rowId: "1", cells: [{ type: "text", text: "A" }, { type: "text", text: "b" }] },
-  //   { rowId: "1", cells: [{ type: "text", text: "Aa" }, { type: "text", text: "bb" }] },
-  // ]
-
-
   return(
-    <Box className="inflation-table-container" sx={{ paddingBottom: '10px' }}>
+    <Box className="summary-table-container" sx={{ paddingBottom: '10px' }}>
       <ReactGrid
         columns={columns}
-        rows={xRows}
+        rows={[
+          periodRow,
+          yearRow,
+          ...dataRows,
+        ]}
         enableRangeSelection
         enableRowSelection
+        enableColumnSelection
         stickyLeftColumns={1}
       />
     </Box>
   )
 
-//   return(
-//     <Box className="inflation-table-container" sx={{ paddingBottom: '10px' }}>
-//       <table>
-//         <thead>
-//           <tr>
-//             <th className="sticky-column-header" style={{minWidth: `${headerWidth}px`}}>Year</th>
-//             {/* merge all the years that are the same together and make them span all the cells with the same year */}
-//             {/* note that there might not be 12 periods in a year */}
-//             {tmp.map((p, i) => <th className="right-border" key={i} colSpan={p.span} rowSpan={data.freq === "Y" ? 2 : 1}>{p.year}</th>)}
-//           </tr>
-//           <tr>
-//             <th className="sticky-column-header">Period</th>
-//             {data.freq !== "Y" && tableData[0].data.map((p, i) => (
-//               <th
-//                 key={i}
-//                 className={clsx(yearCutoffs.includes(i + 1) && "right-border")}
-//               >
-//                 {data.freq === "M"
-//                   ? getMonthName(parseInt(p.t.slice(-2)))
-//                   : data.freq === "Q" ? p.t.slice(-2) : ""
-//                 }
-//               </th>
-//             ))}
-//           </tr>
-//         </thead>
-//         <tbody>
-//           {tableData.map((series, i) => (
-//             <tr key={i}>
-//               <td className="sticky-column-header">{labelDefs[series.name].label}</td>
-//               {series.data.map((p, i) => (
-//                 <td
-//                   key={i}
-//                   className={clsx(yearCutoffs.includes(i + 1) && "right-border")}
-//                   style={{minWidth: `${cellWidth}px`, maxWidth: `${cellWidth}px`}}
-//                 >
-//                   {(p.v * (data.mode === "level" ? 1 : 100)).toFixed(2)}
-//                 </td>
-//               ))}
-//             </tr>
-//           ))}
-//         </tbody>
-//       </table>
-//     </Box>
-//   )
 }

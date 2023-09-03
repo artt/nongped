@@ -3,34 +3,26 @@ $cell-text-color: black;
 
 @import '@silevis/reactgrid/styles.scss';
 
-.inflation-table-container {
-//   table {
-//     table-layout: fixed;
-//     border-spacing: 0;
-//     td {
-//       text-align: right;
-//       padding: 2px 8px;
-//     }
-//     .sticky-column-header {
-//       text-align: left;
-//       position: sticky;
-//       left: 0;
-//       background-color: white;
-//       border-right: 2px solid #aaa;
-//     }
-//     th.sticky-column-header {
-//       text-align: center;
-//     }
-//     .right-border:not(:last-child) {
-//       border-right: 1px solid #aaa;
-//     }
-//     // bottom border for header rows
-//     tbody tr:first-child td {
-//       border-top: 1px solid #aaa;
-//     }
-//   }
+.summary-table-container {
   width: 100px; // just so that it has some basis to stretch out
   font-size: 0.8rem;
   flex: auto;
   overflow-x: scroll;
+
+  .rg-header-cell {
+    justify-content: center;
+    font-weight: bold;
+  }
+  .rg-header-cell[data-cell-rowidx="0"]:last-of-type {
+    border-right-color: red;
+  }
+
+  .rg-header-cell[data-cell-colidx="0"] {
+    justify-content: flex-start;
+  }
+
+  .last-period {
+    border-right-color: black !important;
+  }
+
 }
