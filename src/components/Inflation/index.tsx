@@ -2,7 +2,7 @@ import React from 'react'
 import { freqToNum, getTedDataPromise } from "utils"
 import type {
   freqType,
-  LabelDefType,
+  SeriesDefType,
   TedDataType,
   TimeSeriesWithFrequenciesType,
   ComponentChartDataType,
@@ -20,7 +20,7 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
 import ToggleButton from "@mui/material/ToggleButton"
 import { HighchartsReact } from 'highcharts-react-official'
 
-const labelDefs: LabelDefType = {
+const labelDefs: SeriesDefType = {
   cpi: {
     label: 'CPI',
   },

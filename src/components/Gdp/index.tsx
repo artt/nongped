@@ -2,7 +2,7 @@ import React from 'react'
 import { defaultOptions, getTedDataPromise } from "utils"
 import Split from "components/Split"
 import { freqToNum, quarterToMonth } from "utils"
-import type { freqType, LabelDefType, TedDataType, TimeSeriesWithFrequenciesType, ComponentChartDataType, modeType } from "types"
+import type { freqType, SeriesDefType, TedDataType, TimeSeriesWithFrequenciesType, ComponentChartDataType, modeType } from "types"
 import ComponentChart from "components/ComponentChart"
 import SummaryTable from "components/SummaryTable"
 import Box from "@mui/material/Box"
@@ -15,7 +15,7 @@ import Color from 'color'
 
 const freqList = ["Q", "Y"]
 
-const labelDefs: LabelDefType = {
+const labelDefs: SeriesDefType = {
   gdpr: {
     label: 'GDP',
     color: defaultOptions.colors[0],

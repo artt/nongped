@@ -1,4 +1,4 @@
-import type { LabelDefType, ComponentChartDataType, freqType } from "types"
+import type { SeriesDefType, ComponentChartDataType, freqType } from "types"
 import { quarterToMonth, getMonthName } from "utils";
 import deepmerge from "deepmerge"
 import Box from "@mui/material/Box";
@@ -10,7 +10,7 @@ import "./styles.scss"
 
 interface Props {
   freqList: string[]
-  labelDefs: LabelDefType
+  labelDefs: SeriesDefType
   headerWidth?: number
   cellWidth?: number
   data?: ComponentChartDataType
@@ -28,7 +28,7 @@ function isLastPeriodOfBlock(period: string, freq: freqType) {
     case "Y": return parseInt(period) % 10 === 9
   }
 }
-
+// heiararchy
 export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50, data, minDate, maxDate }: Props) {
   
   if (!data) return null

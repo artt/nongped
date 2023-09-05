@@ -1,12 +1,13 @@
 export type freqType = "M" | "Q" | "Y"
 
-export type LabelDefType = {
-  [x: string]: {
+export type SeriesDefType = {
+  [seriesName: string]: {
     label: string,
     color?: string
     hide?: modeType[],
     negativeContribution?: boolean,
     skipLoading?: boolean,
+    children?: SeriesDefType,
   }
 }
 
