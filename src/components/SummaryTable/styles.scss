@@ -1,6 +1,8 @@
 $rg-content-text-color: black;
 $cell-text-color: black;
 
+$dark-border: rgba(black, 0.3);
+
 @import '@silevis/reactgrid/styles.scss';
 
 .summary-table-container {
@@ -18,12 +20,13 @@ $cell-text-color: black;
     justify-content: flex-start;
   }
 
-  .first-series {
-    border-top: 1px solid rgba(black, 0.3) !important;
+  .rg-header-cell[data-cell-colidx="0"],
+  .last-period {
+    border-right-color: $dark-border !important;
   }
 
-  .last-period {
-    border-right-color: rgba(black, 0.3) !important;
+  .rg-header-cell[data-cell-rowidx="1"] {
+    border-bottom-color: $dark-border !important;
   }
 
 }

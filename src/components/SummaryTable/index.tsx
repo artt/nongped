@@ -80,9 +80,20 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
   const yearRow: Row = {
     rowId: "year",
     cells: [
-      { type: "header", text: "Year" },
+      {
+        type: "header",
+        text: "Year",
+        className: "last-header",
+      },
       ...tmp.reduce<HeaderCell[]>((acc, cur, i) => acc.concat([
-        { type: "header", text: cur.year, colspan: cur.span, className: i < tmp.length - 1 ? "last-period" : "" },
+        {
+          type: "header",
+          text: cur.year, colspan: cur.span,
+          className: clsx(
+            i < tmp.length - 1 && "last-period",
+            "last-header",
+          ),
+        },
         ...Array(cur.span - 1).fill({ type: "header", text: "" })
       ]), [])
     ],
@@ -99,23 +110,30 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
           : data.freq === "Q"
             ? p.t.slice(-2)
             : "",
-        className: isLastPeriodOfBlock(p.t, data.freq) && i < tableData[0].data.length - 1 ? "last-period" : ""
+        className: clsx(
+          isLastPeriodOfBlock(p.t, data.freq) && i < tableData[0].data.length - 1 && "last-period",
+        )
       }))
     ],
   }
 
-  const dataRows: Row[] = tableData.map((series, seriesIndex) => ({
+  const formatter = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
+  const dataRows: Row[] = tableData.map(series => ({
     rowId: series.name,
     cells: [
       {
         type: "header",
         text: labelDefs[series.name].label,
-        className: clsx("series-name", seriesIndex === 0 && "first-series"),
+        className: 'series-name',
       },
       ...series.data.map<NumberCell>((p, i) => ({
         type: "number",
         value: (p.v * (data.mode === "level" ? 1 : 100)),
-        className: clsx(isLastPeriodOfBlock(p.t, data.freq) && i < series.data.length - 1 && "last-period", seriesIndex === 0 && "first-series"),
+        format: formatter,
+        className: clsx(
+          isLastPeriodOfBlock(p.t, data.freq) && i < series.data.length - 1 && "last-period",
+        ),
       }))
     ],
   }))
