@@ -1,14 +1,13 @@
 export type freqType = "M" | "Q" | "Y"
 
 export type SeriesDefType = {
-  [seriesName: string]: {
-    label: string,
-    color?: string
-    hide?: modeType[],
-    negativeContribution?: boolean,
-    skipLoading?: boolean,
-    children?: SeriesDefType,
-  }
+  name: string,
+  label: string,
+  color?: string
+  hide?: modeType[],
+  negativeContribution?: boolean,
+  skipLoading?: boolean,
+  children?: SeriesDefType[],
 }
 
 export type TedDataType = {

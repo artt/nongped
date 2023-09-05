@@ -1,4 +1,4 @@
-import { TooltipPoint, freqType } from "types"
+import { TooltipPoint, freqType, SeriesDefType } from "types"
 
 // export const serverAddress = process.env.NODE_ENV === "development"
 //   ? `http://localhost:1443`
@@ -191,4 +191,31 @@ export function tooltipPercentFormatter(tooltipPoint: TooltipPoint, tooltip: Hig
 
 export function dataLabelsPercentFormatter(this: TooltipPoint) {
   return percentFormatterNumber(this.y)
+}
+
+/**
+ * Retrieve the series definition from the series name
+ */
+export function getSeries(name: string, allSeries: SeriesDefType[]): SeriesDefType {
+  for (const series of allSeries) {
+    if (series.name === name) {
+      return series
+    }
+    else if (series.children) {
+      return getSeries(name, series.children)
+    }
+  }
+  // raise exception if not found
+  throw new Error(`Series ${name} not found T.T`)
+}
+
+export function getAllSeriesNames(allSeries: SeriesDefType[]): string[] {
+  const res: string[] = []
+  allSeries.forEach(series => {
+    res.push(series.name)
+    if (series.children) {
+      res.push(...getAllSeriesNames(series.children))
+    }
+  })
+  return res
 }

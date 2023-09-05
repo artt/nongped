@@ -1,5 +1,5 @@
 import React from 'react'
-import { freqToNum, getTedDataPromise } from "utils"
+import { freqToNum, getAllSeriesNames, getSeries, getTedDataPromise } from "utils"
 import type {
   freqType,
   SeriesDefType,
@@ -20,20 +20,26 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
 import ToggleButton from "@mui/material/ToggleButton"
 import { HighchartsReact } from 'highcharts-react-official'
 
-const labelDefs: SeriesDefType = {
-  cpi: {
+const labelDefs: SeriesDefType[] = [
+  {
+    name: 'cpi',
     label: 'CPI',
+    children: [
+      {
+        name: 'cpi_core',
+        label: 'Core',
+      },
+      {
+        name: 'cpi_rawfood',
+        label: 'Raw Food',
+      },
+      {
+        name: 'cpi_energy',
+        label: 'Energy',
+      },
+    ],
   },
-  cpi_core: {
-    label: 'Core',
-  },
-  cpi_rawfood: {
-    label: 'Raw Food',
-  },
-  cpi_energy: {
-    label: 'Energy',
-  },
-}
+]
 
 const freqList = ["M", "Q", "Y"]
 
@@ -82,7 +88,7 @@ export default function Inflation() {
     // loop over freqTable
     const promises = []
     for (const freq of freqList) {
-      promises.push(getTedDataPromise(Object.keys(labelDefs), freq, 1986)
+      promises.push(getTedDataPromise(getAllSeriesNames(labelDefs), freq, 1986)
         .then(res => processInflationData(res, (freq as freqType)))
       )
     }
@@ -94,17 +100,6 @@ export default function Inflation() {
       })
     })
   }, [])
-
-  // React.useEffect(() => {
-  //   if (ref.current === null) return
-  //   if ('chart' in ref.current) {
-  //     (ref.current.chart as Highcharts.Chart).update({
-  //       tooltip: {
-  //         shared: !explodeKeyHeld,
-  //       }
-  //     })
-  //   }
-  // }, [explodeKeyHeld])
 
   React.useEffect(() => {
     if (!showGrowth) {
@@ -129,8 +124,8 @@ export default function Inflation() {
     }))
     const chartSeries = tableSeries
       .map((series, i) => ({
-        name: labelDefs[series.name].label,
-        color: labelDefs[series.name].color,
+        name: getSeries(series.name, labelDefs).label,
+        color: getSeries(series.name, labelDefs).color,
         findNearestPointBy: i === 0 ? 'x' : 'xy',
         zIndex: i === 0 ? 99 : i,
         data: series.data.map(p => p.v),

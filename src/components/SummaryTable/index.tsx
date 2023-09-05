@@ -1,5 +1,5 @@
 import type { SeriesDefType, ComponentChartDataType, freqType } from "types"
-import { quarterToMonth, getMonthName } from "utils";
+import { quarterToMonth, getMonthName, getSeries } from "utils";
 import deepmerge from "deepmerge"
 import Box from "@mui/material/Box";
 import clsx from "clsx";
@@ -10,7 +10,7 @@ import "./styles.scss"
 
 interface Props {
   freqList: string[]
-  labelDefs: SeriesDefType
+  labelDefs: SeriesDefType[]
   headerWidth?: number
   cellWidth?: number
   data?: ComponentChartDataType
@@ -124,7 +124,7 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
     cells: [
       {
         type: "header",
-        text: labelDefs[series.name].label,
+        text: getSeries(series.name, labelDefs).label,
         className: 'series-name',
       },
       ...series.data.map<NumberCell>((p, i) => ({
