@@ -197,24 +197,31 @@ export function dataLabelsPercentFormatter(this: TooltipPoint) {
  * Retrieve the series definition from the series name
  */
 export function getSeries(name: string, allSeries: SeriesDefType[]): SeriesDefType {
-  for (const series of allSeries) {
-    if (series.name === name) {
-      return series
-    }
-    else if (series.children) {
-      return getSeries(name, series.children)
-    }
-  }
+  const tmp = getSeriesRecursive(name, allSeries)
+  if (tmp) return tmp
   // raise exception if not found
   throw new Error(`Series ${name} not found T.T`)
 }
 
-export function getAllSeriesNames(allSeries: SeriesDefType[]): string[] {
+function getSeriesRecursive(name: string, allSeries: SeriesDefType[]): SeriesDefType | null {
+  for (const series of allSeries) {
+    if (series.name === name) return series
+    if (series.children) {
+      const tmp = getSeriesRecursive(name, series.children)
+      if (tmp) return tmp
+    }
+  }
+  return null
+}
+
+export function getAllSeriesNames(allSeries: SeriesDefType[], filterFunction: ((series: SeriesDefType) => boolean) = () => true): string[] {
   const res: string[] = []
   allSeries.forEach(series => {
-    res.push(series.name)
+    if (filterFunction(series)) {
+      res.push(series.name)
+    }
     if (series.children) {
-      res.push(...getAllSeriesNames(series.children))
+      res.push(...getAllSeriesNames(series.children, filterFunction))
     }
   })
   return res

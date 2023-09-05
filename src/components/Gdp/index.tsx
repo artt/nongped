@@ -1,5 +1,5 @@
 import React from 'react'
-import { defaultOptions, getTedDataPromise } from "utils"
+import { defaultOptions, getAllSeriesNames, getSeries, getTedDataPromise } from "utils"
 import Split from "components/Split"
 import { freqToNum, quarterToMonth } from "utils"
 import type { freqType, SeriesDefType, TedDataType, TimeSeriesWithFrequenciesType, ComponentChartDataType, modeType } from "types"
@@ -15,61 +15,127 @@ import Color from 'color'
 
 const freqList = ["Q", "Y"]
 
-const labelDefs: SeriesDefType = {
-  gdpr: {
+const labelDefs: SeriesDefType[] = [
+  {
+    name: 'gdpr',
     label: 'GDP',
     color: defaultOptions.colors[0],
-  },
-  gder: {
-    label: 'GDE',
-    hide: ["level", "growth", "contribution"],
-  },
-  cpr: {
-    label: 'Private Consumption',
-    color: defaultOptions.colors[2],
-  },
-  cgovr: {
-    label: "Gov't Consumption",
-    color: Color(defaultOptions.colors[2]).lighten(-0.3).hex(),
-  },
-  ipr: {
-    label: "Private Investment",
-    color: defaultOptions.colors[1],
-  },
-  ipubr: {
-    label: "Public Investment",
-    color: Color(defaultOptions.colors[1]).lighten(-0.2).hex(),
-  },
-  xgr: {
-    label: "Exports of Goods",
-    color: defaultOptions.colors[4],
-  },
-  xsr: {
-    label: "Exports of Services",
-    color: Color(defaultOptions.colors[4]).lighten(-0.3).hex(),
-  },
-  mgr: {
-    label: "Imports of Goods",
-    color: defaultOptions.colors[3],
-    negativeContribution: true,
-  },
-  msr: {
-    label: "Imports of Services",
-    color: Color(defaultOptions.colors[3]).lighten(-0.3).hex(),
-    negativeContribution: true,
-  },
-  stockr: {
-    label: "Change in Inventories",
-    color: defaultOptions.colors[7],
-    hide: ["growth"],
-  },
-  // statr: {
-  //   label: "Statistical Discrepancy",
-  //   color: Color(defaultOptions.colors[7]).lighten(0.3).hex(),
-  //   skipLoading: true,
-  // },
-}
-const gdpSeries = Object.keys(labelDefs)
+    children: [
+      {
+        name: 'gder',
+        label: 'GDE',
+        hide: ["level", "growth", "contribution"],
+        children: [
+          {
+            name: 'ddr',
+            label: 'Domestic Demand',
+            hide: ["level", "growth", "contribution"],
+            skipLoading: true,
+            children: [
+              {
+                name: 'cr',
+                label: 'Consumption',
+                hide: ["level", "growth", "contribution"],
+                skipLoading: true,
+                children: [
+                  {
+                    name: 'cpr',
+                    label: 'Private Consumption',
+                    color: defaultOptions.colors[2],
+                  },
+                  {
+                    name: 'cgovr',
+                    label: "Gov't Consumption",
+                    color: Color(defaultOptions.colors[2]).lighten(-0.3).hex(),
+                  },
+                ],
+              },
+              {
+                name: 'ir',
+                label: 'Investment',
+                hide: ["level", "growth", "contribution"],
+                skipLoading: true,
+                children: [
+                  {
+                    name: 'ipr',
+                    label: "Private Investment",
+                    color: defaultOptions.colors[1],
+                  },
+                  {
+                    name: 'ipubr',
+                    label: "Public Investment",
+                    color: Color(defaultOptions.colors[1]).lighten(-0.2).hex(),
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            name: 'nxr',
+            label: 'Net exports',
+            hide: ["level", "growth", "contribution"],
+            skipLoading: true,
+            children: [
+              {
+                name: 'xr',
+                label: 'Exports',
+                hide: ["level", "growth", "contribution"],
+                skipLoading: true,
+                children: [
+                  {
+                    name: 'xgr',
+                    label: "Exports of Goods",
+                    color: defaultOptions.colors[4],
+                  },
+                  {
+                    name: 'xsr',
+                    label: "Exports of Services",
+                    color: Color(defaultOptions.colors[4]).lighten(-0.3).hex(),
+                  },
+                ],
+              },
+              {
+                name: 'mr',
+                label: 'Imports',
+                hide: ["level", "growth", "contribution"],
+                skipLoading: true,
+                children: [
+                  {
+                    name: 'mgr',
+                    label: "Imports of Goods",
+                    color: defaultOptions.colors[3],
+                    negativeContribution: true,
+                  },
+                  {
+                    name: 'msr',
+                    label: "Imports of Services",
+                    color: Color(defaultOptions.colors[3]).lighten(-0.3).hex(),
+                    negativeContribution: true,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            name: 'stockr',
+            label: "Change in Inventories",
+            color: defaultOptions.colors[7],
+            hide: ["growth"],
+          },
+        ]
+      },
+      {
+        name: 'statr',
+        label: "Statistical Discrepancy",
+        color: Color(defaultOptions.colors[7]).lighten(0.3).hex(),
+        skipLoading: true,
+      }
+    ]
+  }
+]
+
+const gdpSeries = getAllSeriesNames(labelDefs)
+const gdpSeriesToLoad = getAllSeriesNames(labelDefs, series => !series.skipLoading)
 
 function getSeriesType(mode: modeType, seriesIndex: number) {
   switch(mode) {
@@ -113,13 +179,13 @@ export default function Gdp() {
     }
     
     const gdeIndex = 1
-    const gdeDeflator = data.Y.series[gdpSeries.length + gdeIndex].values
+    const gdeDeflator = data.Y.series[gdpSeriesToLoad.length + gdeIndex].values
     const gderYearly = data.Y.series[gdeIndex].values
     const gderQuarterly = data.Q.series[gdeIndex].values
 
-    const processedYearlyData = data.Y.series.slice(0, gdpSeries.length).map((series: {name: string, values: number[]}, seriesIndex: number) => {
-      const deflator = data.Y.series[seriesIndex + gdpSeries.length].values
-      const negativeContribution = labelDefs[series.name].negativeContribution
+    const processedYearlyData = data.Y.series.slice(0, gdpSeriesToLoad.length).map((series: {name: string, values: number[]}, seriesIndex: number) => {
+      const deflator = data.Y.series[seriesIndex + gdpSeriesToLoad.length].values
+      const negativeContribution = getSeries(series.name, labelDefs).negativeContribution
       return({
         name: series.name,
         data: series.values.map((_, i: number, a: number[]) => ({
@@ -135,9 +201,9 @@ export default function Gdp() {
 
     const processedQuarterlyData = data.Q.series.map((series: {name: string, values: number[]}, seriesIndex: number) => {
       // we only use yearly deflator, so this Y is not a typo
-      const deflator = data.Y.series[seriesIndex + gdpSeries.length].values
+      const deflator = data.Y.series[seriesIndex + gdpSeriesToLoad.length].values
       const seriesYearly = data.Y.series[seriesIndex].values
-      const negativeContribution = labelDefs[series.name].negativeContribution
+      const negativeContribution = getSeries(series.name, labelDefs).negativeContribution
       return({
         name: series.name,
         data: series.values.map((_, i: number, a: number[]) => {
@@ -168,13 +234,13 @@ export default function Gdp() {
     dataLoaded.current = true
 
     // loop over freqTable
-    const deflatorSeries = gdpSeries.map(getDeflatorName)
+    const deflatorSeries = gdpSeriesToLoad.map(getDeflatorName)
     const promises = []
 
     for (const freq of freqList) {
       // for quarterly data, just get the *r
       // for yearly data, get deflators as well
-      promises.push(getTedDataPromise(freq === "Q" ? gdpSeries : gdpSeries.concat(deflatorSeries), freq, 1993))
+      promises.push(getTedDataPromise(freq === "Q" ? gdpSeriesToLoad : gdpSeriesToLoad.concat(deflatorSeries), freq, 1993))
     }
     Promise.all(promises).then(res => {
       setRawData(processGdpData(res))
@@ -219,10 +285,10 @@ export default function Gdp() {
     // const chartSeries = deepmerge([], tableSeries)
     const chartSeries = tableSeries
       .map((series, i) => ({
-        visible: !labelDefs[series.name].hide?.includes(mode),
-        showInLegend: !labelDefs[series.name].hide?.includes(mode),
-        name: labelDefs[series.name].label,
-        color: labelDefs[series.name].color,
+        visible: !getSeries(series.name, labelDefs).hide?.includes(mode),
+        showInLegend: !getSeries(series.name, labelDefs).hide?.includes(mode),
+        name: getSeries(series.name, labelDefs).label,
+        color: getSeries(series.name, labelDefs).color,
         marker: {
           enabled: i === 0,
           fillColor: 'white',
