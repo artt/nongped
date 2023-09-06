@@ -77,28 +77,6 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
     ...Array.from({length: tableData[0].data.length}, (_, i) => ({ columnId: `data-${i}`, width: cellWidth }))
   ]
 
-  const yearRow: Row = {
-    rowId: "year",
-    cells: [
-      {
-        type: "header",
-        text: "Year",
-        className: "last-header",
-      },
-      ...tmp.reduce<HeaderCell[]>((acc, cur, i) => acc.concat([
-        {
-          type: "header",
-          text: cur.year, colspan: cur.span,
-          className: clsx(
-            i < tmp.length - 1 && "last-period",
-            "last-header",
-          ),
-        },
-        ...Array(cur.span - 1).fill({ type: "header", text: "" })
-      ]), [])
-    ],
-  }
-
   const periodRow: Row = {
     rowId: "period",
     cells: [
@@ -109,11 +87,40 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
           ? getMonthName(parseInt(p.t.slice(-2)))
           : data.freq === "Q"
             ? p.t.slice(-2)
-            : "",
+            : p.t,
         className: clsx(
           isLastPeriodOfBlock(p.t, data.freq) && i < tableData[0].data.length - 1 && "last-period",
-        )
+        ),
+        rowspan: data.freq === "Y" ? 2 : 1,
       }))
+    ],
+  }
+
+  const yearRow: Row = {
+    rowId: "year",
+    cells: [
+      {
+        type: "header",
+        text: "Year",
+        className: "last-header",
+      },
+      ...tmp.reduce<HeaderCell[]>((acc, cur, i) => acc.concat([
+        data.freq !== "Y"
+        ? {
+            type: "header",
+            text: cur.year,
+            colspan: cur.span,
+            className: clsx(
+              i < tmp.length - 1 && "last-period",
+              "last-header",
+            ),
+          }
+        : {
+            type: "header",
+            text: "",
+          },
+        ...Array(cur.span - 1).fill({ type: "header", text: "" })
+      ]), [])
     ],
   }
 
@@ -123,12 +130,13 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
     rowId: series.name,
     cells: [
       {
-        type: "header",
+        type: "chevron",
         text: getSeries(series.name, labelDefs).label,
         className: 'series-name',
       },
       ...series.data.map<NumberCell>((p, i) => ({
         type: "number",
+        nonEditable: true,
         value: (p.v * (data.mode === "level" ? 1 : 100)),
         format: formatter,
         className: clsx(

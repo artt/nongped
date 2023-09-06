@@ -134,7 +134,7 @@ const labelDefs: SeriesDefType[] = [
   }
 ]
 
-const gdpSeries = getAllSeriesNames(labelDefs)
+// const gdpSeries = getAllSeriesNames(labelDefs)
 const gdpSeriesToLoad = getAllSeriesNames(labelDefs, series => !series.skipLoading)
 
 function getSeriesType(mode: modeType, seriesIndex: number) {
@@ -222,6 +222,8 @@ export default function Gdp() {
         }),
       })
     })
+
+    // add "aggregated" data (DDR, CR, IR, NXR, XR, MR)
 
     return({
       Q: processedQuarterlyData,
