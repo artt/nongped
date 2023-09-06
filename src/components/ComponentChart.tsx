@@ -3,6 +3,7 @@ import HighchartsWrapper from "components/HighchartsWrapper"
 import type { ComponentChartDataType, TooltipPoint } from "types"
 import Box from "@mui/material/Box"
 import { tooltipPercentFormatter, ticksPercentFormatter } from "utils"
+import { HighchartsReactRefObject } from 'highcharts-react-official';
 
 interface Props {
   data?: ComponentChartDataType,
@@ -14,7 +15,7 @@ interface Props {
 const ComponentChart = React.forwardRef(({ data, handleRangeChange }: Props, _refJustInCase) => {
   
   const [explodeKeyHeld, setExplodeKeyHeld] = React.useState(false)
-  const ref = React.useRef<Highcharts.Chart>()
+  const ref = React.useRef<HighchartsReactRefObject>()
 
   // universal keyboard handler
   function handleKeyDown(e: KeyboardEvent) {
@@ -45,7 +46,7 @@ const ComponentChart = React.forwardRef(({ data, handleRangeChange }: Props, _re
       }}
     >
       <HighchartsWrapper
-        ref={ref}
+        ref={ref as React.MutableRefObject<HighchartsReactRefObject>}
         useHighchartsStock={true}
         isLoading={!data}
         constructorType={'stockChart'}

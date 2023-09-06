@@ -2,7 +2,7 @@ import React from "react";
 import Highcharts from 'highcharts';
 import HighchartsStock from 'highcharts/highstock';
 import HighchartsMap from 'highcharts/highmaps';
-import HighchartsReact from 'highcharts-react-official';
+import HighchartsReact, { HighchartsReactRefObject } from 'highcharts-react-official';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import { defaultOptions } from "utils";
@@ -38,7 +38,7 @@ interface Props {
   [x: string]: unknown,
 }
 
-const HighchartsWrapper = React.forwardRef(({ constructorType="chart", isLoading, options, ...rest }: Props, ref) => {
+const HighchartsWrapper = React.forwardRef<HighchartsReactRefObject, Props>(({ constructorType="chart", isLoading=false, options, ...rest }: Props, ref) => {
 
   // use state (instead of props) so to minimize rerenderings
   // https://github.com/highcharts/highcharts-react#optimal-way-to-update
