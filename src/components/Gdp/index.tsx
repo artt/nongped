@@ -364,7 +364,7 @@ export default function Gdp() {
           <SummaryTable
             freqList={freqList}
             labelDefs={labelDefs}
-            headerWidth={150}
+            headerWidth={200}
             cellWidth={55}
             data={data}
             minDate={minDate}

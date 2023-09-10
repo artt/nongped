@@ -1,12 +1,16 @@
 import type { SeriesDefType, ComponentChartDataType, freqType } from "types"
 import { quarterToMonth, getMonthName, getSeries } from "utils";
+import { HorizontalChevronCell, HorizontalChevronCellTemplate } from "./HorizontalChevronCellTemplate";
 import deepmerge from "deepmerge"
 import Box from "@mui/material/Box";
 import clsx from "clsx";
 
-import { ReactGrid, Column, Row, NumberCell, HeaderCell } from "@silevis/reactgrid";
+import { ReactGrid, Column, Row, NumberCell, HeaderCell, DefaultCellTypes, CellChange } from "@silevis/reactgrid";
 
 import "./styles.scss"
+
+type RowCells = DefaultCellTypes | HorizontalChevronCell
+type SummaryRow = Row<RowCells>
 
 interface Props {
   freqList: string[]
@@ -77,7 +81,7 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
     ...Array.from({length: tableData[0].data.length}, (_, i) => ({ columnId: `data-${i}`, width: cellWidth }))
   ]
 
-  const periodRow: Row = {
+  const periodRow: SummaryRow = {
     rowId: "period",
     cells: [
       { type: "header", text: "Period" },
@@ -96,7 +100,7 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
     ],
   }
 
-  const yearRow: Row = {
+  const yearRow: SummaryRow = {
     rowId: "year",
     cells: [
       {
@@ -126,13 +130,17 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
 
   const formatter = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
-  const dataRows: Row[] = tableData.map(series => ({
+  const dataRows: SummaryRow[] = tableData.map(series => ({
     rowId: series.name,
     cells: [
       {
-        type: "chevron",
+        type: "horizontalChevron",
         text: getSeries(series.name, labelDefs).label,
         className: 'series-name',
+        hasChildren: series.name === tableData[0].name,
+        parentId: series.name === tableData[0].name ? undefined : tableData[0].name,
+        indent: series.name === tableData[0].name ? 0 : 1,
+        isExpanded: true,
       },
       ...series.data.map<NumberCell>((p, i) => ({
         type: "number",
@@ -146,6 +154,10 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
     ],
   }))
 
+  const handleChanges = (changes: CellChange<RowCells>[]) => {
+    console.log(changes)
+  }
+
   return(
     <Box className="summary-table-container" sx={{ paddingBottom: '10px' }}>
       <ReactGrid
@@ -156,9 +168,13 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
           ...dataRows,
         ]}
         enableRangeSelection
-        enableRowSelection
-        enableColumnSelection
+        // enableRowSelection
+        // enableColumnSelection
         stickyLeftColumns={1}
+        customCellTemplates={{
+          horizontalChevron: new HorizontalChevronCellTemplate(),
+        }}
+        onCellsChanged={handleChanges}
       />
     </Box>
   )

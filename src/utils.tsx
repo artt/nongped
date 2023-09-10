@@ -143,6 +143,10 @@ export const defaultOptions = {
       },
     ],
   },
+  // TODO: remove this when we're ready
+  accessibility: {
+    enabled: false,
+  },
 }
 
 /**
