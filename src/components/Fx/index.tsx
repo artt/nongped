@@ -8,7 +8,7 @@ import Neer from "./Neer";
 import Yield from "./Yield";
 import { createTheme } from '@mui/material/styles';
 import { serverAddress, curYear, getTedDataPromise } from "utils";
-import type { FxData, NeerData } from "types"
+import type { FxData, NeerData } from "./types"
 import Split from "components/Split";
 
 function calculateAverage(data: number[]) {

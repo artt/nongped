@@ -35,19 +35,6 @@ export type ProcessedData = {
   }[],
 }[]
 
-type SimpleSeriesType = {
-  name: string,
-  data: {
-    t: string,
-    v: number,
-  }[],
-}
-
-export type ProcessedDataType = {
-  freq: Frequency,
-  series: SimpleSeriesType[],
-}
-
 export type Point = {
   series: {name: string},
   y: number,
@@ -59,23 +46,15 @@ export type TooltipPoint = {
   points?: Point[],
 }
 
-export type FxData = {
-  ticks: number[],
-  series: {
-    name: string
-    data: number[]
-    yearlyReturns: number[]
-    yearlyVolatility: number[]
-  }[]
-}
-
-export type NeerData = {
-  periods: string[]
-  returns: number[]
-}
-
 export type modeType = "level" | "growth" | "contribution"
 
+type SimpleSeriesType = {
+  name: string,
+  data: {
+    t: string,
+    v: number,
+  }[],
+}
 export type ComponentChartDataType = {
   freq: Frequency,
   mode: modeType,
