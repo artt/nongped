@@ -1,4 +1,4 @@
-import { TooltipPoint, freqType, SeriesDefType } from "types"
+import { TooltipPoint, Frequency, SeriesDefinition } from "types"
 
 // export const serverAddress = process.env.NODE_ENV === "development"
 //   ? `http://localhost:1443`
@@ -39,11 +39,11 @@ export const freqDefs = {
   },
 }
 
-export function freqToNum(freq: freqType) {
+export function freqToNum(freq: Frequency) {
   return freqDefs[freq].num
 }
 
-export function freqToString(freq: freqType) {
+export function freqToString(freq: Frequency) {
   return freqDefs[freq].label
 }
 
@@ -166,7 +166,7 @@ export function percentFormatterNumber(y: number, dontMultiply=false): string {
 /**
  * Convert ticks to nicely formatted date string
  */
-export function ticksDateFormatter(tick: number, freq: freqType): string {
+export function ticksDateFormatter(tick: number, freq: Frequency): string {
   const date = new Date(tick)
   const iso = date.toISOString().slice(0, 7)
   switch (freq) {
@@ -182,7 +182,7 @@ function formatPercentLine(str: string, y: number) {
   return str.replace(/<b>.*<\/b>/, `<b>${percentFormatterNumber(y)}</b>`)
 }
 
-export function tooltipPercentFormatter(tooltipPoint: TooltipPoint, tooltip: Highcharts.Tooltip, freq: freqType) {
+export function tooltipPercentFormatter(tooltipPoint: TooltipPoint, tooltip: Highcharts.Tooltip, freq: Frequency) {
   const tmp = tooltip.defaultFormatter.call(tooltipPoint, tooltip)
   if (typeof tmp === "string") return tmp
   return tmp.map((line: string, i: number) => {
@@ -200,14 +200,14 @@ export function dataLabelsPercentFormatter(this: TooltipPoint) {
 /**
  * Retrieve the series definition from the series name
  */
-export function getSeries(name: string, allSeries: SeriesDefType[]): SeriesDefType {
+export function getSeries(name: string, allSeries: SeriesDefinition[]): SeriesDefinition {
   const tmp = getSeriesRecursive(name, allSeries)
   if (tmp) return tmp
   // raise exception if not found
   throw new Error(`Series ${name} not found T.T`)
 }
 
-function getSeriesRecursive(name: string, allSeries: SeriesDefType[]): SeriesDefType | null {
+function getSeriesRecursive(name: string, allSeries: SeriesDefinition[]): SeriesDefinition | null {
   for (const series of allSeries) {
     if (series.name === name) return series
     if (series.children) {
@@ -218,7 +218,7 @@ function getSeriesRecursive(name: string, allSeries: SeriesDefType[]): SeriesDef
   return null
 }
 
-export function getAllSeriesNames(allSeries: SeriesDefType[], filterFunction: ((series: SeriesDefType) => boolean) = () => true): string[] {
+export function getAllSeriesNames(allSeries: SeriesDefinition[], filterFunction: ((series: SeriesDefinition) => boolean) = () => true): string[] {
   const res: string[] = []
   allSeries.forEach(series => {
     if (filterFunction(series)) {

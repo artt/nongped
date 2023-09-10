@@ -1,10 +1,9 @@
 import React from 'react'
 import { freqToNum, getAllSeriesNames, getSeries, getTedDataPromise } from "utils"
 import type {
-  freqType,
-  SeriesDefType,
-  TedDataType,
-  TimeSeriesWithFrequenciesType,
+  SeriesDefinition,
+  TedData,
+  ProcessedData,
   ComponentChartDataType,
   modeType
 } from "types"
@@ -20,7 +19,7 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
 import ToggleButton from "@mui/material/ToggleButton"
 import { HighchartsReact } from 'highcharts-react-official'
 
-const labelDefs: SeriesDefType[] = [
+const labelDefs: SeriesDefinition[] = [
   {
     name: 'cpi',
     label: 'CPI',
@@ -48,15 +47,23 @@ const freqList = ["M", "Q", "Y"]
 // const weights15 = [100, 72.56, 15.69, 11.75]
 const weights19 = [100, 67.06, 20.55, 12.39]
 
+type RawData = {
+  M: ProcessedData,
+  Q: ProcessedData,
+  Y: ProcessedData,
+}
+
+type Frequency = keyof RawData
+
 export default function Inflation() {
 
   const ref = React.useRef<typeof HighchartsReact>(null)
   
-  const [rawData, setRawData] = React.useState<TimeSeriesWithFrequenciesType>()
+  const [rawData, setRawData] = React.useState<RawData>()
   const dataLoaded = React.useRef(false)
 
   const [data, setData] = React.useState<ComponentChartDataType>()
-  const [freq, setFreq] = React.useState<freqType>((freqList[0] as freqType))
+  const [freq, setFreq] = React.useState<Frequency>((freqList[0] as Frequency))
   const [showGrowth, setShowGrowth] = React.useState(true)
   const [showContribution, setShowContribution] = React.useState(true)
   const [mode, setMode] = React.useState<modeType>("contribution")
@@ -68,7 +75,7 @@ export default function Inflation() {
     setMaxDate(maxDate)
   }, [])
 
-  function processInflationData(data: TedDataType, freq: freqType) {
+  function processInflationData(data: TedData, freq: Frequency) {
     const numFreq = freqToNum(freq)
     return(data.series.map((series: {name: string, values: number[]}, seriesIndex: number) => ({
       name: series.name,
@@ -81,15 +88,17 @@ export default function Inflation() {
     })))
   }
 
+  // load data upon first render
   React.useEffect(() => {
     if (dataLoaded.current) return
     dataLoaded.current = true
 
     // loop over freqTable
+    // TODO: can process each frequency separately and not have to wait for all to finish
     const promises = []
     for (const freq of freqList) {
       promises.push(getTedDataPromise(getAllSeriesNames(labelDefs), freq, 1986)
-        .then(res => processInflationData(res, (freq as freqType)))
+        .then(res => processInflationData(res, (freq as Frequency)))
       )
     }
     Promise.all(promises).then(res => {
@@ -158,9 +167,9 @@ export default function Inflation() {
               value={freq}
               size="small"
               exclusive
-              onChange={(_e, newFreq: keyof TimeSeriesWithFrequenciesType) => {
+              onChange={(_e, newFreq: Frequency) => {
                 if (newFreq === null) return
-                setFreq((newFreq as freqType))
+                setFreq((newFreq as Frequency))
               }}
               aria-label="frequency"
               fullWidth

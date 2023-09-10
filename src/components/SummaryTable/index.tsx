@@ -1,4 +1,4 @@
-import type { SeriesDefType, ComponentChartDataType, freqType } from "types"
+import type { SeriesDefinition, ComponentChartDataType, Frequency } from "types"
 import { quarterToMonth, getMonthName, getSeries } from "utils";
 import { HorizontalChevronCell, HorizontalChevronCellTemplate } from "./HorizontalChevronCellTemplate";
 import deepmerge from "deepmerge"
@@ -14,7 +14,7 @@ type SummaryRow = Row<RowCells>
 
 interface Props {
   freqList: string[]
-  labelDefs: SeriesDefType[]
+  labelDefs: SeriesDefinition[]
   headerWidth?: number
   cellWidth?: number
   data?: ComponentChartDataType
@@ -25,7 +25,7 @@ interface Props {
 /**
  * Check if the period is the last period of the block
  */
-function isLastPeriodOfBlock(period: string, freq: freqType) {
+function isLastPeriodOfBlock(period: string, freq: Frequency) {
   switch(freq) {
     case "M": return period.slice(-2) === "12"
     case "Q": return period.slice(-2) === "Q4"
@@ -134,7 +134,8 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
     rowId: series.name,
     cells: [
       {
-        type: "horizontalChevron",
+        type: "header",
+        // type: "horizontalChevron",
         text: getSeries(series.name, labelDefs).label,
         className: 'series-name',
         hasChildren: series.name === tableData[0].name,

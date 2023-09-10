@@ -54,7 +54,8 @@ export class HorizontalChevronCellTemplate implements CellTemplate<HorizontalChe
   //   return { cell: cellCopy, enableEditMode: false }; // FORCED DISABLED EDIT MODE
   // }
 
-  getClassName(cell: Compatible<HorizontalChevronCell>, _isInEditMode: boolean) {
+  // getClassName(cell: Compatible<HorizontalChevronCell>, _isInEditMode: boolean) {
+  getClassName(cell: Compatible<HorizontalChevronCell>) {
     const isExpanded = cell.hasChildren ? cell.isExpanded ? 'expanded' : 'collapsed' : '';
     const className = cell.className || '';
     return `${isExpanded} ${className}`;

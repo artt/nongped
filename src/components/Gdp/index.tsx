@@ -2,7 +2,7 @@ import React from 'react'
 import { defaultOptions, getAllSeriesNames, getSeries, getTedDataPromise } from "utils"
 import Split from "components/Split"
 import { freqToNum, quarterToMonth } from "utils"
-import type { freqType, SeriesDefType, TedDataType, TimeSeriesWithFrequenciesType, ComponentChartDataType, modeType } from "types"
+import type { SeriesDefinition, TedData, ProcessedData, ComponentChartDataType, modeType } from "types"
 import ComponentChart from "components/ComponentChart"
 import SummaryTable from "components/SummaryTable"
 import Box from "@mui/material/Box"
@@ -15,7 +15,7 @@ import Color from 'color'
 
 const freqList = ["Q", "Y"]
 
-const labelDefs: SeriesDefType[] = [
+const labelDefs: SeriesDefinition[] = [
   {
     name: 'gdpr',
     label: 'GDP',
@@ -148,13 +148,20 @@ function getSeriesType(mode: modeType, seriesIndex: number) {
   }
 }
 
+type RawData = {
+  Q: ProcessedData,
+  Y: ProcessedData,
+}
+
+type Frequency = keyof RawData
+
 export default function Gdp() {
 
-  const [rawData, setRawData] = React.useState<TimeSeriesWithFrequenciesType>()
+  const [rawData, setRawData] = React.useState<RawData>()
   const dataLoaded = React.useRef(false)
 
   const [data, setData] = React.useState<ComponentChartDataType>()
-  const [freq, setFreq] = React.useState<freqType>((freqList[0] as freqType))
+  const [freq, setFreq] = React.useState<Frequency>((freqList[0] as Frequency))
   const [showGrowth, setShowGrowth] = React.useState(true)
   const [showContribution, setShowContribution] = React.useState(true)
   const [mode, setMode] = React.useState<modeType>("contribution")
@@ -171,7 +178,7 @@ export default function Gdp() {
     return xr.slice(0, -1) + "_deflator"
   }
 
-  function processGdpData(tmp: TedDataType[]) {
+  function processGdpData(tmp: TedData[]) {
     
     const data = {
       Q: tmp[0],
@@ -328,9 +335,9 @@ export default function Gdp() {
               value={freq}
               size="small"
               exclusive
-              onChange={(_e, newFreq: keyof TimeSeriesWithFrequenciesType) => {
+              onChange={(_e, newFreq: Frequency) => {
                 if (newFreq === null) return
-                setFreq((newFreq as freqType))
+                setFreq((newFreq as Frequency))
               }}
               aria-label="frequency"
               fullWidth

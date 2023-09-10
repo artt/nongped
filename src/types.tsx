@@ -1,16 +1,19 @@
-export type freqType = "M" | "Q" | "Y"
+export type Frequency = "M" | "Q" | "Y"
 
-export type SeriesDefType = {
+export type SeriesDefinition = {
   name: string,
   label: string,
   color?: string
   hide?: modeType[],
   negativeContribution?: boolean,
   skipLoading?: boolean,
-  children?: SeriesDefType[],
+  children?: SeriesDefinition[],
 }
 
-export type TedDataType = {
+/**
+ * Raw time series data from TED
+ */
+export type TedData = {
   periods: string[],
   series: {
     name: string,
@@ -18,7 +21,10 @@ export type TedDataType = {
   }[],
 }
 
-export type TimeSeriesDataType = {
+/**
+ * Processed time series data
+ */
+export type ProcessedData = {
   name: string,
   data: {
     t: string,
@@ -29,10 +35,6 @@ export type TimeSeriesDataType = {
   }[],
 }[]
 
-export type TimeSeriesWithFrequenciesType = {
-  [x: string]: TimeSeriesDataType,
-}
-
 type SimpleSeriesType = {
   name: string,
   data: {
@@ -42,7 +44,7 @@ type SimpleSeriesType = {
 }
 
 export type ProcessedDataType = {
-  freq: freqType,
+  freq: Frequency,
   series: SimpleSeriesType[],
 }
 
@@ -75,7 +77,7 @@ export type NeerData = {
 export type modeType = "level" | "growth" | "contribution"
 
 export type ComponentChartDataType = {
-  freq: freqType,
+  freq: Frequency,
   mode: modeType,
   tableSeries: SimpleSeriesType[]
   chartSeries: {
