@@ -1,4 +1,4 @@
-import type { FxData } from "types"
+import type { FxData } from "./types"
 import HighchartsWrapper from "components/HighchartsWrapper";
 import { dataLabelsPercentFormatter, defaultOptions, ticksPercentFormatter } from "utils";
 

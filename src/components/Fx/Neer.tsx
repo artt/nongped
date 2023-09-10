@@ -1,4 +1,4 @@
-import type { NeerData } from "types"
+import type { NeerData } from "./types"
 import HighchartsWrapper from "components/HighchartsWrapper";
 import { dataLabelsPercentFormatter, ticksPercentFormatter } from "utils";
 

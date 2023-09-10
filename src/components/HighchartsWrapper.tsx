@@ -6,7 +6,8 @@ import HighchartsReact, { HighchartsReactRefObject } from 'highcharts-react-offi
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import { defaultOptions } from "utils";
-import type { HighchartsConstructorType } from "types"
+
+type HighchartsConstructorType = "chart" | "stockChart" | "mapChart"
 
 if (document) {
   [Highcharts, HighchartsStock, HighchartsMap].forEach((Highcharts) => {

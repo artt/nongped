@@ -5,7 +5,7 @@ import type {
   TedData,
   ProcessedData,
   ComponentChartDataType,
-  modeType
+  ContributionMode
 } from "types"
 import { quarterToMonth } from "utils"
 import Split from "components/Split"
@@ -47,26 +47,26 @@ const freqList = ["M", "Q", "Y"]
 // const weights15 = [100, 72.56, 15.69, 11.75]
 const weights19 = [100, 67.06, 20.55, 12.39]
 
-type RawData = {
+type InflationData = {
   M: ProcessedData,
   Q: ProcessedData,
   Y: ProcessedData,
 }
 
-type Frequency = keyof RawData
+type Frequency = keyof InflationData
 
 export default function Inflation() {
 
   const ref = React.useRef<typeof HighchartsReact>(null)
   
-  const [rawData, setRawData] = React.useState<RawData>()
+  const [processedData, setProcessedData] = React.useState<InflationData>()
   const dataLoaded = React.useRef(false)
 
   const [data, setData] = React.useState<ComponentChartDataType>()
   const [freq, setFreq] = React.useState<Frequency>((freqList[0] as Frequency))
   const [showGrowth, setShowGrowth] = React.useState(true)
   const [showContribution, setShowContribution] = React.useState(true)
-  const [mode, setMode] = React.useState<modeType>("contribution")
+  const [mode, setMode] = React.useState<ContributionMode>("contribution")
   const [minDate, setMinDate] = React.useState<string>()
   const [maxDate, setMaxDate] = React.useState<string>()
 
@@ -102,7 +102,7 @@ export default function Inflation() {
       )
     }
     Promise.all(promises).then(res => {
-      setRawData({
+      setProcessedData({
         M: res[0],
         Q: res[1],
         Y: res[2],
@@ -123,8 +123,8 @@ export default function Inflation() {
   }, [showGrowth, showContribution])
 
   React.useEffect(() => {
-    if (!rawData) return
-    const tableSeries = rawData[freq].map(series => ({
+    if (!processedData) return
+    const tableSeries = processedData[freq].map(series => ({
       name: series.name,
       data: series.data.slice(mode === "level" ? 0 : freqToNum(freq)).map(d => ({
         t: d.t,
@@ -145,7 +145,7 @@ export default function Inflation() {
         pointInterval: freq === 'Q' ? 3 : 1,
       }))
     setData({freq, mode, tableSeries, chartSeries})
-  }, [rawData, freq, mode])
+  }, [processedData, freq, mode])
 
   return (
     <Split

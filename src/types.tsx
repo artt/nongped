@@ -4,7 +4,7 @@ export type SeriesDefinition = {
   name: string,
   label: string,
   color?: string
-  hide?: modeType[],
+  hide?: ContributionMode[],
   negativeContribution?: boolean,
   skipLoading?: boolean,
   children?: SeriesDefinition[],
@@ -36,7 +36,7 @@ export type ProcessedData = {
 }[]
 
 export type Point = {
-  series: {name: string},
+  series: { name: string },
   y: number,
 }
 export type TooltipPoint = {
@@ -46,7 +46,7 @@ export type TooltipPoint = {
   points?: Point[],
 }
 
-export type modeType = "level" | "growth" | "contribution"
+export type ContributionMode = "level" | "growth" | "contribution"
 
 type SimpleSeriesType = {
   name: string,
@@ -57,7 +57,7 @@ type SimpleSeriesType = {
 }
 export type ComponentChartDataType = {
   freq: Frequency,
-  mode: modeType,
+  mode: ContributionMode,
   tableSeries: SimpleSeriesType[]
   chartSeries: {
     name: string,
@@ -71,4 +71,3 @@ export type ComponentChartDataType = {
   }[]
 }
 
-export type HighchartsConstructorType = "chart" | "stockChart" | "mapChart"

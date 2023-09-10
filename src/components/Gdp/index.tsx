@@ -2,7 +2,7 @@ import React from 'react'
 import { defaultOptions, getAllSeriesNames, getSeries, getTedDataPromise } from "utils"
 import Split from "components/Split"
 import { freqToNum, quarterToMonth } from "utils"
-import type { SeriesDefinition, TedData, ProcessedData, ComponentChartDataType, modeType } from "types"
+import type { SeriesDefinition, TedData, ProcessedData, ComponentChartDataType, ContributionMode } from "types"
 import ComponentChart from "components/ComponentChart"
 import SummaryTable from "components/SummaryTable"
 import Box from "@mui/material/Box"
@@ -137,7 +137,7 @@ const labelDefs: SeriesDefinition[] = [
 // const gdpSeries = getAllSeriesNames(labelDefs)
 const gdpSeriesToLoad = getAllSeriesNames(labelDefs, series => !series.skipLoading)
 
-function getSeriesType(mode: modeType, seriesIndex: number) {
+function getSeriesType(mode: ContributionMode, seriesIndex: number) {
   switch(mode) {
     case "level":
       return seriesIndex > 0 ? 'column' : 'spline'
@@ -148,23 +148,23 @@ function getSeriesType(mode: modeType, seriesIndex: number) {
   }
 }
 
-type RawData = {
+type GdpData = {
   Q: ProcessedData,
   Y: ProcessedData,
 }
 
-type Frequency = keyof RawData
+type Frequency = keyof GdpData
 
 export default function Gdp() {
 
-  const [rawData, setRawData] = React.useState<RawData>()
+  const [processedData, setProcessedData] = React.useState<GdpData>()
   const dataLoaded = React.useRef(false)
 
   const [data, setData] = React.useState<ComponentChartDataType>()
   const [freq, setFreq] = React.useState<Frequency>((freqList[0] as Frequency))
   const [showGrowth, setShowGrowth] = React.useState(true)
   const [showContribution, setShowContribution] = React.useState(true)
-  const [mode, setMode] = React.useState<modeType>("contribution")
+  const [mode, setMode] = React.useState<ContributionMode>("contribution")
   const [minDate, setMinDate] = React.useState<string>()
   const [maxDate, setMaxDate] = React.useState<string>()
 
@@ -252,7 +252,7 @@ export default function Gdp() {
       promises.push(getTedDataPromise(freq === "Q" ? gdpSeriesToLoad : gdpSeriesToLoad.concat(deflatorSeries), freq, 1993))
     }
     Promise.all(promises).then(res => {
-      setRawData(processGdpData(res))
+      setProcessedData(processGdpData(res))
     })
   }, [])
 
@@ -270,7 +270,7 @@ export default function Gdp() {
   }, [showGrowth, showContribution])
 
   React.useEffect(() => {
-    if (!rawData) return
+    if (!processedData) return
     let toBeSliced: number
     switch(mode) {
       case "level":
@@ -284,7 +284,7 @@ export default function Gdp() {
         toBeSliced = freqToNum(freq) * 2
         break
     }
-    const tableSeries = rawData[freq].map(series => ({
+    const tableSeries = processedData[freq].map(series => ({
       name: series.name,
       data: series.data.slice(toBeSliced).map(d => ({
         t: d.t,
@@ -314,7 +314,7 @@ export default function Gdp() {
         pointInterval: freq === 'Q' ? 3 : 1,
       }))
     setData({freq, mode, tableSeries, chartSeries})
-  }, [rawData, freq, mode])
+  }, [processedData, freq, mode])
 
   return (
     <Split
