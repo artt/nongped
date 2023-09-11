@@ -1,8 +1,6 @@
-import React from "react"
-import type { SeriesDefinition, ComponentChartData, Frequency, Series } from "types"
+import type { SeriesDefinition, ComponentChartData, Frequency } from "types"
 import { quarterToMonth, getMonthName, getSeries } from "utils";
 import { HorizontalChevronCell, HorizontalChevronCellTemplate } from "./HorizontalChevronCellTemplate";
-import deepmerge from "deepmerge"
 import Box from "@mui/material/Box";
 import clsx from "clsx";
 
@@ -37,22 +35,15 @@ function isLastPeriodOfBlock(period: string, freq: Frequency) {
 // heiararchy
 export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50, data, minDate, maxDate, setData }: Props) {
 
-  const [tableData, setTableData] = React.useState<Series[] | undefined>()
-
-  React.useEffect(() => {
-    if (!data) return
-    setTableData(deepmerge([], data.series))
-  }, [data])
-
-  if (!data || !tableData) return null
+  if (!data) return null
 
   // TODO: can refactor these "cases" out to a function foo(p.t, date, freq, side)
   // const tableData = deepmerge([], data.series)
   // find index of min and max in range
   let minIndex = 0
-  let maxIndex = tableData[0].data.length - 1
+  let maxIndex = data.series[0].data.length - 1
   if (minDate !== undefined) {
-    minIndex = tableData[0].data.findLastIndex((p: {t: string}) => {
+    minIndex = data.series[0].data.findLastIndex((p: {t: string}) => {
       switch(data.freq) {
         case 'M': return new Date(p.t) <= new Date(minDate)
         case 'Q': return new Date(quarterToMonth(p.t)) <= new Date(minDate)
@@ -62,20 +53,23 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
     if (minIndex === -1) minIndex = 0
   }
   if (maxDate !== undefined) {
-    maxIndex = tableData[0].data.findIndex(p => {
+    maxIndex = data.series[0].data.findIndex(p => {
       switch(data.freq) {
         case 'M': return new Date(p.t) >= new Date(maxDate)
         case 'Q': return new Date(quarterToMonth(p.t)) >= new Date(maxDate)
         case 'Y': return new Date(p.t.slice(0, 4)) >= new Date(maxDate)
       }
     })
-    if (maxIndex === -1) maxIndex = tableData[0].data.length - 1
+    if (maxIndex === -1) maxIndex = data.series[0].data.length - 1
   }
-  tableData?.forEach((series, i) => {
-    tableData[i].data = series.data.slice(minIndex, maxIndex + 1)
-  })
+  // data.series?.forEach((series, i) => {
+  //   data.series[i].data = series.data.slice(minIndex, maxIndex + 1)
+  // })
+  
+  const numPeriods = maxIndex -  minIndex + 1
 
-  const tmp = tableData[0].data.reduce((acc, p, i, a) => {
+  // yearSpans is an array of object indicating year and its column spans
+  const yearSpans = data.series[0].data.slice(minIndex, maxIndex + 1).reduce((acc, p, i, a) => {
     if (i === 0) return acc
     if (p.t.slice(0, 4) === a[i - 1].t.slice(0, 4)) {
       acc[acc.length - 1].span ++
@@ -83,18 +77,18 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
       acc.push({ year: p.t.slice(0, 4), span: 1 })
     }
     return acc
-  }, [{ year: tableData[0].data[0].t.slice(0, 4), span: 1 }])
+  }, [{ year: data.series[0].data[minIndex].t.slice(0, 4), span: 1 }])
 
   const columns: Column[] = [
     { columnId: "series", width: headerWidth },
-    ...Array.from({length: tableData[0].data.length}, (_, i) => ({ columnId: `data-${i}`, width: cellWidth }))
+    ...Array.from({length: numPeriods}, (_, i) => ({ columnId: `data-${i}`, width: cellWidth }))
   ]
 
   const periodRow: SummaryRow = {
     rowId: "period",
     cells: [
       { type: "header", text: "Period" },
-      ...tableData[0].data.map<HeaderCell>((p, i) => ({
+      ...data.series[0].data.slice(minIndex, maxIndex + 1).map<HeaderCell>((p, i) => ({
         type: "header",
         text: data.freq === "M"
           ? getMonthName(parseInt(p.t.slice(-2)))
@@ -102,7 +96,7 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
             ? p.t.slice(-2)
             : p.t,
         className: clsx(
-          isLastPeriodOfBlock(p.t, data.freq) && i < tableData[0].data.length - 1 && "last-period",
+          isLastPeriodOfBlock(p.t, data.freq) && i < numPeriods - 1 && "last-period",
         ),
         rowspan: data.freq === "Y" ? 2 : 1,
       }))
@@ -117,14 +111,14 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
         text: "Year",
         className: "last-header",
       },
-      ...tmp.reduce<HeaderCell[]>((acc, cur, i) => acc.concat([
+      ...yearSpans.reduce<HeaderCell[]>((acc, cur, i) => acc.concat([
         data.freq !== "Y"
         ? {
             type: "header",
             text: cur.year,
             colspan: cur.span,
             className: clsx(
-              i < tmp.length - 1 && "last-period",
+              i < yearSpans.length - 1 && "last-period",
               "last-header",
             ),
           }
@@ -139,7 +133,7 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
 
   const formatter = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
-  const dataRows: SummaryRow[] = tableData.map(series => ({
+  const dataRows: SummaryRow[] = data.series.map(series => ({
     rowId: series.name,
     cells: [
       {
@@ -147,12 +141,12 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
         type: "horizontalChevron",
         text: getSeries(series.name, labelDefs).label,
         className: 'series-name',
-        hasChildren: series.name === tableData[0].name,
-        parentId: series.name === tableData[0].name ? undefined : tableData[0].name,
-        indent: series.name === tableData[0].name ? 0 : 1,
+        hasChildren: series.name === data.series[0].name,
+        parentId: series.name === data.series[0].name ? undefined : data.series[0].name,
+        indent: series.name === data.series[0].name ? 0 : 1,
         isExpanded: series.isExpanded,
       },
-      ...series.data.map<NumberCell>((p, i) => ({
+      ...series.data.slice(minIndex, maxIndex + 1).map<NumberCell>((p, i) => ({
         type: "number",
         nonEditable: true,
         value: (p.v * (data.mode === "level" ? 1 : 100)),

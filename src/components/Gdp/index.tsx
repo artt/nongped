@@ -373,6 +373,7 @@ export default function Gdp() {
             data={data}
             minDate={minDate}
             maxDate={maxDate}
+            setData={setData}
           />
         </Box>
       }
