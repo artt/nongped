@@ -310,7 +310,6 @@ export default function Gdp() {
         data: series.data.map(p => p.v),
         // in contribution mode, only the first series is a line chart
         type: getSeriesType(mode, i),
-        // pointStart: Date.parse(freq === 'Q' ? quarterToMonth(series.data[0].t) : series.data[0].t),
       }))
     setData({freq, mode, pointStart, tableSeries, chartSeries})
   }, [processedData, freq, mode])
