@@ -292,6 +292,7 @@ export default function Gdp() {
       })),
     }))
     // const chartSeries = deepmerge([], tableSeries)
+    const pointStart = Date.parse(freq === 'Q' ? quarterToMonth(tableSeries[0].data[0].t) : tableSeries[0].data[0].t)
     const chartSeries = tableSeries
       .map((series, i) => ({
         visible: !getSeries(series.name, labelDefs).hide?.includes(mode),
@@ -309,11 +310,9 @@ export default function Gdp() {
         data: series.data.map(p => p.v),
         // in contribution mode, only the first series is a line chart
         type: getSeriesType(mode, i),
-        pointStart: Date.parse(freq === 'Q' ? quarterToMonth(series.data[0].t) : series.data[0].t),
-        pointIntervalUnit: freq === 'Y' ? 'year' : 'month',
-        pointInterval: freq === 'Q' ? 3 : 1,
+        // pointStart: Date.parse(freq === 'Q' ? quarterToMonth(series.data[0].t) : series.data[0].t),
       }))
-    setData({freq, mode, tableSeries, chartSeries})
+    setData({freq, mode, pointStart, tableSeries, chartSeries})
   }, [processedData, freq, mode])
 
   return (

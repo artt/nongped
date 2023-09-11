@@ -58,6 +58,7 @@ type SimpleSeriesType = {
 export type ComponentChartDataType = {
   freq: Frequency,
   mode: ContributionMode,
+  pointStart: number,
   tableSeries: SimpleSeriesType[]
   chartSeries: {
     name: string,
@@ -65,9 +66,6 @@ export type ComponentChartDataType = {
     zIndex: number,
     data: number[],
     type: string,
-    pointStart: number,
-    pointIntervalUnit: string,
-    pointInterval: number,
   }[]
 }
 

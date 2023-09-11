@@ -131,6 +131,7 @@ export default function Inflation() {
         v: d[mode],
       })),
     }))
+    const pointStart = Date.parse(freq === 'Q' ? quarterToMonth(tableSeries[0].data[0].t) : tableSeries[0].data[0].t)
     const chartSeries = tableSeries
       .map((series, i) => ({
         name: getSeries(series.name, labelDefs).label,
@@ -140,11 +141,9 @@ export default function Inflation() {
         data: series.data.map(p => p.v),
         // in contribution mode, only the first series is a line chart
         type: mode === "contribution" && i > 0 ? 'column' : 'spline',
-        pointStart: Date.parse(freq === 'Q' ? quarterToMonth(series.data[0].t) : series.data[0].t),
-        pointIntervalUnit: freq === 'Y' ? 'year' : 'month',
-        pointInterval: freq === 'Q' ? 3 : 1,
+        // pointStart: Date.parse(freq === 'Q' ? quarterToMonth(series.data[0].t) : series.data[0].t),
       }))
-    setData({freq, mode, tableSeries, chartSeries})
+    setData({freq, mode, pointStart, tableSeries, chartSeries})
   }, [processedData, freq, mode])
 
   return (

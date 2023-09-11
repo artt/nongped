@@ -38,6 +38,8 @@ const ComponentChart = React.forwardRef(({ data, handleRangeChange }: Props, _re
     }
   }, [])
 
+  console.log(data)
+
   return(
     <Box
       sx={{
@@ -61,6 +63,9 @@ const ComponentChart = React.forwardRef(({ data, handleRangeChange }: Props, _re
               dataGrouping: {
                 enabled: false,
               },
+              pointIntervalUnit: data.freq === 'Y' ? 'year' : 'month',
+              pointInterval: data.freq === "Q" ? 3 : 1,
+              pointStart: data.pointStart,
             },
           },
           legend: {
