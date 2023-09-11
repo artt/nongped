@@ -38,8 +38,6 @@ const ComponentChart = React.forwardRef(({ data, handleRangeChange }: Props, _re
     }
   }, [])
 
-  console.log(data)
-
   return(
     <Box
       sx={{

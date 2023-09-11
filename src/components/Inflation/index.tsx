@@ -126,6 +126,7 @@ export default function Inflation() {
     if (!processedData) return
     const series = processedData[freq].map(s => ({
       name: s.name,
+      isExpanded: true,
       data: s.data.slice(mode === "level" ? 0 : freqToNum(freq)).map(d => ({
         t: d.t,
         v: d[mode],
@@ -204,6 +205,7 @@ export default function Inflation() {
             data={data}
             minDate={minDate}
             maxDate={maxDate}
+            setData={setData}
           />
         </Box>
       }

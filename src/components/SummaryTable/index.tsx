@@ -1,4 +1,5 @@
-import type { SeriesDefinition, ComponentChartData, Frequency } from "types"
+import React from "react"
+import type { SeriesDefinition, ComponentChartData, Frequency, Series } from "types"
 import { quarterToMonth, getMonthName, getSeries } from "utils";
 import { HorizontalChevronCell, HorizontalChevronCellTemplate } from "./HorizontalChevronCellTemplate";
 import deepmerge from "deepmerge"
@@ -20,6 +21,7 @@ interface Props {
   data?: ComponentChartData
   minDate?: string
   maxDate?: string
+  setData: (data: ComponentChartData) => void
 }
 
 /**
@@ -33,12 +35,19 @@ function isLastPeriodOfBlock(period: string, freq: Frequency) {
   }
 }
 // heiararchy
-export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50, data, minDate, maxDate }: Props) {
-  
-  if (!data) return null
+export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50, data, minDate, maxDate, setData }: Props) {
+
+  const [tableData, setTableData] = React.useState<Series[] | undefined>()
+
+  React.useEffect(() => {
+    if (!data) return
+    setTableData(deepmerge([], data.series))
+  }, [data])
+
+  if (!data || !tableData) return null
 
   // TODO: can refactor these "cases" out to a function foo(p.t, date, freq, side)
-  const tableData = deepmerge([], data.series)
+  // const tableData = deepmerge([], data.series)
   // find index of min and max in range
   let minIndex = 0
   let maxIndex = tableData[0].data.length - 1
@@ -134,14 +143,14 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
     rowId: series.name,
     cells: [
       {
-        type: "header",
-        // type: "horizontalChevron",
+        // type: "header",
+        type: "horizontalChevron",
         text: getSeries(series.name, labelDefs).label,
         className: 'series-name',
         hasChildren: series.name === tableData[0].name,
         parentId: series.name === tableData[0].name ? undefined : tableData[0].name,
         indent: series.name === tableData[0].name ? 0 : 1,
-        isExpanded: true,
+        isExpanded: series.isExpanded,
       },
       ...series.data.map<NumberCell>((p, i) => ({
         type: "number",
@@ -156,7 +165,17 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
   }))
 
   const handleChanges = (changes: CellChange<RowCells>[]) => {
-    console.log(changes)
+    const newData = {...data}
+    // console.log(data)
+    changes.forEach(change => {
+      console.log(change)
+      const seriesIndex = data.series.findIndex(el => el.name === change.rowId);
+      newData.series[seriesIndex].isExpanded = (change.newCell as HorizontalChevronCell).isExpanded
+      // const changeColumnIdx = columns.findIndex(el => el.columnId === change.columnId);
+      
+    })
+    // console.log(newData)
+    setData(newData)
   }
 
   return(

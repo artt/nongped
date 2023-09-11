@@ -48,8 +48,9 @@ export type TooltipPoint = {
 
 export type ContributionMode = "level" | "growth" | "contribution"
 
-type Series = {
+export type Series = {
   name: string,
+  isExpanded?: boolean,
   data: {
     t: string,
     v: number,
