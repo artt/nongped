@@ -1,12 +1,12 @@
 import React from "react"
 import HighchartsWrapper from "components/HighchartsWrapper"
-import type { ComponentChartDataType, TooltipPoint } from "types"
+import type { ComponentChartData, TooltipPoint } from "types"
 import Box from "@mui/material/Box"
 import { tooltipPercentFormatter, ticksPercentFormatter } from "utils"
 import { HighchartsReactRefObject } from 'highcharts-react-official';
 
 interface Props {
-  data?: ComponentChartDataType,
+  data?: ComponentChartData,
   explodeKeyHeld?: boolean,
   handleRangeChange: (minDate: string, maxDate: string) => void,
 }
@@ -53,7 +53,10 @@ const ComponentChart = React.forwardRef(({ data, handleRangeChange }: Props, _re
         isLoading={!data}
         constructorType={'stockChart'}
         options={data && {
-          series: data.chartSeries,
+          series: data.chartSeries.map((s, i) => ({
+            ...s,
+            data: data.series[i].data.map(p => p.v)
+          })),
           plotOptions: {
             column: {
               stacking: 'normal',

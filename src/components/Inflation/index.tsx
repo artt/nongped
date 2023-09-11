@@ -4,7 +4,7 @@ import type {
   SeriesDefinition,
   TedData,
   ProcessedData,
-  ComponentChartDataType,
+  ComponentChartData,
   ContributionMode
 } from "types"
 import { quarterToMonth } from "utils"
@@ -62,7 +62,7 @@ export default function Inflation() {
   const [processedData, setProcessedData] = React.useState<InflationData>()
   const dataLoaded = React.useRef(false)
 
-  const [data, setData] = React.useState<ComponentChartDataType>()
+  const [data, setData] = React.useState<ComponentChartData>()
   const [freq, setFreq] = React.useState<Frequency>((freqList[0] as Frequency))
   const [showGrowth, setShowGrowth] = React.useState(true)
   const [showContribution, setShowContribution] = React.useState(true)
@@ -124,25 +124,25 @@ export default function Inflation() {
 
   React.useEffect(() => {
     if (!processedData) return
-    const tableSeries = processedData[freq].map(series => ({
-      name: series.name,
-      data: series.data.slice(mode === "level" ? 0 : freqToNum(freq)).map(d => ({
+    const series = processedData[freq].map(s => ({
+      name: s.name,
+      data: s.data.slice(mode === "level" ? 0 : freqToNum(freq)).map(d => ({
         t: d.t,
         v: d[mode],
       })),
     }))
-    const pointStart = Date.parse(freq === 'Q' ? quarterToMonth(tableSeries[0].data[0].t) : tableSeries[0].data[0].t)
-    const chartSeries = tableSeries
-      .map((series, i) => ({
-        name: getSeries(series.name, labelDefs).label,
-        color: getSeries(series.name, labelDefs).color,
+    const pointStart = Date.parse(freq === 'Q' ? quarterToMonth(series[0].data[0].t) : series[0].data[0].t)
+    const chartSeries = series
+      .map((s, i) => ({
+        name: getSeries(s.name, labelDefs).label,
+        color: getSeries(s.name, labelDefs).color,
         findNearestPointBy: i === 0 ? 'x' : 'xy',
         zIndex: i === 0 ? 99 : i,
-        data: series.data.map(p => p.v),
+        // data: series.data.map(p => p.v),
         // in contribution mode, only the first series is a line chart
         type: mode === "contribution" && i > 0 ? 'column' : 'spline',
       }))
-    setData({freq, mode, pointStart, tableSeries, chartSeries})
+    setData({freq, mode, pointStart, series, chartSeries})
   }, [processedData, freq, mode])
 
   return (

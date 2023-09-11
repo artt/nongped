@@ -1,4 +1,4 @@
-import type { SeriesDefinition, ComponentChartDataType, Frequency } from "types"
+import type { SeriesDefinition, ComponentChartData, Frequency } from "types"
 import { quarterToMonth, getMonthName, getSeries } from "utils";
 import { HorizontalChevronCell, HorizontalChevronCellTemplate } from "./HorizontalChevronCellTemplate";
 import deepmerge from "deepmerge"
@@ -17,7 +17,7 @@ interface Props {
   labelDefs: SeriesDefinition[]
   headerWidth?: number
   cellWidth?: number
-  data?: ComponentChartDataType
+  data?: ComponentChartData
   minDate?: string
   maxDate?: string
 }
@@ -38,7 +38,7 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
   if (!data) return null
 
   // TODO: can refactor these "cases" out to a function foo(p.t, date, freq, side)
-  const tableData = deepmerge([], data.tableSeries)
+  const tableData = deepmerge([], data.series)
   // find index of min and max in range
   let minIndex = 0
   let maxIndex = tableData[0].data.length - 1

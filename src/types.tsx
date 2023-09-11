@@ -48,23 +48,22 @@ export type TooltipPoint = {
 
 export type ContributionMode = "level" | "growth" | "contribution"
 
-type SimpleSeriesType = {
+type Series = {
   name: string,
   data: {
     t: string,
     v: number,
   }[],
 }
-export type ComponentChartDataType = {
+export type ComponentChartData = {
   freq: Frequency,
   mode: ContributionMode,
   pointStart: number,
-  tableSeries: SimpleSeriesType[]
+  series: Series[]
   chartSeries: {
     name: string,
     color?: string,
     zIndex: number,
-    data: number[],
     type: string,
   }[]
 }

@@ -2,7 +2,7 @@ import React from 'react'
 import { defaultOptions, getAllSeriesNames, getSeries, getTedDataPromise } from "utils"
 import Split from "components/Split"
 import { freqToNum, quarterToMonth } from "utils"
-import type { SeriesDefinition, TedData, ProcessedData, ComponentChartDataType, ContributionMode } from "types"
+import type { SeriesDefinition, TedData, ProcessedData, ComponentChartData, ContributionMode } from "types"
 import ComponentChart from "components/ComponentChart"
 import SummaryTable from "components/SummaryTable"
 import Box from "@mui/material/Box"
@@ -160,7 +160,7 @@ export default function Gdp() {
   const [processedData, setProcessedData] = React.useState<GdpData>()
   const dataLoaded = React.useRef(false)
 
-  const [data, setData] = React.useState<ComponentChartDataType>()
+  const [data, setData] = React.useState<ComponentChartData>()
   const [freq, setFreq] = React.useState<Frequency>((freqList[0] as Frequency))
   const [showGrowth, setShowGrowth] = React.useState(true)
   const [showContribution, setShowContribution] = React.useState(true)
@@ -284,21 +284,21 @@ export default function Gdp() {
         toBeSliced = freqToNum(freq) * 2
         break
     }
-    const tableSeries = processedData[freq].map(series => ({
-      name: series.name,
-      data: series.data.slice(toBeSliced).map(d => ({
+    const series = processedData[freq].map(s => ({
+      name: s.name,
+      data: s.data.slice(toBeSliced).map(d => ({
         t: d.t,
         v: d[mode],
       })),
     }))
     // const chartSeries = deepmerge([], tableSeries)
-    const pointStart = Date.parse(freq === 'Q' ? quarterToMonth(tableSeries[0].data[0].t) : tableSeries[0].data[0].t)
-    const chartSeries = tableSeries
-      .map((series, i) => ({
-        visible: !getSeries(series.name, labelDefs).hide?.includes(mode),
-        showInLegend: !getSeries(series.name, labelDefs).hide?.includes(mode),
-        name: getSeries(series.name, labelDefs).label,
-        color: getSeries(series.name, labelDefs).color,
+    const pointStart = Date.parse(freq === 'Q' ? quarterToMonth(series[0].data[0].t) : series[0].data[0].t)
+    const chartSeries = series
+      .map((s, i) => ({
+        visible: !getSeries(s.name, labelDefs).hide?.includes(mode),
+        showInLegend: !getSeries(s.name, labelDefs).hide?.includes(mode),
+        name: getSeries(s.name, labelDefs).label,
+        color: getSeries(s.name, labelDefs).color,
         marker: {
           enabled: i === 0,
           fillColor: 'white',
@@ -307,11 +307,10 @@ export default function Gdp() {
           radius: 4,
         },
         zIndex: i === 0 ? 99 : i,
-        data: series.data.map(p => p.v),
         // in contribution mode, only the first series is a line chart
         type: getSeriesType(mode, i),
       }))
-    setData({freq, mode, pointStart, tableSeries, chartSeries})
+    setData({freq, mode, pointStart, series, chartSeries})
   }, [processedData, freq, mode])
 
   return (
