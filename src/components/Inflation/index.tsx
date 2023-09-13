@@ -135,7 +135,6 @@ export default function Inflation() {
     const pointStart = Date.parse(freq === 'Q' ? quarterToMonth(series[0].data[0].t) : series[0].data[0].t)
     const chartSeries = series
       .map((s, i) => ({
-        name: getSeries(s.name, labelDefs).label,
         color: getSeries(s.name, labelDefs).color,
         findNearestPointBy: i === 0 ? 'x' : 'xy',
         zIndex: i === 0 ? 99 : i,
@@ -152,6 +151,7 @@ export default function Inflation() {
         <ComponentChart
           ref={ref}
           data={data}
+          labelDefs={labelDefs}
           handleRangeChange={handleRangeChange}
         />
       }

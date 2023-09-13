@@ -297,7 +297,6 @@ export default function Gdp() {
       .map((s, i) => ({
         visible: !getSeries(s.name, labelDefs).hide?.includes(mode),
         showInLegend: !getSeries(s.name, labelDefs).hide?.includes(mode),
-        name: getSeries(s.name, labelDefs).label,
         color: getSeries(s.name, labelDefs).color,
         marker: {
           enabled: i === 0,
@@ -318,6 +317,7 @@ export default function Gdp() {
       top={
         <ComponentChart
           data={data}
+          labelDefs={labelDefs}
           handleRangeChange={handleRangeChange}
         />
       }

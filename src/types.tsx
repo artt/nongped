@@ -62,7 +62,6 @@ export type ComponentChartData = {
   pointStart: number,
   series: Series[]
   chartSeries: {
-    name: string,
     color?: string,
     zIndex: number,
     type: string,
