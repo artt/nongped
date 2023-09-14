@@ -8,6 +8,7 @@ export type SeriesDefinition = {
   negativeContribution?: boolean,
   skipLoading?: boolean,
   children?: SeriesDefinition[],
+  depth?: number,
 }
 
 /**

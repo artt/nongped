@@ -200,18 +200,18 @@ export function dataLabelsPercentFormatter(this: TooltipPoint) {
 /**
  * Retrieve the series definition from the series name
  */
-export function getSeries(name: string, allSeries: SeriesDefinition[]): SeriesDefinition {
-  const tmp = getSeriesRecursive(name, allSeries)
+export function getSeries(name: string, allSeries: SeriesDefinition[], initialDepth=0): SeriesDefinition {
+  const tmp = getSeriesRecursive(name, allSeries, initialDepth)
   if (tmp) return tmp
   // raise exception if not found
   throw new Error(`Series ${name} not found T.T`)
 }
 
-function getSeriesRecursive(name: string, allSeries: SeriesDefinition[]): SeriesDefinition | null {
+function getSeriesRecursive(name: string, allSeries: SeriesDefinition[], depth: number): SeriesDefinition | null {
   for (const series of allSeries) {
-    if (series.name === name) return series
+    if (series.name === name) return { ...series, depth }
     if (series.children) {
-      const tmp = getSeriesRecursive(name, series.children)
+      const tmp = getSeriesRecursive(name, series.children, depth + 1)
       if (tmp) return tmp
     }
   }

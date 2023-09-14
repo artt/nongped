@@ -133,30 +133,34 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
 
   const formatter = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
-  const dataRows: SummaryRow[] = data.series.map(series => ({
-    rowId: series.name,
-    cells: [
-      {
-        // type: "header",
-        type: "horizontalChevron",
-        text: getSeries(series.name, labelDefs).label,
-        className: 'series-name',
-        hasChildren: series.name === data.series[0].name,
-        parentId: series.name === data.series[0].name ? undefined : data.series[0].name,
-        indent: series.name === data.series[0].name ? 0 : 1,
-        isExpanded: series.isExpanded,
-      },
-      ...series.data.slice(minIndex, maxIndex + 1).map<NumberCell>((p, i) => ({
-        type: "number",
-        nonEditable: true,
-        value: (p.v * (data.mode === "level" ? 1 : 100)),
-        format: formatter,
-        className: clsx(
-          isLastPeriodOfBlock(p.t, data.freq) && i < series.data.length - 1 && "last-period",
-        ),
-      }))
-    ],
-  }))
+  const dataRows: SummaryRow[] = data.series.map(series => {
+    const curSeries = getSeries(series.name, labelDefs)
+    return {
+      rowId: series.name,
+      cells: [
+        {
+          // type: "header",
+          // type: "chevron",
+          type: "horizontalChevron",
+          text: curSeries.label,
+          className: 'series-name',
+          hasChildren: curSeries.children !== undefined,
+          // parentId: series.name === data.series[0].name ? undefined : data.series[0].name,
+          indent: curSeries.depth, //series.name === data.series[0].name ? 0 : 1,
+          isExpanded: series.isExpanded,
+        },
+        ...series.data.slice(minIndex, maxIndex + 1).map<NumberCell>((p, i) => ({
+          type: "number",
+          nonEditable: true,
+          value: (p.v * (data.mode === "level" ? 1 : 100)),
+          format: formatter,
+          className: clsx(
+            isLastPeriodOfBlock(p.t, data.freq) && i < series.data.length - 1 && "last-period",
+          ),
+        }))
+      ],
+    }
+  })
 
   const handleChanges = (changes: CellChange<RowCells>[]) => {
     const newData = {...data}
@@ -166,7 +170,6 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
       const seriesIndex = data.series.findIndex(el => el.name === change.rowId);
       newData.series[seriesIndex].isExpanded = (change.newCell as HorizontalChevronCell).isExpanded
       // const changeColumnIdx = columns.findIndex(el => el.columnId === change.columnId);
-      
     })
     // console.log(newData)
     setData(newData)

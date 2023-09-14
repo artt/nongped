@@ -11,6 +11,7 @@ export interface HorizontalChevronCell extends Cell {
   text: string;
   isExpanded?: boolean;
   hasChildren?: boolean;
+  indent?: number;
   columnId?: Id; // helper field
   parentId?: Id;
 }
@@ -65,6 +66,11 @@ export class HorizontalChevronCellTemplate implements CellTemplate<HorizontalChe
   render(cell: Compatible<HorizontalChevronCell>, _isInEditMode: boolean, onCellChanged: (cell: Compatible<HorizontalChevronCell>, commit: boolean) => void): React.ReactNode {
     return (
       <>
+        <div
+          style={{
+            marginLeft: `${(cell.indent || 0) }rem`,
+          }}
+        />
         {cell.hasChildren ?
           <div
             className='chevron'
