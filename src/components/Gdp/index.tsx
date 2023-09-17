@@ -1,5 +1,5 @@
 import React from 'react'
-import { defaultOptions, getAllSeriesNames, getSeries, getTedDataPromise } from "utils"
+import { defaultOptions, getAllSeriesNames, getSeries, getTedDataPromise, processSeriesDefinition } from "utils"
 import Split from "components/Split"
 import { freqToNum, quarterToMonth } from "utils"
 import type { SeriesDefinition, TedData, ProcessedData, ComponentChartData, ContributionMode } from "types"
@@ -15,7 +15,7 @@ import Color from 'color'
 
 const freqList = ["Q", "Y"]
 
-const labelDefs: SeriesDefinition[] = [
+const inputDefs: SeriesDefinition[] = [
   {
     name: 'gdpr',
     label: 'GDP',
@@ -134,8 +134,10 @@ const labelDefs: SeriesDefinition[] = [
   }
 ]
 
+const seriesDefs = processSeriesDefinition(inputDefs)
+
 // const gdpSeries = getAllSeriesNames(labelDefs)
-const gdpSeriesToLoad = getAllSeriesNames(labelDefs, series => !series.skipLoading)
+const gdpSeriesToLoad = getAllSeriesNames(seriesDefs, series => !series.skipLoading)
 
 function getSeriesType(mode: ContributionMode, seriesIndex: number) {
   switch(mode) {
@@ -192,7 +194,7 @@ export default function Gdp() {
 
     const processedYearlyData = data.Y.series.slice(0, gdpSeriesToLoad.length).map((series: {name: string, values: number[]}, seriesIndex: number) => {
       const deflator = data.Y.series[seriesIndex + gdpSeriesToLoad.length].values
-      const negativeContribution = getSeries(series.name, labelDefs).negativeContribution
+      const negativeContribution = getSeries(series.name, seriesDefs).negativeContribution
       return({
         name: series.name,
         data: series.values.map((_, i: number, a: number[]) => ({
@@ -210,7 +212,7 @@ export default function Gdp() {
       // we only use yearly deflator, so this Y is not a typo
       const deflator = data.Y.series[seriesIndex + gdpSeriesToLoad.length].values
       const seriesYearly = data.Y.series[seriesIndex].values
-      const negativeContribution = getSeries(series.name, labelDefs).negativeContribution
+      const negativeContribution = getSeries(series.name, seriesDefs).negativeContribution
       return({
         name: series.name,
         data: series.values.map((_, i: number, a: number[]) => {
@@ -294,21 +296,24 @@ export default function Gdp() {
     // const chartSeries = deepmerge([], tableSeries)
     const pointStart = Date.parse(freq === 'Q' ? quarterToMonth(series[0].data[0].t) : series[0].data[0].t)
     const chartSeries = series
-      .map((s, i) => ({
-        visible: !getSeries(s.name, labelDefs).hide?.includes(mode),
-        showInLegend: !getSeries(s.name, labelDefs).hide?.includes(mode),
-        color: getSeries(s.name, labelDefs).color,
-        marker: {
-          enabled: i === 0,
-          fillColor: 'white',
-          lineColor: null,
-          lineWidth: 2,
-          radius: 4,
-        },
-        zIndex: i === 0 ? 99 : i,
-        // in contribution mode, only the first series is a line chart
-        type: getSeriesType(mode, i),
-      }))
+      .map((s, i) => {
+        const curSeries = getSeries(s.name, seriesDefs)
+        return({
+          visible: !curSeries.hide?.includes(mode),
+          showInLegend: !curSeries.hide?.includes(mode),
+          color: curSeries.color,
+          marker: {
+            enabled: i === 0,
+            fillColor: 'white',
+            lineColor: null,
+            lineWidth: 2,
+            radius: 4,
+          },
+          zIndex: i === 0 ? 99 : i,
+          // in contribution mode, only the first series is a line chart
+          type: getSeriesType(mode, i),
+        })
+      })
     setData({freq, mode, pointStart, series, chartSeries})
   }, [processedData, freq, mode])
 
@@ -317,7 +322,7 @@ export default function Gdp() {
       top={
         <ComponentChart
           data={data}
-          labelDefs={labelDefs}
+          seriesDefs={seriesDefs}
           handleRangeChange={handleRangeChange}
         />
       }
@@ -367,7 +372,7 @@ export default function Gdp() {
           </Box>
           <SummaryTable
             freqList={freqList}
-            labelDefs={labelDefs}
+            seriesDefs={seriesDefs}
             headerWidth={200}
             cellWidth={55}
             data={data}

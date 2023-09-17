@@ -1,4 +1,4 @@
-import { TooltipPoint, Frequency, SeriesDefinition } from "types"
+import { TooltipPoint, Frequency, SeriesDefinition, ProcessedSeriesDefinition } from "types"
 
 // export const serverAddress = process.env.NODE_ENV === "development"
 //   ? `http://localhost:1443`
@@ -200,33 +200,40 @@ export function dataLabelsPercentFormatter(this: TooltipPoint) {
 /**
  * Retrieve the series definition from the series name
  */
-export function getSeries(name: string, allSeries: SeriesDefinition[], initialDepth=0): SeriesDefinition {
-  const tmp = getSeriesRecursive(name, allSeries, initialDepth)
+export function getSeries(name: string, allSeries: ProcessedSeriesDefinition[]): ProcessedSeriesDefinition {
+  const tmp = allSeries.find(series => series.name === name)
   if (tmp) return tmp
   // raise exception if not found
   throw new Error(`Series ${name} not found T.T`)
 }
 
-function getSeriesRecursive(name: string, allSeries: SeriesDefinition[], depth: number): SeriesDefinition | null {
-  for (const series of allSeries) {
-    if (series.name === name) return { ...series, depth }
-    if (series.children) {
-      const tmp = getSeriesRecursive(name, series.children, depth + 1)
-      if (tmp) return tmp
-    }
-  }
-  return null
-}
-
-export function getAllSeriesNames(allSeries: SeriesDefinition[], filterFunction: ((series: SeriesDefinition) => boolean) = () => true): string[] {
+export function getAllSeriesNames(allSeries: ProcessedSeriesDefinition[], filterFunction: ((series: ProcessedSeriesDefinition) => boolean) = () => true): string[] {
   const res: string[] = []
   allSeries.forEach(series => {
     if (filterFunction(series)) {
       res.push(series.name)
     }
-    if (series.children) {
-      res.push(...getAllSeriesNames(series.children, filterFunction))
-    }
   })
   return res
+}
+
+/**
+ * Convert array of SeriesDefinition into an object, with added parents and depth
+ * @param allSeries 
+ * @param initialDepth 
+ */
+export function processSeriesDefinition(allSeries: SeriesDefinition[], initialDepth=0, parent="root"): ProcessedSeriesDefinition[] {
+  const out: ProcessedSeriesDefinition[] = []
+  allSeries.forEach(series => {
+    out.push({
+      ...series,
+      parent: parent,
+      children: series.children ? series.children.map(child => child.name) : [],
+      depth: initialDepth,
+    })
+    if (series.children) {
+      out.push(...processSeriesDefinition(series.children, initialDepth + 1, series.name))
+    }
+  })
+  return out
 }

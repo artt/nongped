@@ -1,4 +1,4 @@
-import type { SeriesDefinition, ComponentChartData, Frequency } from "types"
+import type { ComponentChartData, Frequency, ProcessedSeriesDefinition } from "types"
 import { quarterToMonth, getMonthName, getSeries } from "utils";
 import { HorizontalChevronCell, HorizontalChevronCellTemplate } from "./HorizontalChevronCellTemplate";
 import Box from "@mui/material/Box";
@@ -13,7 +13,7 @@ type SummaryRow = Row<RowCells>
 
 interface Props {
   freqList: string[]
-  labelDefs: SeriesDefinition[]
+  seriesDefs: ProcessedSeriesDefinition[]
   headerWidth?: number
   cellWidth?: number
   data?: ComponentChartData
@@ -33,7 +33,7 @@ function isLastPeriodOfBlock(period: string, freq: Frequency) {
   }
 }
 // heiararchy
-export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50, data, minDate, maxDate, setData }: Props) {
+export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidth=50, data, minDate, maxDate, setData }: Props) {
 
   if (!data) return null
 
@@ -134,7 +134,7 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
   const formatter = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
   const dataRows: SummaryRow[] = data.series.map(series => {
-    const curSeries = getSeries(series.name, labelDefs)
+    const curSeries = getSeries(series.name, seriesDefs)
     return {
       rowId: series.name,
       cells: [

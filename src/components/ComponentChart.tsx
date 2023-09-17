@@ -1,19 +1,19 @@
 import React from "react"
 import HighchartsWrapper from "components/HighchartsWrapper"
-import type { ComponentChartData, SeriesDefinition, TooltipPoint } from "types"
+import type { ComponentChartData, ProcessedSeriesDefinition, TooltipPoint } from "types"
 import Box from "@mui/material/Box"
 import { tooltipPercentFormatter, ticksPercentFormatter, getSeries } from "utils"
 import { HighchartsReactRefObject } from 'highcharts-react-official';
 
 interface Props {
   data?: ComponentChartData,
-  labelDefs: SeriesDefinition[],
+  seriesDefs: ProcessedSeriesDefinition[],
   explodeKeyHeld?: boolean,
   handleRangeChange: (minDate: string, maxDate: string) => void,
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const ComponentChart = React.forwardRef(({ data, labelDefs, handleRangeChange }: Props, _refJustInCase) => {
+const ComponentChart = React.forwardRef(({ data, seriesDefs, handleRangeChange }: Props, _refJustInCase) => {
   
   const [explodeKeyHeld, setExplodeKeyHeld] = React.useState(false)
   const ref = React.useRef<HighchartsReactRefObject>()
@@ -53,7 +53,7 @@ const ComponentChart = React.forwardRef(({ data, labelDefs, handleRangeChange }:
         constructorType={'stockChart'}
         options={data && {
           series: data.series.map((s, i) => ({
-            name: getSeries(s.name, labelDefs).label,
+            name: getSeries(s.name, seriesDefs).label,
             data: s.data.map(p => p.v),
             ...data.chartSeries[i],
           })),

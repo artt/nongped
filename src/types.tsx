@@ -11,6 +11,18 @@ export type SeriesDefinition = {
   depth?: number,
 }
 
+export type ProcessedSeriesDefinition = {
+  name: string,
+  label: string,
+  color?: string
+  hide?: ContributionMode[],
+  negativeContribution?: boolean,
+  skipLoading?: boolean,
+  parent: string,
+  children: string[],
+  depth: number,
+}
+
 /**
  * Raw time series data from TED
  */

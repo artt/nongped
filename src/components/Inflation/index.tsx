@@ -1,5 +1,5 @@
 import React from 'react'
-import { freqToNum, getAllSeriesNames, getSeries, getTedDataPromise } from "utils"
+import { freqToNum, getAllSeriesNames, getSeries, getTedDataPromise, processSeriesDefinition } from "utils"
 import type {
   SeriesDefinition,
   TedData,
@@ -19,7 +19,7 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
 import ToggleButton from "@mui/material/ToggleButton"
 import { HighchartsReact } from 'highcharts-react-official'
 
-const labelDefs: SeriesDefinition[] = [
+const inputDefs: SeriesDefinition[] = [
   {
     name: 'cpi',
     label: 'CPI',
@@ -39,6 +39,7 @@ const labelDefs: SeriesDefinition[] = [
     ],
   },
 ]
+const seriesDefs = processSeriesDefinition(inputDefs)
 
 const freqList = ["M", "Q", "Y"]
 
@@ -97,7 +98,7 @@ export default function Inflation() {
     // TODO: can process each frequency separately and not have to wait for all to finish
     const promises = []
     for (const freq of freqList) {
-      promises.push(getTedDataPromise(getAllSeriesNames(labelDefs), freq, 1986)
+      promises.push(getTedDataPromise(getAllSeriesNames(seriesDefs), freq, 1986)
         .then(res => processInflationData(res, (freq as Frequency)))
       )
     }
@@ -135,7 +136,7 @@ export default function Inflation() {
     const pointStart = Date.parse(freq === 'Q' ? quarterToMonth(series[0].data[0].t) : series[0].data[0].t)
     const chartSeries = series
       .map((s, i) => ({
-        color: getSeries(s.name, labelDefs).color,
+        color: getSeries(s.name, seriesDefs).color,
         findNearestPointBy: i === 0 ? 'x' : 'xy',
         zIndex: i === 0 ? 99 : i,
         // data: series.data.map(p => p.v),
@@ -151,7 +152,7 @@ export default function Inflation() {
         <ComponentChart
           ref={ref}
           data={data}
-          labelDefs={labelDefs}
+          seriesDefs={seriesDefs}
           handleRangeChange={handleRangeChange}
         />
       }
@@ -201,7 +202,7 @@ export default function Inflation() {
           </Box>
           <SummaryTable
             freqList={freqList}
-            labelDefs={labelDefs}
+            seriesDefs={seriesDefs}
             data={data}
             minDate={minDate}
             maxDate={maxDate}
