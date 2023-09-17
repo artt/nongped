@@ -66,11 +66,7 @@ export class HorizontalChevronCellTemplate implements CellTemplate<HorizontalChe
   render(cell: Compatible<HorizontalChevronCell>, _isInEditMode: boolean, onCellChanged: (cell: Compatible<HorizontalChevronCell>, commit: boolean) => void): React.ReactNode {
     return (
       <>
-        <div
-          style={{
-            marginLeft: `${(cell.indent || 0) }rem`,
-          }}
-        />
+        <div style={{ marginLeft: `${(cell.indent || 0) }rem`, }} />
         {cell.hasChildren ?
           <div
             className='chevron'

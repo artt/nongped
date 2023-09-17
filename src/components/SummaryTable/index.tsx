@@ -164,12 +164,13 @@ export default function SummaryTable({ labelDefs, headerWidth=100, cellWidth=50,
 
   const handleChanges = (changes: CellChange<RowCells>[]) => {
     const newData = {...data}
-    // console.log(data)
+    console.log(data)
     changes.forEach(change => {
-      console.log(change)
+      // console.log(change)
       const seriesIndex = data.series.findIndex(el => el.name === change.rowId);
       newData.series[seriesIndex].isExpanded = (change.newCell as HorizontalChevronCell).isExpanded
       // const changeColumnIdx = columns.findIndex(el => el.columnId === change.columnId);
+
     })
     // console.log(newData)
     setData(newData)
