@@ -192,47 +192,79 @@ export default function Gdp() {
     const gderYearly = data.Y.series[gdeIndex].values
     const gderQuarterly = data.Q.series[gdeIndex].values
 
-    const processedYearlyData = data.Y.series.slice(0, gdpSeriesToLoad.length).map((series: {name: string, values: number[]}, seriesIndex: number) => {
-      const deflator = data.Y.series[seriesIndex + gdpSeriesToLoad.length].values
-      const negativeContribution = seriesDefs[getSeriesIndex(series.name, seriesDefs)].negativeContribution
-      return({
-        name: series.name,
-        data: series.values.map((_, i: number, a: number[]) => ({
-          t: data.Y.periods[i],
-          level: (negativeContribution ? -1 : 1) * a[i],
-          growth: (a[i] / a[i - 1] - 1),
-          contribution: seriesIndex < 2
-              ? (a[i] / a[i - 1] - 1)
-              : (negativeContribution ? -1 : 1) * ((a[i] - a[i - 1]) / gderYearly[i - 1] * (deflator[i - 1] / gdeDeflator[i - 1])),
-        })),
-      })
-    })
-
-    const processedQuarterlyData = data.Q.series.map((series: {name: string, values: number[]}, seriesIndex: number) => {
-      // we only use yearly deflator, so this Y is not a typo
-      const deflator = data.Y.series[seriesIndex + gdpSeriesToLoad.length].values
-      const seriesYearly = data.Y.series[seriesIndex].values
-      const negativeContribution = seriesDefs[getSeriesIndex(series.name, seriesDefs)].negativeContribution
-      return({
-        name: series.name,
-        data: series.values.map((_, i: number, a: number[]) => {
-          const yi = Math.floor(i / 4) // yearly index
-          return({
-            t: data.Q.periods[i],
+    const processedYearlyData = seriesDefs.map(series => {
+      // find index from data.Y.series
+      const seriesIndex = getSeriesIndex(series.name, data.Y.series)
+      if (seriesIndex === -1) {
+        // series needs to be calculated
+        // return series with data filled with t: dates, and others NaN
+        return({
+          name: series.name,
+          data: data.Y.periods.map(t => ({
+            t,
+            level: NaN,
+            growth: NaN,
+            contribution: NaN,
+          })),
+        })
+      }
+      else {
+        // series exists in data
+        const deflator = data.Y.series[seriesIndex + gdpSeriesToLoad.length].values
+        const negativeContribution = series.negativeContribution
+        return({
+          name: series.name,
+          data: data.Y.series[seriesIndex].values.map((_, i: number, a: number[]) => ({
+            t: data.Y.periods[i],
             level: (negativeContribution ? -1 : 1) * a[i],
-            growth: (a[i] / a[i - 4] - 1),
-            // whattttttttttt
-            contribution: yi < 2
-                ? NaN
-                : seriesIndex < 2
-                  ? (a[i] / a[i - 4] - 1)
-                  : (negativeContribution ? -1 : 1) * (((a[i] - a[i - 4]) / gderQuarterly[i - 4] * deflator[yi - 1] / gdeDeflator[yi - 1]) + (a[i - 4] / gderQuarterly[i - 4] - seriesYearly[yi - 1] / gderYearly[yi - 1]) * (deflator[yi - 1] / gdeDeflator[yi - 1] - deflator[yi - 2] / gdeDeflator[yi - 2])),
-          })
-        }),
-      })
+            growth: (a[i] / a[i - 1] - 1),
+            contribution: seriesIndex < 2
+                ? (a[i] / a[i - 1] - 1)
+                : (negativeContribution ? -1 : 1) * ((a[i] - a[i - 1]) / gderYearly[i - 1] * (deflator[i - 1] / gdeDeflator[i - 1])),
+          })),
+        })
+      }
     })
 
-    // add "aggregated" data (DDR, CR, IR, NXR, XR, MR)
+    const processedQuarterlyData = seriesDefs.map(series => {
+      // find index from data.Y.series
+      const seriesIndex = getSeriesIndex(series.name, data.Q.series)
+      if (seriesIndex === -1) {
+        // series needs to be calculated
+        // return series with data filled with t: dates, and others NaN
+        return({
+          name: series.name,
+          data: data.Q.periods.map(t => ({
+            t,
+            level: NaN,
+            growth: NaN,
+            contribution: NaN,
+          })),
+        })
+      }
+      else {
+        // series exists in data
+        const deflator = data.Y.series[seriesIndex + gdpSeriesToLoad.length].values
+        const seriesYearly = data.Y.series[seriesIndex].values
+        const negativeContribution = series.negativeContribution
+        return({
+          name: series.name,
+          data: data.Q.series[seriesIndex].values.map((_, i: number, a: number[]) => {
+            const yi = Math.floor(i / 4) // yearly index
+            return({
+              t: data.Q.periods[i],
+              level: (negativeContribution ? -1 : 1) * a[i],
+              growth: (a[i] / a[i - 4] - 1),
+              contribution: yi < 2
+                  ? NaN
+                  : seriesIndex < 2
+                    ? (a[i] / a[i - 4] - 1)
+                    : (negativeContribution ? -1 : 1) * (((a[i] - a[i - 4]) / gderQuarterly[i - 4] * deflator[yi - 1] / gdeDeflator[yi - 1]) + (a[i - 4] / gderQuarterly[i - 4] - seriesYearly[yi - 1] / gderYearly[yi - 1]) * (deflator[yi - 1] / gdeDeflator[yi - 1] - deflator[yi - 2] / gdeDeflator[yi - 2])),
+            })
+          }),
+        })
+      }
+    })
 
     return({
       Q: processedQuarterlyData,

@@ -197,7 +197,7 @@ export function dataLabelsPercentFormatter(this: TooltipPoint) {
   return percentFormatterNumber(this.y)
 }
 
-export function getSeriesIndex(name: string | number, allSeries: ProcessedSeriesDefinition[] | Series[]): number {
+export function getSeriesIndex(name: string | number, allSeries: {name: string}[]): number {
   return allSeries.findIndex(series => series.name === name)
 }
 
