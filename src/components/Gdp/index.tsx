@@ -259,6 +259,7 @@ export default function Gdp() {
   }, [])
 
   // set mode from toggles
+  // TODO: can factor this out into a custom component, shared wtih Inflation
   React.useEffect(() => {
     if (!showGrowth) {
       setMode("level")
