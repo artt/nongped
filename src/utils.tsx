@@ -1,4 +1,4 @@
-import { TooltipPoint, Frequency, SeriesDefinition, ProcessedSeriesDefinition } from "types"
+import { TooltipPoint, Frequency, SeriesDefinition, ProcessedSeriesDefinition, Series } from "types"
 
 // export const serverAddress = process.env.NODE_ENV === "development"
 //   ? `http://localhost:1443`
@@ -197,16 +197,11 @@ export function dataLabelsPercentFormatter(this: TooltipPoint) {
   return percentFormatterNumber(this.y)
 }
 
-/**
- * Retrieve the series definition from the series name
- */
-export function getSeries(name: string, allSeries: ProcessedSeriesDefinition[]): ProcessedSeriesDefinition {
-  const tmp = allSeries.find(series => series.name === name)
-  if (tmp) return tmp
-  // raise exception if not found
-  throw new Error(`Series ${name} not found T.T`)
+export function getSeriesIndex(name: string | number, allSeries: ProcessedSeriesDefinition[] | Series[]): number {
+  return allSeries.findIndex(series => series.name === name)
 }
 
+// TODO: simplify this if we're set on using this structure?
 export function getAllSeriesNames(allSeries: ProcessedSeriesDefinition[], filterFunction: ((series: ProcessedSeriesDefinition) => boolean) = () => true): string[] {
   const res: string[] = []
   allSeries.forEach(series => {
@@ -236,4 +231,13 @@ export function processSeriesDefinition(allSeries: SeriesDefinition[], initialDe
     }
   })
   return out
+}
+
+export function isAnyParentCollapsed(name: string, allSeries: Series[], seriesDefs: ProcessedSeriesDefinition[]): boolean {
+  if (allSeries[getSeriesIndex(name, allSeries)].isParentCollapsed) return true
+  const series = seriesDefs[getSeriesIndex(name, seriesDefs)]
+  if (series.parent === "root") return false
+  const parent = allSeries[getSeriesIndex(series.parent, allSeries)]
+  if (parent.isParentCollapsed) return true
+  return isAnyParentCollapsed(parent.name, allSeries, seriesDefs)
 }

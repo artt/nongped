@@ -1,5 +1,5 @@
 import type { ComponentChartData, Frequency, ProcessedSeriesDefinition } from "types"
-import { quarterToMonth, getMonthName, getSeries } from "utils";
+import { quarterToMonth, getMonthName, getSeriesIndex, isAnyParentCollapsed } from "utils";
 import { HorizontalChevronCell, HorizontalChevronCellTemplate } from "./HorizontalChevronCellTemplate";
 import Box from "@mui/material/Box";
 import clsx from "clsx";
@@ -133,9 +133,11 @@ export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidth=50
 
   const formatter = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
-  const dataRows: SummaryRow[] = data.series.map(series => {
-    const curSeries = getSeries(series.name, seriesDefs)
-    return {
+  const dataRows: SummaryRow[] = []
+  data.series.forEach(series => {
+    const curSeries = seriesDefs[getSeriesIndex(series.name, seriesDefs)]
+    if (isAnyParentCollapsed(series.name, data.series, seriesDefs)) return
+    dataRows.push({
       rowId: series.name,
       cells: [
         {
@@ -143,11 +145,13 @@ export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidth=50
           // type: "chevron",
           type: "horizontalChevron",
           text: curSeries.label,
-          className: 'series-name',
-          hasChildren: curSeries.children !== undefined,
-          // parentId: series.name === data.series[0].name ? undefined : data.series[0].name,
-          indent: curSeries.depth, //series.name === data.series[0].name ? 0 : 1,
+          hasChildren: curSeries.children.length > 0,
+          parentId: curSeries.parent,
+          indent: curSeries.depth,
           isExpanded: series.isExpanded,
+          className: clsx(
+            'series-name',
+          ),
         },
         ...series.data.slice(minIndex, maxIndex + 1).map<NumberCell>((p, i) => ({
           type: "number",
@@ -159,18 +163,26 @@ export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidth=50
           ),
         }))
       ],
-    }
+    })
   })
 
   const handleChanges = (changes: CellChange<RowCells>[]) => {
     const newData = {...data}
-    console.log(data)
     changes.forEach(change => {
       // console.log(change)
-      const seriesIndex = data.series.findIndex(el => el.name === change.rowId);
-      newData.series[seriesIndex].isExpanded = (change.newCell as HorizontalChevronCell).isExpanded
-      // const changeColumnIdx = columns.findIndex(el => el.columnId === change.columnId);
-
+      const seriesIndex = getSeriesIndex(change.rowId, data.series)
+      // const seriesIndex = data.series.findIndex(el => el.name === change.rowId);
+      const newCell = change.newCell as HorizontalChevronCell
+      const oldCell = change.previousCell as HorizontalChevronCell
+      // check if the change is expanding/collapsing
+      if (newCell.isExpanded !== oldCell.isExpanded) {
+        newData.series[seriesIndex].isExpanded = newCell.isExpanded
+        seriesDefs[getSeriesIndex(change.rowId, seriesDefs)].children.forEach(child => {
+          const childIndex = getSeriesIndex(child, data.series)
+          newData.series[childIndex].isParentCollapsed = !newCell.isExpanded
+        })
+      }
+      console.log(newData)
     })
     // console.log(newData)
     setData(newData)

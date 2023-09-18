@@ -1,5 +1,5 @@
 import React from 'react'
-import { freqToNum, getAllSeriesNames, getSeries, getTedDataPromise, processSeriesDefinition } from "utils"
+import { freqToNum, getAllSeriesNames, getSeriesIndex, getTedDataPromise, processSeriesDefinition } from "utils"
 import type {
   SeriesDefinition,
   TedData,
@@ -128,6 +128,7 @@ export default function Inflation() {
     const series = processedData[freq].map(s => ({
       name: s.name,
       isExpanded: true,
+      isParentCollapsed: false,
       data: s.data.slice(mode === "level" ? 0 : freqToNum(freq)).map(d => ({
         t: d.t,
         v: d[mode],
@@ -136,7 +137,7 @@ export default function Inflation() {
     const pointStart = Date.parse(freq === 'Q' ? quarterToMonth(series[0].data[0].t) : series[0].data[0].t)
     const chartSeries = series
       .map((s, i) => ({
-        color: getSeries(s.name, seriesDefs).color,
+        color: seriesDefs[getSeriesIndex(s.name, seriesDefs)].color,
         findNearestPointBy: i === 0 ? 'x' : 'xy',
         zIndex: i === 0 ? 99 : i,
         // data: series.data.map(p => p.v),

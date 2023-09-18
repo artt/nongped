@@ -1,5 +1,5 @@
 import React from 'react'
-import { defaultOptions, getAllSeriesNames, getSeries, getTedDataPromise, processSeriesDefinition } from "utils"
+import { defaultOptions, getAllSeriesNames, getSeriesIndex, getTedDataPromise, processSeriesDefinition } from "utils"
 import Split from "components/Split"
 import { freqToNum, quarterToMonth } from "utils"
 import type { SeriesDefinition, TedData, ProcessedData, ComponentChartData, ContributionMode } from "types"
@@ -194,7 +194,7 @@ export default function Gdp() {
 
     const processedYearlyData = data.Y.series.slice(0, gdpSeriesToLoad.length).map((series: {name: string, values: number[]}, seriesIndex: number) => {
       const deflator = data.Y.series[seriesIndex + gdpSeriesToLoad.length].values
-      const negativeContribution = getSeries(series.name, seriesDefs).negativeContribution
+      const negativeContribution = seriesDefs[getSeriesIndex(series.name, seriesDefs)].negativeContribution
       return({
         name: series.name,
         data: series.values.map((_, i: number, a: number[]) => ({
@@ -212,7 +212,7 @@ export default function Gdp() {
       // we only use yearly deflator, so this Y is not a typo
       const deflator = data.Y.series[seriesIndex + gdpSeriesToLoad.length].values
       const seriesYearly = data.Y.series[seriesIndex].values
-      const negativeContribution = getSeries(series.name, seriesDefs).negativeContribution
+      const negativeContribution = seriesDefs[getSeriesIndex(series.name, seriesDefs)].negativeContribution
       return({
         name: series.name,
         data: series.values.map((_, i: number, a: number[]) => {
@@ -297,7 +297,7 @@ export default function Gdp() {
     const pointStart = Date.parse(freq === 'Q' ? quarterToMonth(series[0].data[0].t) : series[0].data[0].t)
     const chartSeries = series
       .map((s, i) => {
-        const curSeries = getSeries(s.name, seriesDefs)
+        const curSeries = seriesDefs[getSeriesIndex(s.name, seriesDefs)]
         return({
           visible: !curSeries.hide?.includes(mode),
           showInLegend: !curSeries.hide?.includes(mode),

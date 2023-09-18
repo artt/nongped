@@ -20,11 +20,19 @@ export default function Split({ topPercent, top, bottom }: Props) {
       gap: theme.spacing(3),
     }}>
       
-      <Box sx={{ flex: `1 1 ${topPercent || 100}%` }}>
+      <Box sx={{
+        flex: `1 1 ${topPercent || 100}%`,
+        // overflow: 'hidden',
+        position: 'relative',
+      }}>
         {top}
       </Box>
 
-      <Box sx={{ flex: topPercent ? `1 1 ${100 - topPercent}%` : '', display: 'flex', minWidth: 0 }}>
+      <Box sx={{
+        display: 'flex',
+        flex: topPercent ? `1 1 ${100 - topPercent}%` : '',
+        minWidth: 0
+      }}>
         {bottom}
       </Box>
 

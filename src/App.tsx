@@ -96,11 +96,12 @@ export default function App() {
             display: 'flex',
             flexDirection: 'column',
           }}>
-            <Toolbar sx={{ flex: 0 }}/>
+            <Toolbar sx={{ flex: 0 }} />
             <Box sx={{
               m: 4,
               flex: '1 1 40px',
               // overflow: 'hidden',
+              height: '100%',
             }}>
               {!page && <div className="center"><img src={logoUrl} alt="nongped" width="400" height="400" style={{maxWidth: "100%"}}/></div>}
               {page === 'gdp' && <Gdp />

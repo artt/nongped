@@ -64,6 +64,7 @@ export type ContributionMode = "level" | "growth" | "contribution"
 export type Series = {
   name: string,
   isExpanded?: boolean,
+  isParentCollapsed?: boolean,
   data: {
     t: string,
     v: number,
