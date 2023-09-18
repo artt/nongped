@@ -136,6 +136,7 @@ export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidth=50
   const dataRows: SummaryRow[] = []
   data.series.forEach(series => {
     const curSeries = seriesDefs[getSeriesIndex(series.name, seriesDefs)]
+    // filter only rows that need to be shown
     if (isAnyParentCollapsed(series.name, data.series, seriesDefs)) return
     dataRows.push({
       rowId: series.name,
