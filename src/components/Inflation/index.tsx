@@ -5,7 +5,8 @@ import type {
   TedData,
   ProcessedData,
   ComponentChartData,
-  ContributionMode
+  ContributionMode,
+  SeriesState
 } from "types"
 import { quarterToMonth } from "utils"
 import Split from "components/Split"
@@ -70,6 +71,7 @@ export default function Inflation() {
   const [mode, setMode] = React.useState<ContributionMode>("contribution")
   const [minDate, setMinDate] = React.useState<string>()
   const [maxDate, setMaxDate] = React.useState<string>()
+  const [seriesState, setSeriesState] = React.useState<SeriesState>({})
 
   const handleRangeChange = React.useCallback((minDate: string, maxDate: string) => {
     setMinDate(minDate)
@@ -97,8 +99,9 @@ export default function Inflation() {
     // loop over freqTable
     // TODO: can process each frequency separately and not have to wait for all to finish
     const promises = []
+    const allSeriesNames = getAllSeriesNames(seriesDefs)
     for (const freq of freqList) {
-      promises.push(getTedDataPromise(getAllSeriesNames(seriesDefs), freq, 1986)
+      promises.push(getTedDataPromise(allSeriesNames, freq, 1986)
         .then(res => processInflationData(res, (freq as Frequency)))
       )
     }
@@ -109,6 +112,14 @@ export default function Inflation() {
         Y: res[2],
       })
     })
+    // set initial states for series
+    setSeriesState(allSeriesNames.reduce((acc, name) => {
+      acc[name] = {
+        isExpanded: true,
+        isParentCollapsed: false,
+      }
+      return acc
+    }, {} as SeriesState))
   }, [])
 
   React.useEffect(() => {
@@ -127,8 +138,6 @@ export default function Inflation() {
     if (!processedData) return
     const series = processedData[freq].map(s => ({
       name: s.name,
-      isExpanded: true,
-      isParentCollapsed: false,
       data: s.data.slice(mode === "level" ? 0 : freqToNum(freq)).map(d => ({
         t: d.t,
         v: d[mode],
@@ -140,7 +149,6 @@ export default function Inflation() {
         color: seriesDefs[getSeriesIndex(s.name, seriesDefs)].color,
         findNearestPointBy: i === 0 ? 'x' : 'xy',
         zIndex: i === 0 ? 99 : i,
-        // data: series.data.map(p => p.v),
         // in contribution mode, only the first series is a line chart
         type: mode === "contribution" && i > 0 ? 'column' : 'spline',
       }))
@@ -205,9 +213,10 @@ export default function Inflation() {
             freqList={freqList}
             seriesDefs={seriesDefs}
             data={data}
+            seriesState={seriesState}
             minDate={minDate}
             maxDate={maxDate}
-            setData={setData}
+            setSeriesState={setSeriesState}
           />
         </Box>
       }

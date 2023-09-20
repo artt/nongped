@@ -1,4 +1,4 @@
-import { TooltipPoint, Frequency, SeriesDefinition, ProcessedSeriesDefinition, Series } from "types"
+import { TooltipPoint, Frequency, SeriesDefinition, ProcessedSeriesDefinition, SeriesState } from "types"
 
 // export const serverAddress = process.env.NODE_ENV === "development"
 //   ? `http://localhost:1443`
@@ -233,11 +233,10 @@ export function processSeriesDefinition(allSeries: SeriesDefinition[], initialDe
   return out
 }
 
-export function isAnyParentCollapsed(name: string, allSeries: Series[], seriesDefs: ProcessedSeriesDefinition[]): boolean {
-  if (allSeries[getSeriesIndex(name, allSeries)].isParentCollapsed) return true
+export function isAnyParentCollapsed(name: string, seriesState: SeriesState, seriesDefs: ProcessedSeriesDefinition[]): boolean {
+  if (seriesState[name]?.isParentCollapsed) return true
   const series = seriesDefs[getSeriesIndex(name, seriesDefs)]
   if (series.parent === "root") return false
-  const parent = allSeries[getSeriesIndex(series.parent, allSeries)]
-  if (parent.isParentCollapsed) return true
-  return isAnyParentCollapsed(parent.name, allSeries, seriesDefs)
+  if (seriesState[series.parent]?.isParentCollapsed) return true
+  return isAnyParentCollapsed(series.parent, seriesState, seriesDefs)
 }

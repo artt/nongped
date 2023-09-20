@@ -1,4 +1,4 @@
-import type { ComponentChartData, Frequency, ProcessedSeriesDefinition } from "types"
+import type { ComponentChartData, Frequency, ProcessedSeriesDefinition, SeriesState } from "types"
 import { quarterToMonth, getMonthName, getSeriesIndex, isAnyParentCollapsed } from "utils";
 import { HorizontalChevronCell, HorizontalChevronCellTemplate } from "./HorizontalChevronCellTemplate";
 import Box from "@mui/material/Box";
@@ -17,9 +17,10 @@ interface Props {
   headerWidth?: number
   cellWidth?: number
   data?: ComponentChartData
+  seriesState: SeriesState
   minDate?: string
   maxDate?: string
-  setData: (data: ComponentChartData) => void
+  setSeriesState: (state: SeriesState) => void
 }
 
 /**
@@ -33,7 +34,7 @@ function isLastPeriodOfBlock(period: string, freq: Frequency) {
   }
 }
 // heiararchy
-export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidth=50, data, minDate, maxDate, setData }: Props) {
+export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidth=50, data, seriesState, minDate, maxDate, setSeriesState }: Props) {
 
   if (!data) return null
 
@@ -137,7 +138,7 @@ export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidth=50
   data.series.forEach(series => {
     const curSeries = seriesDefs[getSeriesIndex(series.name, seriesDefs)]
     // filter only rows that need to be shown
-    if (isAnyParentCollapsed(series.name, data.series, seriesDefs)) return
+    if (isAnyParentCollapsed(series.name, seriesState, seriesDefs)) return
     dataRows.push({
       rowId: series.name,
       cells: [
@@ -149,7 +150,7 @@ export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidth=50
           hasChildren: curSeries.children.length > 0,
           parentId: curSeries.parent,
           indent: curSeries.depth,
-          isExpanded: series.isExpanded,
+          isExpanded: seriesState[series.name].isExpanded,
           className: clsx(
             'series-name',
           ),
@@ -168,25 +169,23 @@ export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidth=50
   })
 
   const handleChanges = (changes: CellChange<RowCells>[]) => {
-    const newData = {...data}
+    const newState = {...seriesState}
     changes.forEach(change => {
       // console.log(change)
-      const seriesIndex = getSeriesIndex(change.rowId, data.series)
+      // const seriesIndex = getSeriesIndex(change.rowId, data.series)
       // const seriesIndex = data.series.findIndex(el => el.name === change.rowId);
       const newCell = change.newCell as HorizontalChevronCell
       const oldCell = change.previousCell as HorizontalChevronCell
       // check if the change is expanding/collapsing
       if (newCell.isExpanded !== oldCell.isExpanded) {
-        newData.series[seriesIndex].isExpanded = newCell.isExpanded
+        newState[change.rowId].isExpanded = newCell.isExpanded
         seriesDefs[getSeriesIndex(change.rowId, seriesDefs)].children.forEach(child => {
           const childIndex = getSeriesIndex(child, data.series)
-          newData.series[childIndex].isParentCollapsed = !newCell.isExpanded
+          newState[data.series[childIndex].name].isParentCollapsed = !newCell.isExpanded
         })
       }
-      console.log(newData)
     })
-    // console.log(newData)
-    setData(newData)
+    setSeriesState(newState)
   }
 
   return(

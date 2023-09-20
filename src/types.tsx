@@ -63,18 +63,24 @@ export type ContributionMode = "level" | "growth" | "contribution"
 
 export type Series = {
   name: string,
-  isExpanded?: boolean,
-  isParentCollapsed?: boolean,
+  // isExpanded?: boolean,
+  // isParentCollapsed?: boolean,
   data: {
     t: string,
     v: number,
   }[],
 }
+export type SeriesState = {
+  [key: string]: {
+    isExpanded?: boolean,
+    isParentCollapsed?: boolean,
+  }
+}
 export type ComponentChartData = {
   freq: Frequency,
   mode: ContributionMode,
   pointStart: number,
-  series: Series[]
+  series: Series[],
   chartSeries: {
     color?: string,
     zIndex: number,
