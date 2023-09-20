@@ -2,7 +2,7 @@ import React from 'react'
 import { defaultOptions, getAllSeriesNames, getSeriesIndex, getTedDataPromise, processSeriesDefinition } from "utils"
 import Split from "components/Split"
 import { freqToNum, quarterToMonth } from "utils"
-import type { SeriesDefinition, TedData, ProcessedData, ComponentChartData, ContributionMode } from "types"
+import type { SeriesDefinition, TedData, ProcessedData, ComponentChartData, ContributionMode, SeriesState } from "types"
 import ComponentChart from "components/ComponentChart"
 import SummaryTable from "components/SummaryTable"
 import Box from "@mui/material/Box"
@@ -169,6 +169,7 @@ export default function Gdp() {
   const [mode, setMode] = React.useState<ContributionMode>("contribution")
   const [minDate, setMinDate] = React.useState<string>()
   const [maxDate, setMaxDate] = React.useState<string>()
+  const [seriesState, setSeriesState] = React.useState<SeriesState>({})
 
   const handleRangeChange = React.useCallback((minDate: string, maxDate: string) => {
     setMinDate(minDate)
@@ -288,6 +289,14 @@ export default function Gdp() {
     Promise.all(promises).then(res => {
       setProcessedData(processGdpData(res))
     })
+    // set initial states for series
+    setSeriesState(getAllSeriesNames(seriesDefs).reduce((acc, name) => {
+      acc[name] = {
+        isExpanded: true,
+        isParentCollapsed: false,
+      }
+      return acc
+    }, {} as SeriesState))
   }, [])
 
   // set mode from toggles
@@ -409,9 +418,10 @@ export default function Gdp() {
             headerWidth={200}
             cellWidth={55}
             data={data}
+            seriesState={seriesState}
             minDate={minDate}
             maxDate={maxDate}
-            setData={setData}
+            setSeriesState={setSeriesState}
           />
         </Box>
       }
