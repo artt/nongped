@@ -174,7 +174,11 @@ export default function Fx() {
         <FxChart data={fxData} />
       }
       bottom={
-        <>
+        <Box sx={{
+          display: 'flex',
+          width: '100%',
+          height: '100%',
+        }}>
           <Tabs
             orientation="vertical"
             variant="scrollable"
@@ -185,7 +189,7 @@ export default function Fx() {
             {bottomTabs.map((tab, i) => <Tab key={i} label={tab.label} disabled={tab.disabled} />)}
           </Tabs>
           {bottomTabs.map((tab, i) => <TabPanel key={i} value={tabValue} index={i}>{tab.component}</TabPanel>)}
-        </>
+        </Box>
       }
     />
   )

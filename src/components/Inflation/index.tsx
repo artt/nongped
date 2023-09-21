@@ -157,7 +157,8 @@ export default function Inflation() {
 
   return (
     <Split
-      top={
+      grow="bottom"
+      bottom={
         <ComponentChart
           ref={ref}
           data={data}
@@ -165,7 +166,7 @@ export default function Inflation() {
           handleRangeChange={handleRangeChange}
         />
       }
-      bottom={
+      top={
         <Box sx={{
           display: "flex",
           width: '100%',

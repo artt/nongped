@@ -361,14 +361,8 @@ export default function Gdp() {
 
   return (
     <Split
+      grow="bottom"
       top={
-        <ComponentChart
-          data={data}
-          seriesDefs={seriesDefs}
-          handleRangeChange={handleRangeChange}
-        />
-      }
-      bottom={
         <Box sx={{
           display: "flex",
           width: '100%',
@@ -425,6 +419,13 @@ export default function Gdp() {
             digits={{ level: 0 }}
           />
         </Box>
+      }
+      bottom={
+        <ComponentChart
+          data={data}
+          seriesDefs={seriesDefs}
+          handleRangeChange={handleRangeChange}
+        />
       }
     />
   )

@@ -6,9 +6,10 @@ type Props = {
   topPercent?: number,
   top: React.ReactNode,
   bottom: React.ReactNode,
+  grow?: "top" | "bottom",
 }
 
-export default function Split({ topPercent, top, bottom }: Props) {
+export default function Split({ topPercent, top, bottom, grow="top" }: Props) {
 
   const theme = createTheme();
 
@@ -21,17 +22,16 @@ export default function Split({ topPercent, top, bottom }: Props) {
     }}>
       
       <Box sx={{
-        flex: `1 1 ${topPercent || 100}%`,
-        // overflow: 'hidden',
+        flex: grow === "bottom" ? '' : `1 1 ${topPercent || 100}%`,
         position: 'relative',
       }}>
         {top}
       </Box>
 
       <Box sx={{
-        display: 'flex',
-        flex: topPercent ? `1 1 ${100 - topPercent}%` : '',
-        minWidth: 0
+        flex: grow === "bottom" ? '1 1 100%' : (topPercent ? `1 1 ${100 - topPercent}%` : ''),
+        position: 'relative',
+        minWidth: 0,
       }}>
         {bottom}
       </Box>
