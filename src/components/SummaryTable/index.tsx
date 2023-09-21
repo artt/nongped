@@ -21,6 +21,7 @@ interface Props {
   minDate?: string
   maxDate?: string
   setSeriesState: (state: SeriesState) => void
+  digits?: {[x: string]: number}
 }
 
 /**
@@ -30,11 +31,11 @@ function isLastPeriodOfBlock(period: string, freq: Frequency) {
   switch(freq) {
     case "M": return period.slice(-2) === "12"
     case "Q": return period.slice(-2) === "Q4"
-    case "Y": return parseInt(period) % 10 === 9
+    case "Y": return parseInt(period) % 10 === 0
   }
 }
 // heiararchy
-export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidth=50, data, seriesState, minDate, maxDate, setSeriesState }: Props) {
+export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidth=50, data, seriesState, minDate, maxDate, setSeriesState, digits={} }: Props) {
 
   if (!data) return null
 
@@ -132,7 +133,8 @@ export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidth=50
     ],
   }
 
-  const formatter = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const d = digits[data.mode] === undefined ? 2 : digits[data.mode]
+  const formatter = new Intl.NumberFormat(undefined, { minimumFractionDigits: d, maximumFractionDigits: d })
 
   const dataRows: SummaryRow[] = []
   data.series.forEach(series => {

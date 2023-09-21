@@ -416,12 +416,13 @@ export default function Gdp() {
             freqList={freqList}
             seriesDefs={seriesDefs}
             headerWidth={200}
-            cellWidth={55}
+            cellWidth={mode === "level" ? 100 : 55}
             data={data}
             seriesState={seriesState}
             minDate={minDate}
             maxDate={maxDate}
             setSeriesState={setSeriesState}
+            digits={{ level: 0 }}
           />
         </Box>
       }
