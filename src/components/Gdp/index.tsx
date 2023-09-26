@@ -335,7 +335,6 @@ export default function Gdp() {
         v: d[mode],
       })),
     }))
-    // const chartSeries = deepmerge([], tableSeries)
     const pointStart = Date.parse(freq === 'Q' ? quarterToMonth(series[0].data[0].t) : series[0].data[0].t)
     const chartSeries = series
       .map((s, i) => {

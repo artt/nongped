@@ -104,7 +104,7 @@ const Map = ({ data, useLogScale, series }: ChartProps) => <HighchartsWrapper
     },
     series: [{
       name: availableSeries[series].label,
-      data: data.filter(x => !useLogScale || x.y > 0).map(d => ({name: d.name, rank: d.rank, value: d.y, y: d.y})),
+      data: data.filter(x => (!useLogScale || x.y > 0)).map(d => ({name: d.name, rank: d.rank, value: d.y, y: d.y})),
       mapData: worldMap,
       // allAreas: true,
       joinBy: ["iso-a2", "name"],
@@ -222,21 +222,30 @@ export default function Countries() {
   }, [series])
 
   React.useEffect(() => {
+    console.log(worldData)
+  }, [worldData])
+
+  React.useEffect(() => {
+    let tmp
     if (group === "Top 20") {
-      const tmp = worldData.slice(0, 20)
+      tmp = worldData.slice(0, 20)
       if (tmp.findIndex(d => d.name === "TH") === -1) {
         // TH is not in top 20
         const thRank = worldData.findIndex(d => d.name === "TH")
         if (thRank > 0) tmp.push({ ...worldData[thRank], name: `TH` })
       }
-      setData(tmp)
-      return
     }
-    setData(worldData.filter(d => {
-      if (group === "World") return true
-      return d.name === "TH" || groups[group].includes(d.name)
-    }))
+    else {
+      tmp = worldData.filter(d => {
+        if (group === "World") return true
+        const inGroup = groups[group].includes(d.name)
+        return d.name === "TH" || inGroup
+      })
+    }
+    setData(structuredClone(tmp))
   }, [group, worldData])
+
+  
 
   return(
     <Box sx={{

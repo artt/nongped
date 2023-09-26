@@ -40,7 +40,6 @@ export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidth=50
   if (!data) return null
 
   // TODO: can refactor these "cases" out to a function foo(p.t, date, freq, side)
-  // const tableData = deepmerge([], data.series)
   // find index of min and max in range
   let minIndex = 0
   let maxIndex = data.series[0].data.length - 1

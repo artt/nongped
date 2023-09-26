@@ -41,4 +41,21 @@ $dark-border: rgba(black, 0.3);
     }
   }
 
+  .rg-pane.rg-pane-left {
+    z-index: 1;
+  }
+
+  .rg-pane.rg-pane-top {
+    z-index: 2 !important;
+  }
+
+  .rg-pane.rg-pane-right.rg-pane-top {
+    z-index: 3 !important;
+  }
+
+  .rg-pane.rg-pane-left.rg-pane-top {
+    z-index: 3 !important;
+  }
+
 }
+
