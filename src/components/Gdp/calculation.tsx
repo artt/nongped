@@ -59,8 +59,8 @@ export function processGdpData(tmp: TedData[], seriesDefs: ProcessedSeriesDefini
   const processedYearlyData = seriesDefs.map(series => processSeries(series, 'Y'))
 
   // calculate series that need to be calculated
+  // TODO: might consider moving these to some indexed object so we can loop over frequencies
   
-
   return({
     Q: processedQuarterlyData,
     Y: processedYearlyData,
