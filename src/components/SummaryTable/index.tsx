@@ -1,5 +1,5 @@
 import type { ComponentChartData, Frequency, ProcessedSeriesDefinition, SeriesState } from "types"
-import { quarterToMonth, getMonthName, getSeriesIndex, isAnyParentCollapsed } from "utils";
+import { quarterToMonth, getMonthName, isAnyParentCollapsed, getSeries } from "utils";
 import { HorizontalChevronCell, HorizontalChevronCellTemplate } from "./HorizontalChevronCellTemplate";
 import Box from "@mui/material/Box";
 import clsx from "clsx";
@@ -137,7 +137,7 @@ export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidth=50
 
   const dataRows: SummaryRow[] = []
   data.series.forEach(series => {
-    const curSeries = seriesDefs[getSeriesIndex(series.name, seriesDefs)]
+    const curSeries = getSeries(series.name, seriesDefs)
     // filter only rows that need to be shown
     if (isAnyParentCollapsed(series.name, seriesState, seriesDefs)) return
     dataRows.push({
@@ -172,17 +172,13 @@ export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidth=50
   const handleChanges = (changes: CellChange<RowCells>[]) => {
     const newState = {...seriesState}
     changes.forEach(change => {
-      // console.log(change)
-      // const seriesIndex = getSeriesIndex(change.rowId, data.series)
-      // const seriesIndex = data.series.findIndex(el => el.name === change.rowId);
       const newCell = change.newCell as HorizontalChevronCell
       const oldCell = change.previousCell as HorizontalChevronCell
       // check if the change is expanding/collapsing
       if (newCell.isExpanded !== oldCell.isExpanded) {
         newState[change.rowId].isExpanded = newCell.isExpanded
-        seriesDefs[getSeriesIndex(change.rowId, seriesDefs)].children.forEach(child => {
-          const childIndex = getSeriesIndex(child, data.series)
-          newState[data.series[childIndex].name].isParentCollapsed = !newCell.isExpanded
+        getSeries(change.rowId, seriesDefs).children.forEach(child => {
+          newState[getSeries(child, data.series).name].isParentCollapsed = !newCell.isExpanded
         })
       }
     })

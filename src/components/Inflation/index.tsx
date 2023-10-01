@@ -1,13 +1,6 @@
 import React from 'react'
-import { freqToNum, getAllSeriesNames, getSeriesIndex, getTedDataPromise, processSeriesDefinition } from "utils"
-import type {
-  SeriesDefinition,
-  TedData,
-  ProcessedData,
-  ComponentChartData,
-  ContributionMode,
-  SeriesState
-} from "types"
+import { freqToNum, getAllSeriesNames, getSeries, getTedDataPromise, processSeriesDefinition } from "utils"
+import type { SeriesDefinition, TedData, CalculatedSeries, ComponentChartData, ContributionMode, SeriesState } from "types"
 import { quarterToMonth } from "utils"
 import Split from "components/Split"
 import ComponentChart from "components/ComponentChart"
@@ -50,9 +43,9 @@ const freqList = ["M", "Q", "Y"]
 const weights19 = [100, 67.06, 20.55, 12.39]
 
 type InflationData = {
-  M: ProcessedData,
-  Q: ProcessedData,
-  Y: ProcessedData,
+  M: CalculatedSeries[],
+  Q: CalculatedSeries[],
+  Y: CalculatedSeries[],
 }
 
 type Frequency = keyof InflationData
@@ -146,7 +139,7 @@ export default function Inflation() {
     const pointStart = Date.parse(freq === 'Q' ? quarterToMonth(series[0].data[0].t) : series[0].data[0].t)
     const chartSeries = series
       .map((s, i) => ({
-        color: seriesDefs[getSeriesIndex(s.name, seriesDefs)].color,
+        color: getSeries(s.name, seriesDefs).color,
         findNearestPointBy: i === 0 ? 'x' : 'xy',
         zIndex: i === 0 ? 99 : i,
         // in contribution mode, only the first series is a line chart

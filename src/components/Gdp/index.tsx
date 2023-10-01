@@ -1,5 +1,5 @@
 import React from 'react'
-import { defaultOptions, getAllSeriesNames, getSeriesIndex, getTedDataPromise, processSeriesDefinition } from "utils"
+import { defaultOptions, getAllSeriesNames, getSeries, getTedDataPromise, processSeriesDefinition } from "utils"
 import Split from "components/Split"
 import { freqToNum, quarterToMonth } from "utils"
 import type { SeriesDefinition, ContributionMode, SeriesState, ComponentChartData, GdpData, QuarterlyFrequency } from "types"
@@ -12,7 +12,7 @@ import FormGroup from "@mui/material/FormGroup"
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
 import ToggleButton from "@mui/material/ToggleButton"
 import Color from 'color'
-import { processGdpData } from './calculation'
+import { getDeflatorName, processGdpData } from './calculation'
 
 const freqList = ["Q", "Y"]
 
@@ -171,11 +171,6 @@ export default function Gdp() {
     setMaxDate(maxDate)
   }, [])
 
-  // convert string *r to *_deflator
-  function getDeflatorName(xr: string) {
-    return xr.slice(0, -1) + "_deflator"
-  }
-
   React.useEffect(() => {
     if (dataLoaded.current) return
     dataLoaded.current = true
@@ -242,7 +237,7 @@ export default function Gdp() {
     const chartSeries = series
       .map((s, i) => {
         // const curSeries = getSeries(s.name, seriesDefs) as ProcessedSeriesDefinition
-        const curSeries = seriesDefs[getSeriesIndex(s.name, seriesDefs)]
+        const curSeries = getSeries(s.name, seriesDefs)
         return({
           visible: !curSeries.hide?.includes(mode),
           showInLegend: !curSeries.hide?.includes(mode),

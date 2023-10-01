@@ -1,4 +1,4 @@
-import { TooltipPoint, Frequency, SeriesDefinition, ProcessedSeriesDefinition, SeriesState } from "types"
+import { TooltipPoint, Frequency, SeriesDefinition, ProcessedSeriesDefinition, SeriesState, SeriesWithName } from "types"
 
 // export const serverAddress = process.env.NODE_ENV === "development"
 //   ? `http://localhost:1443`
@@ -197,8 +197,9 @@ export function dataLabelsPercentFormatter(this: TooltipPoint) {
   return percentFormatterNumber(this.y)
 }
 
-export function getSeriesIndex(name: string | number, allSeries: {name: string}[]): number {
-  return allSeries.findIndex(series => series.name === name)
+export function getSeries<T>(name: string | number, seriesArray: T[]): T {
+  const seriesIndex = (seriesArray as SeriesWithName[]).findIndex(series => series.name === name)
+  return seriesArray[seriesIndex]
 }
 
 // TODO: simplify this if we're set on using this structure?
@@ -235,8 +236,8 @@ export function processSeriesDefinition(allSeries: SeriesDefinition[], initialDe
 
 export function isAnyParentCollapsed(name: string, seriesState: SeriesState, seriesDefs: ProcessedSeriesDefinition[]): boolean {
   if (seriesState[name]?.isParentCollapsed) return true
-  const series = seriesDefs[getSeriesIndex(name, seriesDefs)]
-  if (series.parent === "root") return false
-  if (seriesState[series.parent]?.isParentCollapsed) return true
-  return isAnyParentCollapsed(series.parent, seriesState, seriesDefs)
+  const seriesParent = getSeries(name, seriesDefs).parent
+  if (seriesParent === "root") return false
+  if (seriesState[seriesParent]?.isParentCollapsed) return true
+  return isAnyParentCollapsed(seriesParent, seriesState, seriesDefs)
 }

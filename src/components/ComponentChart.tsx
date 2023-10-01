@@ -2,7 +2,7 @@ import React from "react"
 import HighchartsWrapper from "components/HighchartsWrapper"
 import type { ComponentChartData, ProcessedSeriesDefinition, TooltipPoint } from "types"
 import Box from "@mui/material/Box"
-import { tooltipPercentFormatter, ticksPercentFormatter, getSeriesIndex } from "utils"
+import { tooltipPercentFormatter, ticksPercentFormatter, getSeries } from "utils"
 import { HighchartsReactRefObject } from 'highcharts-react-official';
 
 interface Props {
@@ -55,7 +55,7 @@ const ComponentChart = React.forwardRef(({ data, seriesDefs, handleRangeChange }
         constructorType={'stockChart'}
         options={data && {
           series: data.series.map((s, i) => ({
-            name: seriesDefs[getSeriesIndex(s.name, seriesDefs)].label,
+            name: getSeries(s.name, seriesDefs).label,
             data: s.data.map(p => p.v),
             ...data.chartSeries[i],
           })),

@@ -1,7 +1,7 @@
 export type Frequency = "M" | "Q" | "Y"
 export type QuarterlyFrequency = "Q" | "Y"
 
-export type GdpData = Record<QuarterlyFrequency, ProcessedData>
+export type GdpData = Record<QuarterlyFrequency, CalculatedSeries[]>
 
 export type SeriesDefinition = {
   name: string,
@@ -14,7 +14,7 @@ export type SeriesDefinition = {
   depth?: number,
 }
 
-export type ProcessedSeriesDefinition = {
+export interface ProcessedSeriesDefinition extends SeriesWithName {
   name: string,
   label: string,
   color?: string
@@ -26,21 +26,27 @@ export type ProcessedSeriesDefinition = {
   depth: number,
 }
 
+export interface TedDataSeries extends SeriesWithName {
+  name: string,
+  values: number[],
+}
+
 /**
  * Raw time series data from TED
  */
 export type TedData = {
   periods: string[],
-  series: {
-    name: string,
-    values: number[],
-  }[],
+  series: TedDataSeries[],
+}
+
+export interface SeriesWithName {
+  name: string,
 }
 
 /**
- * Processed time series data
+ * Calculated time series data
  */
-export type ProcessedData = {
+export interface CalculatedSeries extends SeriesWithName {
   name: string,
   data: {
     t: string,
@@ -49,7 +55,7 @@ export type ProcessedData = {
     contribution: number,
     deflator?: number,
   }[],
-}[]
+}
 
 export type Point = {
   series: { name: string },

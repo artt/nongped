@@ -1,5 +1,10 @@
 import { ProcessedSeriesDefinition, TedData, GdpData } from "types"
-import { freqToNum, getSeriesIndex } from "utils"
+import { freqToNum, getSeries } from "utils"
+
+// convert string *r to *_deflator
+export function getDeflatorName(xr: string) {
+  return xr.slice(0, -1) + "_deflator"
+}
 
 export function processGdpData(tmp: TedData[], seriesDefs: ProcessedSeriesDefinition[], gdpSeriesToLoad: string[]) {
     
@@ -8,21 +13,19 @@ export function processGdpData(tmp: TedData[], seriesDefs: ProcessedSeriesDefini
     Y: tmp[1],
   }
   
-  const gdeIndex = 1
-  const gdeDeflator = tedData.Y.series[gdpSeriesToLoad.length + gdeIndex].values
-  const gderYearly = tedData.Y.series[gdeIndex].values
-  const gderQuarterly = tedData.Q.series[gdeIndex].values
+  const gdeDeflator = getSeries("gde_deflator", tedData.Y.series).values
+  const gderYearly = getSeries("gder", tedData.Y.series).values
+  const gderQuarterly = getSeries("gder", tedData.Q.series).values
 
   function processSeries(series: ProcessedSeriesDefinition, freq: "Q" | "Y") {
-    const seriesIndex = getSeriesIndex(series.name, tedData[freq].series)
-    if (seriesIndex !== -1) {
+    if (gdpSeriesToLoad.includes(series.name)) {
       // series exists in data
-      const deflator = tedData.Y.series[seriesIndex + gdpSeriesToLoad.length].values
-      const seriesYearly = tedData.Y.series[seriesIndex].values
+      const deflator = getSeries(getDeflatorName(series.name), tedData.Y.series).values
+      const seriesYearly = getSeries(series.name, tedData.Y.series).values
       const negativeContribution = series.negativeContribution
       return({
         name: series.name,
-        data: tedData[freq].series[seriesIndex].values.map((_, i: number, a: number[]) => {
+        data: getSeries(series.name, tedData[freq].series).values.map((_, i: number, a: number[]) => {
           const yi = Math.floor(i / 4) // yearly index, used for quarterly data
           return({
             t: tedData[freq].periods[i],
@@ -55,34 +58,32 @@ export function processGdpData(tmp: TedData[], seriesDefs: ProcessedSeriesDefini
     }
   }
 
-  const processedData: GdpData = {
+  const processedDataWithFrequencies: GdpData = {
     Q: seriesDefs.map(series => processSeries(series, 'Q')),
     Y: seriesDefs.map(series => processSeries(series, 'Y')),
   }
 
-  console.log(tedData.Y)
-
   // calculate series that need to be calculated
   // loop over Q, Y
-  Object.values(processedData).forEach(processedData => {
+  Object.values(processedDataWithFrequencies).forEach(processedData => {
     // deal with statr
-    const statr = processedData[getSeriesIndex("statr", processedData)]
-    const gdpr = processedData[getSeriesIndex("gdpr", processedData)]
-    const gder = processedData[getSeriesIndex("gder", processedData)]
+    const statr = getSeries("statr", processedData)
+    const gdpr = getSeries("gdpr", processedData)
+    const gder = getSeries("gder", processedData)
     statr.data.forEach((p, i) => {
       p.contribution = gdpr.data[i].contribution - gder.data[i].contribution
     });
     ['cr', 'ir', 'ddr', 'xr', 'mr', 'nxr'].forEach(seriesName => {
-      const series = processedData[getSeriesIndex(seriesName, processedData)]
-      const children = seriesDefs[getSeriesIndex(seriesName, seriesDefs)].children
+      const series = getSeries(seriesName, processedData)
+      const children = getSeries(seriesName, seriesDefs).children
       series.data.forEach((p, i) => {
         // const sumProduct = children.reduce((acc, cur) => {
         //   const childSeries = processedData[getSeriesIndex(cur, processedData)]
         //   return(acc + childSeries.data[i].level *(childSeries.data[i].deflator || 0))
         // }, 0)
-        p.contribution = children.reduce((acc, cur) => acc + processedData[getSeriesIndex(cur, processedData)].data[i].contribution, 0)
+        p.contribution = children.reduce((acc, cur) => acc + getSeries(cur, processedData).data[i].contribution, 0)
       })
     })
   })
-  return(processedData)
+  return(processedDataWithFrequencies)
 }
