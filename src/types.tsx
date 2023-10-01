@@ -1,4 +1,7 @@
 export type Frequency = "M" | "Q" | "Y"
+export type QuarterlyFrequency = "Q" | "Y"
+
+export type GdpData = Record<QuarterlyFrequency, ProcessedData>
 
 export type SeriesDefinition = {
   name: string,
@@ -61,10 +64,8 @@ export type TooltipPoint = {
 
 export type ContributionMode = "level" | "growth" | "contribution"
 
-export type Series = {
+export type TedSeries = {
   name: string,
-  // isExpanded?: boolean,
-  // isParentCollapsed?: boolean,
   data: {
     t: string,
     v: number,
@@ -80,11 +81,10 @@ export type ComponentChartData = {
   freq: Frequency,
   mode: ContributionMode,
   pointStart: number,
-  series: Series[],
+  series: TedSeries[],
   chartSeries: {
     color?: string,
     zIndex: number,
     type: string,
   }[]
 }
-

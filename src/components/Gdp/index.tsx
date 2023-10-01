@@ -2,7 +2,7 @@ import React from 'react'
 import { defaultOptions, getAllSeriesNames, getSeriesIndex, getTedDataPromise, processSeriesDefinition } from "utils"
 import Split from "components/Split"
 import { freqToNum, quarterToMonth } from "utils"
-import type { SeriesDefinition, ProcessedData, ContributionMode, SeriesState, ComponentChartData } from "types"
+import type { SeriesDefinition, ContributionMode, SeriesState, ComponentChartData, GdpData, QuarterlyFrequency } from "types"
 import ComponentChart from "components/ComponentChart"
 import SummaryTable from "components/SummaryTable"
 import Box from "@mui/material/Box"
@@ -152,20 +152,13 @@ function getSeriesType(mode: ContributionMode, seriesIndex: number) {
   }
 }
 
-type GdpData = {
-  Q: ProcessedData,
-  Y: ProcessedData,
-}
-
-type Frequency = keyof GdpData
-
 export default function Gdp() {
 
   const [processedData, setProcessedData] = React.useState<GdpData>()
   const dataLoaded = React.useRef(false)
 
   const [data, setData] = React.useState<ComponentChartData>()
-  const [freq, setFreq] = React.useState<Frequency>((freqList[0] as Frequency))
+  const [freq, setFreq] = React.useState<QuarterlyFrequency>((freqList[0] as QuarterlyFrequency))
   const [showGrowth, setShowGrowth] = React.useState(true)
   const [showContribution, setShowContribution] = React.useState(true)
   const [mode, setMode] = React.useState<ContributionMode>("contribution")
@@ -248,6 +241,7 @@ export default function Gdp() {
     const pointStart = Date.parse(freq === 'Q' ? quarterToMonth(series[0].data[0].t) : series[0].data[0].t)
     const chartSeries = series
       .map((s, i) => {
+        // const curSeries = getSeries(s.name, seriesDefs) as ProcessedSeriesDefinition
         const curSeries = seriesDefs[getSeriesIndex(s.name, seriesDefs)]
         return({
           visible: !curSeries.hide?.includes(mode),
@@ -282,9 +276,9 @@ export default function Gdp() {
               value={freq}
               size="small"
               exclusive
-              onChange={(_e, newFreq: Frequency) => {
+              onChange={(_e, newFreq: QuarterlyFrequency) => {
                 if (newFreq === null) return
-                setFreq((newFreq as Frequency))
+                setFreq((newFreq as QuarterlyFrequency))
               }}
               aria-label="frequency"
               fullWidth
