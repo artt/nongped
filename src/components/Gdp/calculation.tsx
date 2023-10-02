@@ -73,12 +73,13 @@ export function processGdpData(tmp: TedData[], seriesDefs: ProcessedSeriesDefini
     statr.data.forEach((p, i) => {
       p.contribution = gdpr.data[i].contribution - gder.data[i].contribution
     });
+    // other aggregated series
     ['cr', 'ir', 'ddr', 'xr', 'mr', 'nxr'].forEach(seriesName => {
       const series = getSeries(seriesName, processedData)
       const children = getSeries(seriesName, seriesDefs).children
       series.data.forEach((p, i) => {
         // const sumProduct = children.reduce((acc, cur) => {
-        //   const childSeries = processedData[getSeriesIndex(cur, processedData)]
+        //   const childSeries = getSeries(cur, processedData)
         //   return(acc + childSeries.data[i].level *(childSeries.data[i].deflator || 0))
         // }, 0)
         p.contribution = children.reduce((acc, cur) => acc + getSeries(cur, processedData).data[i].contribution, 0)
