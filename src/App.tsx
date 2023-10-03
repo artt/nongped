@@ -16,6 +16,7 @@ import "styles/main.scss"
 import logoUrl from 'assets/nongped.svg'
 import Countries from "components/Countries";
 import Gdp from "components/Gdp";
+import Exports from "components/Exports";
 
 const navItems = [
   {
@@ -29,6 +30,10 @@ const navItems = [
   {
     label: 'FX',
     path: 'fx',
+  },
+  {
+    label: 'Exports (Soon!)',
+    path: 'exports',
   },
   {
     label: 'Countries (Beta)',
@@ -110,6 +115,7 @@ export default function App() {
               }
               {page === 'inflation' && <Inflation />}
               {page === 'fx' && <Fx />}
+              {page === 'exports' && <Exports />}
               {page === 'countries' && <Countries />}
             </Box>
           </Box>
