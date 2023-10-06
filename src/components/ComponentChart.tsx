@@ -80,8 +80,8 @@ const ComponentChart = React.forwardRef(({ data, seriesDefs, handleRangeChange }
             verticalAlign: 'top',
           },
           tooltip: {
-            valueDecimals: data.mode === "level" ? 0 : 2,
-            formatter: data.mode !== "level" && function(this: TooltipPoint, tooltip: Highcharts.Tooltip) {
+            valueDecimals: data.mode === "levelReal" ? 0 : 2,
+            formatter: data.mode !== "levelReal" && function(this: TooltipPoint, tooltip: Highcharts.Tooltip) {
               return tooltipPercentFormatter(this, tooltip, data.freq)
             },
             split: false,
@@ -111,7 +111,7 @@ const ComponentChart = React.forwardRef(({ data, seriesDefs, handleRangeChange }
           yAxis: {
             labels: {
               align: 'left',
-              formatter: data.mode !== "level" && ticksPercentFormatter,
+              formatter: data.mode !== "levelReal" && ticksPercentFormatter,
             },
             offset: 10,
             plotLines: [{

@@ -12,58 +12,58 @@ import FormGroup from "@mui/material/FormGroup"
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
 import ToggleButton from "@mui/material/ToggleButton"
 import Color from 'color'
-import { getDeflatorName, processGdpData } from './calculation'
+import { processGdpData } from './calculation'
 
 const freqList = ["Q", "Y"]
 
 const inputDefs: SeriesDefinition[] = [
   {
-    name: 'gdpr',
+    name: 'gdp',
     label: 'GDP',
     color: defaultOptions.colors[0],
     children: [
       {
-        name: 'gder',
+        name: 'gde',
         label: 'GDE',
         hide: ["levelReal", "growth", "contribution"],
         children: [
           {
-            name: 'ddr',
+            name: 'dd',
             label: 'Domestic Demand',
             hide: ["levelReal", "growth", "contribution"],
             skipLoading: true,
             children: [
               {
-                name: 'cr',
+                name: 'c',
                 label: 'Consumption',
                 hide: ["levelReal", "growth", "contribution"],
                 skipLoading: true,
                 children: [
                   {
-                    name: 'cpr',
+                    name: 'cp',
                     label: 'Private Consumption',
                     color: defaultOptions.colors[2],
                   },
                   {
-                    name: 'cgovr',
+                    name: 'cgov',
                     label: "Gov't Consumption",
                     color: Color(defaultOptions.colors[2]).lighten(-0.3).hex(),
                   },
                 ],
               },
               {
-                name: 'ir',
+                name: 'i',
                 label: 'Investment',
                 hide: ["levelReal", "growth", "contribution"],
                 skipLoading: true,
                 children: [
                   {
-                    name: 'ipr',
+                    name: 'ip',
                     label: "Private Investment",
                     color: defaultOptions.colors[1],
                   },
                   {
-                    name: 'ipubr',
+                    name: 'ipub',
                     label: "Public Investment",
                     color: Color(defaultOptions.colors[1]).lighten(-0.2).hex(),
                   },
@@ -72,43 +72,43 @@ const inputDefs: SeriesDefinition[] = [
             ],
           },
           {
-            name: 'nxr',
+            name: 'nx',
             label: 'Net exports',
             hide: ["levelReal", "growth", "contribution"],
             skipLoading: true,
             children: [
               {
-                name: 'xr',
+                name: 'x',
                 label: 'Exports',
                 hide: ["levelReal", "growth", "contribution"],
                 skipLoading: true,
                 children: [
                   {
-                    name: 'xgr',
+                    name: 'xg',
                     label: "Exports of Goods",
                     color: defaultOptions.colors[4],
                   },
                   {
-                    name: 'xsr',
+                    name: 'xs',
                     label: "Exports of Services",
                     color: Color(defaultOptions.colors[4]).lighten(-0.3).hex(),
                   },
                 ],
               },
               {
-                name: 'mr',
+                name: 'm',
                 label: 'Imports',
                 hide: ["levelReal", "growth", "contribution"],
                 skipLoading: true,
                 children: [
                   {
-                    name: 'mgr',
+                    name: 'mg',
                     label: "Imports of Goods",
                     color: defaultOptions.colors[3],
                     negativeContribution: true,
                   },
                   {
-                    name: 'msr',
+                    name: 'ms',
                     label: "Imports of Services",
                     color: Color(defaultOptions.colors[3]).lighten(-0.3).hex(),
                     negativeContribution: true,
@@ -118,7 +118,7 @@ const inputDefs: SeriesDefinition[] = [
             ],
           },
           {
-            name: 'stockr',
+            name: 'stock',
             label: "Change in Inventories",
             color: defaultOptions.colors[7],
             hide: ["growth"],
@@ -126,7 +126,7 @@ const inputDefs: SeriesDefinition[] = [
         ]
       },
       {
-        name: 'statr',
+        name: 'stat',
         label: "Statistical Discrepancy",
         color: Color(defaultOptions.colors[7]).lighten(0.3).hex(),
         skipLoading: true,
@@ -176,13 +176,13 @@ export default function Gdp() {
     dataLoaded.current = true
 
     // loop over freqTable
-    const deflatorSeries = gdpSeriesToLoad.map(getDeflatorName)
     const promises = []
 
     for (const freq of freqList) {
       // for quarterly data, just get the *r
       // for yearly data, get deflators as well
-      promises.push(getTedDataPromise(freq === "Q" ? gdpSeriesToLoad : gdpSeriesToLoad.concat(deflatorSeries), freq, 1993))
+      promises.push(getTedDataPromise(gdpSeriesToLoad.map(x => x + "n").concat(gdpSeriesToLoad.map(x => x + "r")), freq, 1993))
+      // promises.push(getTedDataPromise(freq === "Q" ? gdpSeriesToLoad.map(x => x + "n") : gdpSeriesToLoad.concat(deflatorSeries), freq, 1993))
     }
     Promise.all(promises).then(res => {
       setProcessedData(processGdpData(res, seriesDefs, gdpSeriesToLoad))
@@ -314,7 +314,7 @@ export default function Gdp() {
             minDate={minDate}
             maxDate={maxDate}
             setSeriesState={setSeriesState}
-            digits={{ level: 0 }}
+            digits={{ levelReal: 0 }}
           />
         </Box>
       }

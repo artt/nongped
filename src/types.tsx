@@ -51,10 +51,10 @@ export interface CalculatedSeries extends SeriesWithName {
   data: {
     t: string,
     levelReal: number,
+    levelNominal?: number,
     growth: number,
     contribution: number,
     deflator?: number,
-    levelNominal?: number,
   }[],
 }
 

@@ -159,7 +159,7 @@ export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidth=50
         ...series.data.slice(minIndex, maxIndex + 1).map<NumberCell>((p, i) => ({
           type: "number",
           nonEditable: true,
-          value: (p.v * (data.mode === "level" ? 1 : 100)),
+          value: (p.v * (data.mode === "levelReal" ? 1 : 100)),
           format: formatter,
           className: clsx(
             isLastPeriodOfBlock(p.t, data.freq) && i < series.data.length - 1 && "last-period",
