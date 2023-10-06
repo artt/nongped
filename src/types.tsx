@@ -50,10 +50,11 @@ export interface CalculatedSeries extends SeriesWithName {
   name: string,
   data: {
     t: string,
-    level: number,
+    levelReal: number,
     growth: number,
     contribution: number,
     deflator?: number,
+    levelNominal?: number,
   }[],
 }
 
@@ -68,7 +69,7 @@ export type TooltipPoint = {
   points?: Point[],
 }
 
-export type ContributionMode = "level" | "growth" | "contribution"
+export type ContributionMode = "levelReal" | "growth" | "contribution"
 
 export type TedSeries = {
   name: string,

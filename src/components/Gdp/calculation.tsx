@@ -29,7 +29,7 @@ export function processGdpData(tmp: TedData[], seriesDefs: ProcessedSeriesDefini
           const yi = Math.floor(i / 4) // yearly index, used for quarterly data
           return({
             t: tedData[freq].periods[i],
-            level: (negativeContribution ? -1 : 1) * a[i],
+            levelReal: (negativeContribution ? -1 : 1) * a[i],
             growth: (a[i] / a[i - freqToNum(freq)] - 1),
             contribution: (freq === "Q" && yi < 2)
               ? NaN
@@ -37,7 +37,8 @@ export function processGdpData(tmp: TedData[], seriesDefs: ProcessedSeriesDefini
                 ? (a[i] / a[i - freqToNum(freq)] - 1) // for gdp and gde, contribution is just growth
                 : (freq === "Y")
                   ? (negativeContribution ? -1 : 1) * ((a[i] - a[i - 1]) / gderYearly[i - 1] * (deflator[i - 1] / gdeDeflator[i - 1]))
-                  : (negativeContribution ? -1 : 1) * (((a[i] - a[i - 4]) / gderQuarterly[i - 4] * deflator[yi - 1] / gdeDeflator[yi - 1]) + (a[i - 4] / gderQuarterly[i - 4] - seriesYearly[yi - 1] / gderYearly[yi - 1]) * (deflator[yi - 1] / gdeDeflator[yi - 1] - deflator[yi - 2] / gdeDeflator[yi - 2]))
+                  : (negativeContribution ? -1 : 1) * (((a[i] - a[i - 4]) / gderQuarterly[i - 4] * deflator[yi - 1] / gdeDeflator[yi - 1]) + (a[i - 4] / gderQuarterly[i - 4] - seriesYearly[yi - 1] / gderYearly[yi - 1]) * (deflator[yi - 1] / gdeDeflator[yi - 1] - deflator[yi - 2] / gdeDeflator[yi - 2])),
+            deflator: freq === "Y" ? deflator[i] : NaN,
           })
         }),
       })
@@ -50,9 +51,10 @@ export function processGdpData(tmp: TedData[], seriesDefs: ProcessedSeriesDefini
         name: series.name,
         data: tedData[freq].periods.map(t => ({
           t,
-          level: NaN,
+          levelReal: NaN,
           growth: NaN,
           contribution: NaN,
+          deflator: NaN,
         })),
       })
     }
@@ -78,11 +80,14 @@ export function processGdpData(tmp: TedData[], seriesDefs: ProcessedSeriesDefini
       const series = getSeries(seriesName, processedData)
       const children = getSeries(seriesName, seriesDefs).children
       series.data.forEach((p, i) => {
-        // const sumProduct = children.reduce((acc, cur) => {
-        //   const childSeries = getSeries(cur, processedData)
-        //   return(acc + childSeries.data[i].level *(childSeries.data[i].deflator || 0))
+        // const yi = Math.floor(i / 4) // yearly index, used for quarterly data
+        // const sumProduct = children.reduce((acc, childName) => {
+        //   const childSeries = getSeries(childName, processedData)
+        //   const childDeflator = getSeries(getDeflatorName(childName), tedData.Y.series).values
+        //   return acc + childSeries.data[i].levelReal * (childDeflator[yi - 1] || 0)
         // }, 0)
         p.contribution = children.reduce((acc, cur) => acc + getSeries(cur, processedData).data[i].contribution, 0)
+        // p.levelReal = sumProduct
       })
     })
   })

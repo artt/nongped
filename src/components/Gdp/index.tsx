@@ -25,18 +25,18 @@ const inputDefs: SeriesDefinition[] = [
       {
         name: 'gder',
         label: 'GDE',
-        hide: ["level", "growth", "contribution"],
+        hide: ["levelReal", "growth", "contribution"],
         children: [
           {
             name: 'ddr',
             label: 'Domestic Demand',
-            hide: ["level", "growth", "contribution"],
+            hide: ["levelReal", "growth", "contribution"],
             skipLoading: true,
             children: [
               {
                 name: 'cr',
                 label: 'Consumption',
-                hide: ["level", "growth", "contribution"],
+                hide: ["levelReal", "growth", "contribution"],
                 skipLoading: true,
                 children: [
                   {
@@ -54,7 +54,7 @@ const inputDefs: SeriesDefinition[] = [
               {
                 name: 'ir',
                 label: 'Investment',
-                hide: ["level", "growth", "contribution"],
+                hide: ["levelReal", "growth", "contribution"],
                 skipLoading: true,
                 children: [
                   {
@@ -74,13 +74,13 @@ const inputDefs: SeriesDefinition[] = [
           {
             name: 'nxr',
             label: 'Net exports',
-            hide: ["level", "growth", "contribution"],
+            hide: ["levelReal", "growth", "contribution"],
             skipLoading: true,
             children: [
               {
                 name: 'xr',
                 label: 'Exports',
-                hide: ["level", "growth", "contribution"],
+                hide: ["levelReal", "growth", "contribution"],
                 skipLoading: true,
                 children: [
                   {
@@ -98,7 +98,7 @@ const inputDefs: SeriesDefinition[] = [
               {
                 name: 'mr',
                 label: 'Imports',
-                hide: ["level", "growth", "contribution"],
+                hide: ["levelReal", "growth", "contribution"],
                 skipLoading: true,
                 children: [
                   {
@@ -143,7 +143,7 @@ const gdpSeriesToLoad = getAllSeriesNames(seriesDefs, series => !series.skipLoad
 
 function getSeriesType(mode: ContributionMode, seriesIndex: number) {
   switch(mode) {
-    case "level":
+    case "levelReal":
       return seriesIndex > 0 ? 'column' : 'spline'
     case "growth":
       return 'spline'
@@ -201,7 +201,7 @@ export default function Gdp() {
   // TODO: can factor this out into a custom component, shared wtih Inflation
   React.useEffect(() => {
     if (!showGrowth) {
-      setMode("level")
+      setMode("levelReal")
     }
     else if (!showContribution) {
       setMode("growth")
@@ -215,7 +215,7 @@ export default function Gdp() {
     if (!processedData) return
     let toBeSliced: number
     switch(mode) {
-      case "level":
+      case "levelReal":
         toBeSliced = 0
         break
       case "growth":
@@ -308,7 +308,7 @@ export default function Gdp() {
             freqList={freqList}
             seriesDefs={seriesDefs}
             headerWidth={200}
-            cellWidth={mode === "level" ? 100 : 55}
+            cellWidth={mode === "levelReal" ? 100 : 55}
             data={data}
             seriesState={seriesState}
             minDate={minDate}
