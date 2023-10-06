@@ -39,7 +39,7 @@ export function processGdpData(tmp: TedData[], seriesDefs: ProcessedSeriesDefini
               : (series.name === "gdp" || series.name === "gde")
                 ? (a[i] / a[i - freqToNum(freq)] - 1) // for gdp and gde, contribution is just growth
                 : (freq === "Y")
-                  ? (negativeContribution ? -1 : 1) * ((a[i] - a[i - 1]) / gderYearly[i - 1] * (yearlyDeflator[i - 1] / gdeDeflator[i - 1]))
+                  ? (negativeContribution ? -1 : 1) * ((a[i] - a[i - 1]) / gderYearly[i - 1] * (deflator[i - 1] / gdeDeflator[i - 1]))
                   : (negativeContribution ? -1 : 1) * (((a[i] - a[i - 4]) / gderQuarterly[i - 4] * yearlyDeflator[yi - 1] / gdeDeflator[yi - 1]) + (a[i - 4] / gderQuarterly[i - 4] - seriesYearly[yi - 1] / gderYearly[yi - 1]) * (yearlyDeflator[yi - 1] / gdeDeflator[yi - 1] - yearlyDeflator[yi - 2] / gdeDeflator[yi - 2])),
             deflator: deflator[i],
           })
