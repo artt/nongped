@@ -77,7 +77,7 @@ export default function Inflation() {
       name: series.name,
       data: series.values.map((_, i: number, a: number[]) => ({
         t: data.periods[i],
-        level: a[i],
+        levelReal: a[i],
         growth: (a[i] / a[i - numFreq] - 1),
         contribution: (a[i] / a[i - numFreq] - 1) * weights19[seriesIndex] / 100,
       })),
@@ -117,7 +117,7 @@ export default function Inflation() {
 
   React.useEffect(() => {
     if (!showGrowth) {
-      setMode("level")
+      setMode("levelReal")
     }
     else if (!showContribution) {
       setMode("growth")
@@ -131,7 +131,7 @@ export default function Inflation() {
     if (!processedData) return
     const series = processedData[freq].map(s => ({
       name: s.name,
-      data: s.data.slice(mode === "level" ? 0 : freqToNum(freq)).map(d => ({
+      data: s.data.slice(mode === "levelReal" ? 0 : freqToNum(freq)).map(d => ({
         t: d.t,
         v: d[mode],
       })),
