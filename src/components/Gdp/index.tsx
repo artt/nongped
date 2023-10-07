@@ -182,7 +182,6 @@ export default function Gdp() {
       // for quarterly data, just get the *r
       // for yearly data, get deflators as well
       promises.push(getTedDataPromise(gdpSeriesToLoad.map(x => x + "n").concat(gdpSeriesToLoad.map(x => x + "r")), freq, 1993))
-      // promises.push(getTedDataPromise(freq === "Q" ? gdpSeriesToLoad.map(x => x + "n") : gdpSeriesToLoad.concat(deflatorSeries), freq, 1993))
     }
     Promise.all(promises).then(res => {
       setProcessedData(processGdpData(res, seriesDefs, gdpSeriesToLoad))
@@ -308,7 +307,7 @@ export default function Gdp() {
             freqList={freqList}
             seriesDefs={seriesDefs}
             headerWidth={200}
-            cellWidth={mode === "levelReal" ? 100 : 55}
+            cellWidths={{ levelReal: 100, growth: 55, contribution: 55 }}
             data={data}
             seriesState={seriesState}
             minDate={minDate}

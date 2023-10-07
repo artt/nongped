@@ -1,4 +1,4 @@
-import type { ComponentChartData, Frequency, ProcessedSeriesDefinition, SeriesState } from "types"
+import type { ComponentChartData, ContributionMode, Frequency, ProcessedSeriesDefinition, SeriesState } from "types"
 import { quarterToMonth, getMonthName, isAnyParentCollapsed, getSeries } from "utils";
 import { HorizontalChevronCell, HorizontalChevronCellTemplate } from "./HorizontalChevronCellTemplate";
 import Box from "@mui/material/Box";
@@ -15,7 +15,7 @@ interface Props {
   freqList: string[]
   seriesDefs: ProcessedSeriesDefinition[]
   headerWidth?: number
-  cellWidth?: number
+  cellWidths?: Record<ContributionMode, number>
   data?: ComponentChartData
   seriesState: SeriesState
   minDate?: string
@@ -35,7 +35,7 @@ function isLastPeriodOfBlock(period: string, freq: Frequency) {
   }
 }
 // heiararchy
-export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidth=50, data, seriesState, minDate, maxDate, setSeriesState, digits={} }: Props) {
+export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidths={levelReal: 50, growth: 50, contribution: 50}, data, seriesState, minDate, maxDate, setSeriesState, digits={} }: Props) {
 
   if (!data) return null
 
@@ -82,7 +82,7 @@ export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidth=50
 
   const columns: Column[] = [
     { columnId: "series", width: headerWidth },
-    ...Array.from({length: numPeriods}, (_, i) => ({ columnId: `data-${i}`, width: cellWidth }))
+    ...Array.from({length: numPeriods}, (_, i) => ({ columnId: `data-${i}`, width: cellWidths[data.mode] }))
   ]
 
   const periodRow: SummaryRow = {
