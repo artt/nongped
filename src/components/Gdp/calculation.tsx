@@ -87,8 +87,8 @@ export function processGdpData(tmp: TedData[], seriesDefs: ProcessedSeriesDefini
       const series = getSeries(seriesName, d)
       const children = getSeries(seriesName, seriesDefs).children
       series.data.forEach((p, i) => {
-        p.contribution = children.reduce((acc, cur) => acc + getSeries(cur, d).data[i].contribution, 0)
-        p.levelNominal = children.reduce((acc, cur) => acc + (getSeries(cur, d).data[i].levelNominal || 0), 0)
+        p.contribution = sum(children.map(childName => getSeries(childName, d).data[i].contribution))
+        p.levelNominal = sum(children.map(childName => getSeries(childName, d).data[i].levelNominal))
       })
       // set levelReal = levelNominal when year = 2002
       if (i === 0) {
@@ -107,12 +107,12 @@ export function processGdpData(tmp: TedData[], seriesDefs: ProcessedSeriesDefini
 
     // precalculate sumproduct for all quarters
     const sumProduct = Array(seriesQuarterly.data.length).fill(NaN)
-    for (let i = getIndex(1994, 1); i < seriesQuarterly.data.length; i ++) {
+    for (let i = 0; i < seriesQuarterly.data.length; i ++) {
       const yi = Math.floor(i / 4)
       sumProduct[i] = children.reduce((acc, childName) => {
         const childSeriesQuarterly = getSeries(childName, processedQuarterlyData)
         const childSeriesYearly = getSeries(childName, processedYearlyData)
-        return acc + childSeriesQuarterly.data[i].levelReal * childSeriesYearly.data[yi - 1].deflator
+        return acc + childSeriesQuarterly.data[i].levelReal * childSeriesYearly.data[yi - 1]?.deflator
       }, 0)
     }
 
@@ -134,11 +134,11 @@ export function processGdpData(tmp: TedData[], seriesDefs: ProcessedSeriesDefini
     // now go back from 2002q4 to 1994q1
     for (let y = 2002; y > 1993; y --) {
       // we know deflator for year i
-      // so we need to find yearly deflator for year i-1 such that sum of quarterly levelReal = sum of quarterly levelNominal
+      // so we need to find yearly deflator for year i-1 such that deflator = yearly levelNominal / sum of quarterly levelReal
       const yi = y - 1993
-      // real = q1 + q2 + q3 + q4 = (sumProduct[getIndex(i, 1)] + sumProduct[getIndex(i, 2)] + sumProduct[getIndex(i, 3)] + sumProduct[getIndex(i, 4)]) / initialGuess
-      // nominal = seriesYearly.data[yi].levelNominal
-      // deflator = seriesYearly.data[yi].deflator = nominal / real
+      // quarterly real = sumProduct[getIndex(i, 1)] / deflator(yi - 1)
+      // yearly real = q1 + q2 + q3 + q4 = (sumProduct[getIndex(i, 1)] + sumProduct[getIndex(i, 2)] + sumProduct[getIndex(i, 3)] + sumProduct[getIndex(i, 4)]) / initialGuess
+      // deflator(t) = nominal(t) / real(t)
       //  = seriesYearly.data[yi].levelNominal / ((sumProduct[getIndex(i, 1)] + sumProduct[getIndex(i, 2)] + sumProduct[getIndex(i, 3)] + sumProduct[getIndex(i, 4)]) / initialGuess)
       //  = seriesYearly.data[yi].levelNominal * initialGuess / (sumProduct[getIndex(i, 1)] + sumProduct[getIndex(i, 2)] + sumProduct[getIndex(i, 3)] + sumProduct[getIndex(i, 4)])
       // deflator = nominal * initialGuess / sum
@@ -151,11 +151,13 @@ export function processGdpData(tmp: TedData[], seriesDefs: ProcessedSeriesDefini
       }
       seriesYearly.data[yi].levelReal = sumTmp / seriesYearly.data[yi - 1].deflator
     }
-  })
 
-  // (cpr(t) * cpr_yearly_deflator(t-4) + cgovr(t) * cgovr_yearly_deflator(t-4)) / cr_yearly_deflator(t-4)
-  // cr_yearly_deflator = c_nominal / c_real
-  // c_real(year) = sum(c_real)
+    // then we calculate growth for each quarter
+    for (let i = 0; i < seriesQuarterly.data.length; i ++) {
+      seriesQuarterly.data[i].growth = seriesQuarterly.data[i].levelReal / seriesQuarterly.data[i - 4]?.levelReal - 1
+    }
+
+  })
 
   // calculate quarterly real levels for aggregated series
 
