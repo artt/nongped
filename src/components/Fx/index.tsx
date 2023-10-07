@@ -7,13 +7,9 @@ import Comparison from "./Comparison";
 import Neer from "./Neer";
 import Yield from "./Yield";
 import { createTheme } from '@mui/material/styles';
-import { serverAddress, curYear, getTedDataPromise } from "utils";
+import { serverAddress, curYear, getTedDataPromise, average } from "utils";
 import type { FxData, NeerData } from "./types"
 import Split from "components/Split";
-
-function calculateAverage(data: number[]) {
-  return data.reduce((a, b) => a + b, 0) / data.length
-}
 
 function getIndexOfTimestamp(ticks: number[], timestamp: number, goBackIfNotFoundExactly: boolean) {
   const tmp = ticks.findIndex(t => t > timestamp)
@@ -136,7 +132,7 @@ export default function Fx() {
           const tmpReturn = Math.log(series.data[i - 1] / series.data[i])
           vol[i] = Math.sqrt((1 - weight) * vol[i - 1]**2 + weight * (isFinite(tmpReturn) ? tmpReturn : 0)**2)
         }
-        const yearlyVolatility = [0, 1, 2].map(i => calculateAverage(vol.slice(firstOfYearIndices[i], firstOfYearIndices[i + 1]).filter(x => !Number.isNaN(x))))
+        const yearlyVolatility = [0, 1, 2].map(i => average(vol.slice(firstOfYearIndices[i], firstOfYearIndices[i + 1]).filter(x => !Number.isNaN(x))))
 
         return({
           ...series,

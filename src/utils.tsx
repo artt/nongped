@@ -245,3 +245,7 @@ export function isAnyParentCollapsed(name: string, seriesState: SeriesState, ser
 export function sum(array: number[]): number {
   return array.reduce((a, b) => a + b, 0)
 }
+
+export function average(array: number[]): number {
+  return sum(array) / array.length
+}

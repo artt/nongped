@@ -126,7 +126,7 @@ export function processGdpData(tmp: TedData[], seriesDefs: ProcessedSeriesDefini
       // console.log(i, seriesName, sumProduct / seriesYearly.data[yi - 1].deflator)
       if (i % 4 === 3) {
         // we get the whole year, so now we can calculate deflator for the year
-        seriesYearly.data[yi].levelReal = seriesQuarterly.data.slice(i - 3, i + 1).reduce((acc, cur) => acc + cur.levelReal, 0)
+        seriesYearly.data[yi].levelReal = sum(seriesQuarterly.data.slice(i - 3, i + 1).map(p => p.levelReal))
         seriesYearly.data[yi].deflator = seriesYearly.data[yi].levelNominal / seriesYearly.data[yi].levelReal
       }
     }
