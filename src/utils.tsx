@@ -241,3 +241,7 @@ export function isAnyParentCollapsed(name: string, seriesState: SeriesState, ser
   if (seriesState[seriesParent]?.isParentCollapsed) return true
   return isAnyParentCollapsed(seriesParent, seriesState, seriesDefs)
 }
+
+export function sum(array: number[]): number {
+  return array.reduce((a, b) => a + b, 0)
+}
