@@ -210,30 +210,30 @@ export default function Gdp() {
 
   React.useEffect(() => {
     if (!processedData) return
-    let toBeSliced: number
-    switch(mode) {
-      case "levelReal":
-        toBeSliced = 0
-        break
-      case "growth":
-        toBeSliced = freqToNum(freq)
-        break
-      case "contribution":
-        // need to take out 2 to calculate CVM contribution
-        toBeSliced = freqToNum(freq) * 2
-        break
-    }
+    // let toBeSliced: number
+    // switch(mode) {
+    //   case "levelReal":
+    //     toBeSliced = 0
+    //     break
+    //   case "growth":
+    //     toBeSliced = freqToNum(freq)
+    //     break
+    //   case "contribution":
+    //     // need to take out 2 to calculate CVM contribution
+    //     toBeSliced = freqToNum(freq) * 2
+    //     break
+    // }
+    // toBeSliced = 0
+    // * Changed 2023-10-08: leave table empty if there is no data
     const series = processedData[freq].map(s => ({
       name: s.name,
-      data: s.data.slice(toBeSliced).map(d => ({
+      data: s.data.slice(0).map(d => ({
         t: d.t,
         v: d[mode],
       })),
     }))
-    // const pointStart = Date.parse(freq === 'Q' ? quarterToMonth(series[0].data[0].t) : series[0].data[0].t)
     const chartSeries = series
       .map((s, i) => {
-        // const curSeries = getSeries(s.name, seriesDefs) as ProcessedSeriesDefinition
         const curSeries = getSeries(s.name, seriesDefs)
         return({
           visible: !curSeries.hide?.includes(mode),
