@@ -2,7 +2,7 @@ import React from "react"
 import HighchartsWrapper from "components/HighchartsWrapper"
 import type { ComponentChartData, ProcessedSeriesDefinition, TooltipPoint } from "types"
 import Box from "@mui/material/Box"
-import { tooltipPercentFormatter, ticksPercentFormatter, getSeries } from "utils"
+import { tooltipPercentFormatter, ticksPercentFormatter, getSeries, quarterToMonth } from "utils"
 import { HighchartsReactRefObject } from 'highcharts-react-official';
 
 interface Props {
@@ -70,7 +70,7 @@ const ComponentChart = React.forwardRef(({ data, seriesDefs, handleRangeChange }
               },
               pointIntervalUnit: data.freq === 'Y' ? 'year' : 'month',
               pointInterval: data.freq === "Q" ? 3 : 1,
-              pointStart: data.pointStart,
+              pointStart: Date.parse(data.freq === 'Q' ? quarterToMonth(data.series[0].data[0].t) : data.series[0].data[0].t),
             },
           },
           legend: {

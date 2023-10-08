@@ -87,7 +87,6 @@ export type SeriesState = {
 export type ComponentChartData = {
   freq: Frequency,
   mode: ContributionMode,
-  pointStart: number,
   series: TedSeries[],
   chartSeries: {
     color?: string,

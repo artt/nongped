@@ -1,7 +1,7 @@
 import React from 'react'
 import { defaultOptions, getAllSeriesNames, getSeries, getTedDataPromise, processSeriesDefinition } from "utils"
 import Split from "components/Split"
-import { freqToNum, quarterToMonth } from "utils"
+import { freqToNum } from "utils"
 import type { SeriesDefinition, ContributionMode, SeriesState, ComponentChartData, GdpData, QuarterlyFrequency } from "types"
 import ComponentChart from "components/ComponentChart"
 import SummaryTable from "components/SummaryTable"
@@ -232,7 +232,7 @@ export default function Gdp() {
         v: d[mode],
       })),
     }))
-    const pointStart = Date.parse(freq === 'Q' ? quarterToMonth(series[0].data[0].t) : series[0].data[0].t)
+    // const pointStart = Date.parse(freq === 'Q' ? quarterToMonth(series[0].data[0].t) : series[0].data[0].t)
     const chartSeries = series
       .map((s, i) => {
         // const curSeries = getSeries(s.name, seriesDefs) as ProcessedSeriesDefinition
@@ -253,7 +253,7 @@ export default function Gdp() {
           type: getSeriesType(mode, i),
         })
       })
-    setData({freq, mode, pointStart, series, chartSeries})
+    setData({freq, mode, series, chartSeries})
   }, [processedData, freq, mode])
 
   return (

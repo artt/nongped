@@ -1,7 +1,6 @@
 import React from 'react'
 import { freqToNum, getAllSeriesNames, getSeries, getTedDataPromise, processSeriesDefinition } from "utils"
 import type { SeriesDefinition, TedData, CalculatedSeries, ComponentChartData, ContributionMode, SeriesState } from "types"
-import { quarterToMonth } from "utils"
 import Split from "components/Split"
 import ComponentChart from "components/ComponentChart"
 import SummaryTable from "components/SummaryTable"
@@ -136,7 +135,6 @@ export default function Inflation() {
         v: d[mode],
       })),
     }))
-    const pointStart = Date.parse(freq === 'Q' ? quarterToMonth(series[0].data[0].t) : series[0].data[0].t)
     const chartSeries = series
       .map((s, i) => ({
         color: getSeries(s.name, seriesDefs).color,
@@ -145,7 +143,7 @@ export default function Inflation() {
         // in contribution mode, only the first series is a line chart
         type: mode === "contribution" && i > 0 ? 'column' : 'spline',
       }))
-    setData({freq, mode, pointStart, series, chartSeries})
+    setData({freq, mode, series, chartSeries})
   }, [processedData, freq, mode])
 
   return (
