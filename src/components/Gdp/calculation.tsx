@@ -77,9 +77,15 @@ export function processGdpData(tmp: TedData[], seriesDefs: ProcessedSeriesDefini
   // add statr to both yearly and quarterly data
   // also add contribution and levelNominal to aggregated data
   [processedYearlyData, processedQuarterlyData].forEach((d, i) => {
+    const gde = getSeries("gde", d)
+    // recalculate stock contribution
+    const stock = getSeries("stock", d)
+    stock.data.forEach((p, i) => {
+      p.contribution = gde.data[i].contribution - sum(['cp', 'cgov', 'ip', 'ipub', 'xg', 'xs', 'mg', 'ms'].map(seriesName => getSeries(seriesName, d).data[i].contribution))
+    })
+    // stat contribution
     const stat = getSeries("stat", d)
     const gdp = getSeries("gdp", d)
-    const gde = getSeries("gde", d)
     stat.data.forEach((p, i) => {
       p.contribution = gdp.data[i].contribution - gde.data[i].contribution
     })
@@ -123,7 +129,6 @@ export function processGdpData(tmp: TedData[], seriesDefs: ProcessedSeriesDefini
     for (let i = getIndex(2003, 1); i < seriesQuarterly.data.length; i ++) {
       const yi = Math.floor(i / 4)
       seriesQuarterly.data[i].levelReal = sumProduct[i] / seriesYearly.data[yi - 1].deflator
-      // console.log(i, seriesName, sumProduct / seriesYearly.data[yi - 1].deflator)
       if (i % 4 === 3) {
         // we get the whole year, so now we can calculate deflator for the year
         seriesYearly.data[yi].levelReal = sum(seriesQuarterly.data.slice(i - 3, i + 1).map(p => p.levelReal))
@@ -167,6 +172,5 @@ export function processGdpData(tmp: TedData[], seriesDefs: ProcessedSeriesDefini
     Y: processedYearlyData,
   }
 
-  console.log(processedDataWithFrequencies)
   return(processedDataWithFrequencies)
 }
