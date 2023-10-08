@@ -1,7 +1,6 @@
 import React from 'react'
 import { defaultOptions, getAllSeriesNames, getSeries, getTedDataPromise, processSeriesDefinition } from "utils"
 import Split from "components/Split"
-import { freqToNum } from "utils"
 import type { SeriesDefinition, ContributionMode, SeriesState, ComponentChartData, GdpData, QuarterlyFrequency } from "types"
 import ComponentChart from "components/ComponentChart"
 import SummaryTable from "components/SummaryTable"
@@ -165,6 +164,7 @@ export default function Gdp() {
   const [seriesState, setSeriesState] = React.useState<SeriesState>({})
 
   const handleRangeChange = React.useCallback((minDate: string, maxDate: string) => {
+    // TODO: make sure the event is caused by dragging the navigator, not just changing mode, etc.
     setMinDate(minDate)
     setMaxDate(maxDate)
   }, [])
@@ -227,7 +227,7 @@ export default function Gdp() {
     // * Changed 2023-10-08: leave table empty if there is no data
     const series = processedData[freq].map(s => ({
       name: s.name,
-      data: s.data.slice(0).map(d => ({
+      data: s.data.map(d => ({
         t: d.t,
         v: d[mode],
       })),

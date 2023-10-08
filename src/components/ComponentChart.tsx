@@ -104,6 +104,7 @@ const ComponentChart = React.forwardRef(({ data, seriesDefs, handleRangeChange }
                 if (!min || !max) return
                 const minDate = new Date(min).toISOString().slice(0, 7)
                 const maxDate = new Date(max).toISOString().slice(0, 7)
+                console.log("extreme set", minDate, maxDate)
                 handleRangeChange(minDate, maxDate)
               },
             },

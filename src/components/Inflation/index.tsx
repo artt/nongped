@@ -130,7 +130,8 @@ export default function Inflation() {
     if (!processedData) return
     const series = processedData[freq].map(s => ({
       name: s.name,
-      data: s.data.slice(mode === "levelReal" ? 0 : freqToNum(freq)).map(d => ({
+      // data: s.data.slice(mode === "levelReal" ? 0 : freqToNum(freq)).map(d => ({
+      data: s.data.map(d => ({
         t: d.t,
         v: d[mode],
       })),
