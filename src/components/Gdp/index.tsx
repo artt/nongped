@@ -137,9 +137,7 @@ const inputDefs: SeriesDefinition[] = [
 
 const seriesDefs = processSeriesDefinition(inputDefs)
 
-// const gdpSeries = getAllSeriesNames(labelDefs)
 const gdpSeriesToLoad = getAllSeriesNames(seriesDefs, series => !series.skipLoading)
-// const gdpSeriesToCalculate = getAllSeriesNames(seriesDefs, series => series.skipLoading === true)
 
 function getSeriesType(mode: ContributionMode, seriesIndex: number) {
   switch(mode) {
