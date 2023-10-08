@@ -1,5 +1,5 @@
 import React from 'react'
-import { defaultOptions, getAllSeriesNames, getSeries, getTedDataPromise, processSeriesDefinition } from "utils"
+import { calculateColor, defaultOptions, getAllSeriesNames, getSeries, getTedDataPromise, isAnyParentCollapsed, processSeriesDefinition } from "utils"
 import Split from "components/Split"
 import type { SeriesDefinition, ContributionMode, SeriesState, ComponentChartData, GdpData, QuarterlyFrequency } from "types"
 import ComponentChart from "components/ComponentChart"
@@ -29,13 +29,11 @@ const inputDefs: SeriesDefinition[] = [
           {
             name: 'dd',
             label: 'Domestic Demand',
-            hide: ["levelReal", "growth", "contribution"],
             skipLoading: true,
             children: [
               {
                 name: 'c',
                 label: 'Consumption',
-                hide: ["levelReal", "growth", "contribution"],
                 skipLoading: true,
                 children: [
                   {
@@ -53,7 +51,6 @@ const inputDefs: SeriesDefinition[] = [
               {
                 name: 'i',
                 label: 'Investment',
-                hide: ["levelReal", "growth", "contribution"],
                 skipLoading: true,
                 children: [
                   {
@@ -73,13 +70,11 @@ const inputDefs: SeriesDefinition[] = [
           {
             name: 'nx',
             label: 'Net exports',
-            hide: ["levelReal", "growth", "contribution"],
             skipLoading: true,
             children: [
               {
                 name: 'x',
                 label: 'Exports',
-                hide: ["levelReal", "growth", "contribution"],
                 skipLoading: true,
                 children: [
                   {
@@ -97,8 +92,8 @@ const inputDefs: SeriesDefinition[] = [
               {
                 name: 'm',
                 label: 'Imports',
-                hide: ["levelReal", "growth", "contribution"],
                 skipLoading: true,
+                negativeContribution: true,
                 children: [
                   {
                     name: 'mg',
@@ -135,6 +130,8 @@ const inputDefs: SeriesDefinition[] = [
 ]
 
 const seriesDefs = processSeriesDefinition(inputDefs)
+calculateColor(seriesDefs)
+console.log(seriesDefs)
 
 const gdpSeriesToLoad = getAllSeriesNames(seriesDefs, series => !series.skipLoading)
 
@@ -235,9 +232,11 @@ export default function Gdp() {
     const chartSeries = series
       .map((s, i) => {
         const curSeries = getSeries(s.name, seriesDefs)
+        console.log(s.name, curSeries.children.length)
+        const toShow = s.name === "gdp" || (!isAnyParentCollapsed(s.name, seriesState, seriesDefs) && !curSeries.hide?.includes(mode) && !(seriesState[s.name]?.isExpanded && curSeries.children.length > 0))
         return({
-          visible: !curSeries.hide?.includes(mode),
-          showInLegend: !curSeries.hide?.includes(mode),
+          visible: toShow,
+          showInLegend: toShow,
           color: curSeries.color,
           marker: {
             enabled: i === 0,
@@ -252,7 +251,7 @@ export default function Gdp() {
         })
       })
     setData({freq, mode, series, chartSeries})
-  }, [processedData, freq, mode])
+  }, [processedData, freq, mode, seriesState])
 
   return (
     <Split

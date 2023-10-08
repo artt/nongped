@@ -1,4 +1,5 @@
 import { TooltipPoint, Frequency, SeriesDefinition, ProcessedSeriesDefinition, SeriesState, SeriesWithName } from "types"
+import Color from "color"
 
 // export const serverAddress = process.env.NODE_ENV === "development"
 //   ? `http://localhost:1443`
@@ -232,6 +233,35 @@ export function processSeriesDefinition(allSeries: SeriesDefinition[], initialDe
     }
   })
   return out
+}
+
+export function calculateColor(allSeries: ProcessedSeriesDefinition[]) {
+  for (let i = 0; i < allSeries.length; i ++) {
+    const series = allSeries[i]
+    if (series.color) continue
+    series.color = calculateSeriesColor(allSeries, i)
+  }
+}
+
+function calculateSeriesColor(allSeries: ProcessedSeriesDefinition[], seriesIndex: number): string {
+  const series = allSeries[seriesIndex]
+  if (series.color) return series.color
+  if (series.children) {
+    const childrenColors: string[] = series.children.map(child => {
+      const childIndex = allSeries.findIndex(s => s.name === child)
+      return calculateSeriesColor(allSeries, childIndex)
+    })
+    return blend(childrenColors)
+  }
+  return ""
+}
+
+function blend(colors: string[]): string {
+  let color = Color(colors[0])
+  for (let i = 1; i < colors.length; i ++) {
+    color = color.mix(Color(colors[i]), 1/colors.length)
+  }
+  return color.hex()
 }
 
 export function isAnyParentCollapsed(name: string, seriesState: SeriesState, seriesDefs: ProcessedSeriesDefinition[]): boolean {
