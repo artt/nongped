@@ -39,12 +39,12 @@ const inputDefs: SeriesDefinition[] = [
                   {
                     name: 'cp',
                     label: 'Private Consumption',
-                    color: defaultOptions.colors[2],
+                    color: Color(defaultOptions.colors[2]).lighten(0.2).hex(),
                   },
                   {
                     name: 'cgov',
                     label: "Gov't Consumption",
-                    color: Color(defaultOptions.colors[2]).lighten(-0.3).hex(),
+                    color: Color(defaultOptions.colors[2]).lighten(-0.2).hex(),
                   },
                 ],
               },
@@ -80,12 +80,12 @@ const inputDefs: SeriesDefinition[] = [
                   {
                     name: 'xg',
                     label: "Exports of Goods",
-                    color: defaultOptions.colors[4],
+                    color: Color(defaultOptions.colors[4]).lighten(0.2).hex(),
                   },
                   {
                     name: 'xs',
                     label: "Exports of Services",
-                    color: Color(defaultOptions.colors[4]).lighten(-0.3).hex(),
+                    color: Color(defaultOptions.colors[4]).lighten(-0.2).hex(),
                   },
                 ],
               },
