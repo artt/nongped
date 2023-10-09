@@ -4,16 +4,18 @@ import type { ComponentChartData, ProcessedSeriesDefinition, TooltipPoint } from
 import Box from "@mui/material/Box"
 import { tooltipPercentFormatter, ticksPercentFormatter, getSeries, quarterToMonth } from "utils"
 import { HighchartsReactRefObject } from 'highcharts-react-official';
+import deepmerge from 'deepmerge'
 
 interface Props {
   data?: ComponentChartData,
   seriesDefs: ProcessedSeriesDefinition[],
+  override?: Highcharts.Options,
   explodeKeyHeld?: boolean,
   handleRangeChange: (minDate: string, maxDate: string) => void,
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const ComponentChart = React.forwardRef(({ data, seriesDefs, handleRangeChange }: Props, _refJustInCase) => {
+const ComponentChart = React.forwardRef(({ data, seriesDefs, override, handleRangeChange }: Props, _refJustInCase) => {
   
   const [explodeKeyHeld, setExplodeKeyHeld] = React.useState(false)
   const ref = React.useRef<HighchartsReactRefObject>()
@@ -53,7 +55,7 @@ const ComponentChart = React.forwardRef(({ data, seriesDefs, handleRangeChange }
         useHighchartsStock={true}
         isLoading={!data}
         constructorType={'stockChart'}
-        options={data && {
+        options={data && deepmerge({
           series: data.series.map((s, i) => ({
             name: getSeries(s.name, seriesDefs).label,
             data: s.data.map(p => p.v),
@@ -121,7 +123,7 @@ const ComponentChart = React.forwardRef(({ data, seriesDefs, handleRangeChange }
               zIndex: 3,
             }],
           },
-        }}
+        }, override || {})}
       />
     </Box>
   )

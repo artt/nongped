@@ -316,6 +316,11 @@ export default function Gdp() {
         <ComponentChart
           data={data}
           seriesDefs={seriesDefs}
+          override={{
+            yAxis: {
+              reversedStacks: false,
+            }
+          }}
           handleRangeChange={handleRangeChange}
         />
       }

@@ -23,6 +23,7 @@
     "@silevis/reactgrid": "^4.1.1",
     "color": "^4.2.3",
     "dayjs": "^1.11.9",
+    "deepmerge": "^4.3.1",
     "highcharts": "^11.1.0",
     "highcharts-react-official": "^3.2.0",
     "react": "^18.2.0",
