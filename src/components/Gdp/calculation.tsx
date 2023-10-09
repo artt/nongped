@@ -79,14 +79,12 @@ export function processGdpData(tmp: TedData[], seriesDefs: ProcessedSeriesDefini
   [processedYearlyData, processedQuarterlyData].forEach((d, i) => {
     const gde = getSeries("gde", d)
     // recalculate stock contribution
-    const stock = getSeries("stock", d)
-    stock.data.forEach((p, i) => {
+    getSeries("stock", d).data.forEach((p, i) => {
       p.contribution = gde.data[i].contribution - sum(['cp', 'cgov', 'ip', 'ipub', 'xg', 'xs', 'mg', 'ms'].map(seriesName => getSeries(seriesName, d).data[i].contribution))
     })
     // stat contribution
-    const stat = getSeries("stat", d)
     const gdp = getSeries("gdp", d)
-    stat.data.forEach((p, i) => {
+    getSeries("stat", d).data.forEach((p, i) => {
       p.contribution = gdp.data[i].contribution - gde.data[i].contribution
     })
     calculatedSeries.forEach(seriesName => {
