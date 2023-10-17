@@ -15,10 +15,10 @@ interface Props {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const ComponentChart = React.forwardRef(({ data, seriesDefs, override, handleRangeChange }: Props, _refJustInCase) => {
+const ComponentChart = React.forwardRef(({ data, seriesDefs, override, handleRangeChange }: Props, ref) => {
   
   const [explodeKeyHeld, setExplodeKeyHeld] = React.useState(false)
-  const ref = React.useRef<HighchartsReactRefObject>()
+  // const ref = React.useRef<HighchartsReactRefObject>()
 
   // universal keyboard handler
   function handleKeyDown(e: KeyboardEvent) {

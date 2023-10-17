@@ -158,12 +158,17 @@ export default function Gdp() {
   const [minDate, setMinDate] = React.useState<string>()
   const [maxDate, setMaxDate] = React.useState<string>()
   const [seriesState, setSeriesState] = React.useState<SeriesState>({})
+  const [currentHoveredSeries, setCurrentHoveredSeries] = React.useState<string>()
 
   const handleRangeChange = React.useCallback((minDate: string, maxDate: string) => {
     // TODO: make sure the event is caused by dragging the navigator, not just changing mode, etc.
     setMinDate(minDate)
     setMaxDate(maxDate)
   }, [])
+
+  React.useEffect(() => {
+    console.log("currentHoveredSeries", currentHoveredSeries)
+  }, [currentHoveredSeries])
 
   React.useEffect(() => {
     if (dataLoaded.current) return
@@ -301,13 +306,14 @@ export default function Gdp() {
           <SummaryTable
             freqList={freqList}
             seriesDefs={seriesDefs}
-            headerWidth={200}
+            headerWidth={220}
             cellWidths={{ levelReal: 100, growth: 55, contribution: 55 }}
             data={data}
             seriesState={seriesState}
             minDate={minDate}
             maxDate={maxDate}
             setSeriesState={setSeriesState}
+            setCurrentHoveredSeries={setCurrentHoveredSeries}
             digits={{ levelReal: 0 }}
           />
         </Box>

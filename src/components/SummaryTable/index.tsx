@@ -21,6 +21,7 @@ interface Props {
   minDate?: string
   maxDate?: string
   setSeriesState: (state: SeriesState) => void
+  setCurrentHoveredSeries: (series: string) => void
   digits?: {[x: string]: number}
 }
 
@@ -35,7 +36,7 @@ function isLastPeriodOfBlock(period: string, freq: Frequency) {
   }
 }
 // heiararchy
-export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidths={levelReal: 50, growth: 50, contribution: 50}, data, seriesState, minDate, maxDate, setSeriesState, digits={} }: Props) {
+export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidths={levelReal: 50, growth: 50, contribution: 50}, data, seriesState, minDate, maxDate, setSeriesState, setCurrentHoveredSeries, digits={} }: Props) {
 
   if (!data) return null
 
@@ -148,6 +149,7 @@ export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidths={
           // type: "chevron",
           type: "horizontalChevron",
           text: curSeries.label,
+          setCurrentHoveredSeries: setCurrentHoveredSeries,
           hasChildren: curSeries.children.length > 0,
           parentId: curSeries.parent,
           indent: curSeries.depth,

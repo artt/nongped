@@ -9,6 +9,7 @@ import {
 export interface HorizontalChevronCell extends Cell {
   type: 'horizontalChevron';
   text: string;
+  setCurrentHoveredSeries: (series: string) => void;
   isExpanded?: boolean;
   hasChildren?: boolean;
   indent?: number;
@@ -20,6 +21,7 @@ export class HorizontalChevronCellTemplate implements CellTemplate<HorizontalChe
 
   getCompatibleCell(uncertainCell: Uncertain<HorizontalChevronCell>): Compatible<HorizontalChevronCell> {
     const text = getCellProperty(uncertainCell, 'text', 'string');
+    const setCurrentHoveredSeries = getCellProperty(uncertainCell, 'setCurrentHoveredSeries', 'function');
     let isExpanded = false;
     try {
       isExpanded = getCellProperty(uncertainCell, 'isExpanded', 'boolean');
@@ -33,7 +35,7 @@ export class HorizontalChevronCellTemplate implements CellTemplate<HorizontalChe
       hasChildren = false;
     }
     const value = parseFloat(text);
-    return { ...uncertainCell, text, value, isExpanded, hasChildren };
+    return { ...uncertainCell, text, setCurrentHoveredSeries, value, isExpanded, hasChildren };
   }
 
   update(cell: Compatible<HorizontalChevronCell>, cellToMerge: UncertainCompatible<HorizontalChevronCell>): Compatible<HorizontalChevronCell> {
@@ -65,8 +67,20 @@ export class HorizontalChevronCellTemplate implements CellTemplate<HorizontalChe
   // render(cell: Compatible<HorizontalChevronCell>, isInEditMode: boolean, onCellChanged: (cell: Compatible<HorizontalChevronCell>, commit: boolean) => void): React.ReactNode {
   render(cell: Compatible<HorizontalChevronCell>, _isInEditMode: boolean, onCellChanged: (cell: Compatible<HorizontalChevronCell>, commit: boolean) => void): React.ReactNode {
     return (
-      <>
-        <div style={{ marginLeft: `${(cell.indent || 0) }rem`, }} />
+      <div
+        onMouseEnter={e => {
+          e.stopPropagation();
+          // console.log(e.currentTarget)
+          cell.setCurrentHoveredSeries(cell.text)
+          // e.currentTarget.classList.add('hovered');
+          // trigger onMouseOver in highcharts for the series
+        }}
+      >
+        <div
+          style={{
+            marginLeft: `${(cell.indent || 0) }rem`,
+          }}
+        />
         {cell.hasChildren ?
           <div
             className='chevron'
@@ -81,7 +95,8 @@ export class HorizontalChevronCellTemplate implements CellTemplate<HorizontalChe
           <div className='no-child' />
         }
         {cell.text}
-      </>
+        <div className='legend'>x</div>
+      </div>
     );
   }
 
