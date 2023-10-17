@@ -22,7 +22,7 @@ $cell-padding: $cell-padding-vertical $cell-padding-horizontal;
 
   .series-name {
     flex: 1;
-    margin: -$cell-padding-vertical -$cell-padding-horizontal;
+    margin: -$cell-padding-vertical (-$cell-padding-horizontal);
     padding: $cell-padding;
     font-weight: bold;
     display: flex;

@@ -21,7 +21,7 @@ interface Props {
   minDate?: string
   maxDate?: string
   setSeriesState: (state: SeriesState) => void
-  setCurrentHoveredSeries: (series: string) => void
+  setCurrentHoveredSeries?: (series: string) => void
   digits?: {[x: string]: number}
 }
 
@@ -149,7 +149,7 @@ export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidths={
           // type: "chevron",
           type: "horizontalChevron",
           text: curSeries.label,
-          setCurrentHoveredSeries: setCurrentHoveredSeries,
+          setCurrentHoveredSeries: setCurrentHoveredSeries || (() => {}),
           hasChildren: curSeries.children.length > 0,
           parentId: curSeries.parent,
           indent: curSeries.depth,
