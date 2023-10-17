@@ -155,7 +155,7 @@ export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidths={
           indent: curSeries.depth,
           isExpanded: seriesState[series.name].isExpanded,
           className: clsx(
-            'series-name',
+            'series-name-container',
           ),
         },
         ...series.data.slice(minIndex, maxIndex + 1).map<NumberCell>((p, i) => ({

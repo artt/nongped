@@ -68,6 +68,7 @@ export class HorizontalChevronCellTemplate implements CellTemplate<HorizontalChe
   render(cell: Compatible<HorizontalChevronCell>, _isInEditMode: boolean, onCellChanged: (cell: Compatible<HorizontalChevronCell>, commit: boolean) => void): React.ReactNode {
     return (
       <div
+        className="series-name"
         onMouseEnter={e => {
           e.stopPropagation();
           // console.log(e.currentTarget)

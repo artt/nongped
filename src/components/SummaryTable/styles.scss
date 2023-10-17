@@ -3,7 +3,11 @@ $cell-text-color: black;
 
 $dark-border: rgba(black, 0.3);
 
+$cell-padding-vertical: 0;
+$cell-padding-horizontal: 4px;
+$cell-padding: $cell-padding-vertical $cell-padding-horizontal;
 @import '@silevis/reactgrid/styles.scss';
+
 
 .summary-table-container {
   width: 100px; // just so that it has some basis to stretch out
@@ -17,14 +21,15 @@ $dark-border: rgba(black, 0.3);
   }
 
   .series-name {
-    justify-content: flex-start;
+    flex: 1;
+    margin: -$cell-padding-vertical -$cell-padding-horizontal;
+    padding: $cell-padding;
     font-weight: bold;
-    > div {
-      display: flex;
-      width: 100%;
-      &:hover {
-        background-color: rgba(black, 0.05);
-      }
+    display: flex;
+    align-items: center;
+    height: 100%;
+    &:hover {
+      background-color: rgba(black, 0.05);
     }
   }
 
