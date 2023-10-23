@@ -12,13 +12,15 @@ interface Props {
   override?: Highcharts.Options,
   explodeKeyHeld?: boolean,
   handleRangeChange: (minDate: string, maxDate: string) => void,
+  currentHoveredSeries?: string,
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const ComponentChart = React.forwardRef(({ data, seriesDefs, override, handleRangeChange }: Props, ref) => {
+// const ComponentChart = React.forwardRef(({ data, seriesDefs, override, handleRangeChange, currentHoveredSeries }: Props, forwardedRef) => {
+function ComponentChart({ data, seriesDefs, override, handleRangeChange, currentHoveredSeries }: Props) {
   
   const [explodeKeyHeld, setExplodeKeyHeld] = React.useState(false)
-  // const ref = React.useRef<HighchartsReactRefObject>()
+  const ref = React.useRef<HighchartsReactRefObject>(null)
 
   // universal keyboard handler
   function handleKeyDown(e: KeyboardEvent) {
@@ -41,17 +43,33 @@ const ComponentChart = React.forwardRef(({ data, seriesDefs, override, handleRan
     }
   }, [])
 
+  React.useEffect(() => {
+    const chart = ref.current?.chart
+    if (!chart) return
+    console.log('currentHoveredSeries', currentHoveredSeries)
+    chart.series.forEach(s => {
+      s.setState('inactive')
+      // if (s.userOptions.id === currentHoveredSeries) {
+      //   console.log(s)
+      //   s.setState('hover', true)
+      // }
+      // else {
+      //   s.setState('inactive', true)
+      // }
+    })
+  }, [currentHoveredSeries])
+
   return(
     <Box
       sx={{
         height: '100%',
         width: '100%',
-        // position: 'relative',
         position: 'absolute',
       }}
     >
       <HighchartsWrapper
-        ref={ref as React.MutableRefObject<HighchartsReactRefObject>}
+        ref={ref}
+        currentHoveredSeries={currentHoveredSeries}
         useHighchartsStock={true}
         isLoading={!data}
         constructorType={'stockChart'}
@@ -127,6 +145,6 @@ const ComponentChart = React.forwardRef(({ data, seriesDefs, override, handleRan
       />
     </Box>
   )
-})
+}
 
 export default ComponentChart

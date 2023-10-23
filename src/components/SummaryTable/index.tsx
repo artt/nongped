@@ -149,6 +149,7 @@ export default function SummaryTable({ seriesDefs, headerWidth=100, cellWidths={
           // type: "chevron",
           type: "horizontalChevron",
           text: curSeries.label,
+          id: series.name,
           setCurrentHoveredSeries: setCurrentHoveredSeries || (() => {}),
           hasChildren: curSeries.children.length > 0,
           parentId: curSeries.parent,

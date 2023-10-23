@@ -167,10 +167,6 @@ export default function Gdp() {
   }, [])
 
   React.useEffect(() => {
-    console.log("currentHoveredSeries", currentHoveredSeries)
-  }, [currentHoveredSeries])
-
-  React.useEffect(() => {
     if (dataLoaded.current) return
     dataLoaded.current = true
 
@@ -238,6 +234,7 @@ export default function Gdp() {
         const curSeries = getSeries(s.name, seriesDefs)
         const toShow = s.name === "gdp" || (!isAnyParentCollapsed(s.name, seriesState, seriesDefs) && !curSeries.hide?.includes(mode) && !(seriesState[s.name]?.isExpanded && curSeries.children.length > 0))
         return({
+          id: s.name,
           visible: toShow,
           showInLegend: toShow,
           color: curSeries.color,
@@ -328,6 +325,7 @@ export default function Gdp() {
             }
           }}
           handleRangeChange={handleRangeChange}
+          currentHoveredSeries={currentHoveredSeries}
         />
       }
     />

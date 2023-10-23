@@ -9,6 +9,7 @@ import {
 export interface HorizontalChevronCell extends Cell {
   type: 'horizontalChevron';
   text: string;
+  id: string;
   setCurrentHoveredSeries: (series: string) => void;
   isExpanded?: boolean;
   hasChildren?: boolean;
@@ -21,6 +22,7 @@ export class HorizontalChevronCellTemplate implements CellTemplate<HorizontalChe
 
   getCompatibleCell(uncertainCell: Uncertain<HorizontalChevronCell>): Compatible<HorizontalChevronCell> {
     const text = getCellProperty(uncertainCell, 'text', 'string');
+    const id = getCellProperty(uncertainCell, 'id', 'string');
     const setCurrentHoveredSeries = getCellProperty(uncertainCell, 'setCurrentHoveredSeries', 'function');
     let isExpanded = false;
     try {
@@ -35,7 +37,7 @@ export class HorizontalChevronCellTemplate implements CellTemplate<HorizontalChe
       hasChildren = false;
     }
     const value = parseFloat(text);
-    return { ...uncertainCell, text, setCurrentHoveredSeries, value, isExpanded, hasChildren };
+    return { ...uncertainCell, text, id, setCurrentHoveredSeries, value, isExpanded, hasChildren };
   }
 
   update(cell: Compatible<HorizontalChevronCell>, cellToMerge: UncertainCompatible<HorizontalChevronCell>): Compatible<HorizontalChevronCell> {
@@ -71,8 +73,7 @@ export class HorizontalChevronCellTemplate implements CellTemplate<HorizontalChe
         className="series-name"
         onMouseEnter={e => {
           e.stopPropagation();
-          // console.log(e.currentTarget)
-          cell.setCurrentHoveredSeries(cell.text)
+          cell.setCurrentHoveredSeries(cell.id)
           // e.currentTarget.classList.add('hovered');
           // trigger onMouseOver in highcharts for the series
         }}

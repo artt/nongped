@@ -10,7 +10,6 @@ import Switch from "@mui/material/Switch"
 import FormGroup from "@mui/material/FormGroup"
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
 import ToggleButton from "@mui/material/ToggleButton"
-import { HighchartsReact } from 'highcharts-react-official'
 
 const inputDefs: SeriesDefinition[] = [
   {
@@ -51,8 +50,6 @@ type Frequency = keyof InflationData
 
 export default function Inflation() {
 
-  const ref = React.useRef<typeof HighchartsReact>(null)
-  
   const [processedData, setProcessedData] = React.useState<InflationData>()
   const dataLoaded = React.useRef(false)
 
@@ -152,7 +149,6 @@ export default function Inflation() {
       grow="bottom"
       bottom={
         <ComponentChart
-          ref={ref}
           data={data}
           seriesDefs={seriesDefs}
           handleRangeChange={handleRangeChange}
