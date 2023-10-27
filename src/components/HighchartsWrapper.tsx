@@ -34,7 +34,6 @@ const constructor: Record<HighchartsConstructorType, unknown> = {
 
 interface Props {
   constructorType: HighchartsConstructorType,
-  currentHoveredSeries?: string,
   isLoading: boolean,
   options?: object,
   [x: string]: unknown,
@@ -45,8 +44,6 @@ const HighchartsWrapper = React.forwardRef<HighchartsReactRefObject, Props>(({ c
   // use state (instead of props) so to minimize rerenderings
   // https://github.com/highcharts/highcharts-react#optimal-way-to-update
   const [chartOptions, setChartOptions] = React.useState<object>(defaultOptions)
-
-  // const ref = React.useRef<HighchartsReactRefObject>(null)
 
   React.useEffect(() => {
     if (options)

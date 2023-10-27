@@ -149,6 +149,7 @@ export default function Gdp() {
 
   const [processedData, setProcessedData] = React.useState<GdpData>()
   const dataLoaded = React.useRef(false)
+  const currentHoveredSeries = React.useRef<string>("")
 
   const [data, setData] = React.useState<ComponentChartData>()
   const [freq, setFreq] = React.useState<QuarterlyFrequency>((freqList[0] as QuarterlyFrequency))
@@ -158,7 +159,11 @@ export default function Gdp() {
   const [minDate, setMinDate] = React.useState<string>()
   const [maxDate, setMaxDate] = React.useState<string>()
   const [seriesState, setSeriesState] = React.useState<SeriesState>({})
-  const [currentHoveredSeries, setCurrentHoveredSeries] = React.useState<string>()
+
+  // use ref instead of state to prevent rerenderings
+  function setCurrentHoveredSeries(seriesName: string) {
+    currentHoveredSeries.current = seriesName
+  }
 
   const handleRangeChange = React.useCallback((minDate: string, maxDate: string) => {
     // TODO: make sure the event is caused by dragging the navigator, not just changing mode, etc.
@@ -325,7 +330,7 @@ export default function Gdp() {
             }
           }}
           handleRangeChange={handleRangeChange}
-          currentHoveredSeries={currentHoveredSeries}
+          currentHoveredSeries={currentHoveredSeries.current}
         />
       }
     />

@@ -44,20 +44,20 @@ function ComponentChart({ data, seriesDefs, override, handleRangeChange, current
   }, [])
 
   React.useEffect(() => {
+    console.log('currentHoveredSeries', currentHoveredSeries)
+    // console.log('xxx')
+    // handleClick()
+    // console.log('yyy')
+  }, [currentHoveredSeries])
+
+  function handleClick() {
     const chart = ref.current?.chart
     if (!chart) return
     console.log('currentHoveredSeries', currentHoveredSeries)
     chart.series.forEach(s => {
       s.setState('inactive')
-      // if (s.userOptions.id === currentHoveredSeries) {
-      //   console.log(s)
-      //   s.setState('hover', true)
-      // }
-      // else {
-      //   s.setState('inactive', true)
-      // }
     })
-  }, [currentHoveredSeries])
+  }
 
   return(
     <Box
@@ -67,9 +67,9 @@ function ComponentChart({ data, seriesDefs, override, handleRangeChange, current
         position: 'absolute',
       }}
     >
+      <button onClick={handleClick}>XXX</button>
       <HighchartsWrapper
         ref={ref}
-        currentHoveredSeries={currentHoveredSeries}
         useHighchartsStock={true}
         isLoading={!data}
         constructorType={'stockChart'}
