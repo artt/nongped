@@ -155,9 +155,12 @@ export function processGdpData(tmp: TedData[], seriesDefs: ProcessedSeriesDefini
       seriesYearly.data[yi].levelReal = sumTmp / seriesYearly.data[yi - 1].deflator
     }
 
-    // then we calculate growth for each quarter
+    // then we calculate growth for each quarter and each year
     for (let i = 0; i < seriesQuarterly.data.length; i ++) {
       seriesQuarterly.data[i].growth = seriesQuarterly.data[i].levelReal / seriesQuarterly.data[i - 4]?.levelReal - 1
+    }
+    for (let i = 0; i < seriesYearly.data.length; i ++) {
+      seriesYearly.data[i].growth = seriesYearly.data[i].levelReal / seriesYearly.data[i - 1]?.levelReal - 1
     }
 
   })
