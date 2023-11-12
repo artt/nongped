@@ -272,6 +272,24 @@ export function isAnyParentCollapsed(name: string, seriesState: SeriesState, ser
   return isAnyParentCollapsed(seriesParent, seriesState, seriesDefs)
 }
 
+/**
+ * Get all children of a series whose skipLoading is false
+ * If the children skips loading, then get its children instead
+ */
+export function getRawChildren(name: string, seriesDefs: ProcessedSeriesDefinition[]): string[] {
+  const series = getSeries(name, seriesDefs)
+  if (!series.children) return []
+  const children: string[] = []
+  series.children.forEach(child => {
+    if (getSeries(child, seriesDefs).skipLoading) {
+      children.push(...getRawChildren(child, seriesDefs))
+    } else {
+      children.push(child)
+    }
+  })
+  return children
+}
+
 export function sum(array: number[]): number {
   return array.reduce((a, b) => a + b, 0)
 }

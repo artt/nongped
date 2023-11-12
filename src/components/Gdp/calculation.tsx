@@ -1,5 +1,5 @@
-import { ProcessedSeriesDefinition, TedData, GdpData } from "types"
-import { freqToNum, getSeries, sum } from "utils"
+import { ProcessedSeriesDefinition, TedData, GdpData, CalculatedSeriesWithDeflator, Frequency } from "types"
+import { freqToNum, getSeries, sum, getRawChildren } from "utils"
 
 function getIndex(year: number, q?: number) {
   if (q === undefined) return year - 1993
@@ -20,7 +20,7 @@ export function processGdpData(tmp: TedData[], seriesDefs: ProcessedSeriesDefini
   const gderQuarterly = getSeries("gder", tedData.Q.series).values
   const gdeDeflator = gdenYearly.map((n, i) => n / gderYearly[i])
 
-  function processSeries(series: ProcessedSeriesDefinition, freq: "Q" | "Y") {
+  function processSeries(series: ProcessedSeriesDefinition, freq: "Q" | "Y"): CalculatedSeriesWithDeflator {
     if (gdpSeriesToLoad.includes(series.name)) {
       // series exists in data
       const real = getSeries(series.name + "r", tedData[freq].series).values
@@ -105,15 +105,38 @@ export function processGdpData(tmp: TedData[], seriesDefs: ProcessedSeriesDefini
   // loop over each calculated series
   calculatedSeries.forEach(seriesName => {
 
+    // separate process for NX
+    if (seriesName === 'nx') {
+      // NX = X - M
+      ["Q", "Y"].forEach(freq => {
+        const data = freq === "Q" ? processedQuarterlyData : processedYearlyData
+        const series = getSeries(seriesName, data)
+        const xSeries = getSeries('x', data)
+        const mSeries = getSeries('m', data)
+        series.data.forEach((p, i) => {
+          p.levelReal = xSeries.data[i].levelReal + mSeries.data[i].levelReal
+          p.levelNominal = xSeries.data[i].levelNominal + mSeries.data[i].levelNominal
+          p.contribution = xSeries.data[i].contribution + mSeries.data[i].contribution
+          p.deflator = p.levelNominal / p.levelReal
+        })
+        // calculate growth
+        for (let i = 0; i < series.data.length; i ++) {
+          series.data[i].growth = series.data[i].levelReal / series.data[i - freqToNum(freq as Frequency)]?.levelReal - 1
+        }
+      })
+      return
+    }
+
     const seriesQuarterly = getSeries(seriesName, processedQuarterlyData)
     const seriesYearly = getSeries(seriesName, processedYearlyData)
-    const children = getSeries(seriesName, seriesDefs).children
+    const children = getRawChildren(seriesName, seriesDefs)
 
     // precalculate sumproduct for all quarters
     const sumProduct = Array(seriesQuarterly.data.length).fill(NaN)
     for (let i = 0; i < seriesQuarterly.data.length; i ++) {
       const yi = Math.floor(i / 4)
       sumProduct[i] = children.reduce((acc, childName) => {
+        // const childSeriesNegativeContribution = getSeries(childName, seriesDefs).negativeContribution
         const childSeriesQuarterly = getSeries(childName, processedQuarterlyData)
         const childSeriesYearly = getSeries(childName, processedYearlyData)
         return acc + childSeriesQuarterly.data[i].levelReal * childSeriesYearly.data[yi - 1]?.deflator
@@ -166,6 +189,9 @@ export function processGdpData(tmp: TedData[], seriesDefs: ProcessedSeriesDefini
   })
 
   // calculate quarterly real levels for aggregated series
+
+  console.log(processedQuarterlyData)
+  console.log(processedYearlyData)
 
 
   const processedDataWithFrequencies: GdpData = {

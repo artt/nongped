@@ -15,8 +15,8 @@ interface Props {
   currentHoveredSeries?: string,
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 // const ComponentChart = React.forwardRef(({ data, seriesDefs, override, handleRangeChange, currentHoveredSeries }: Props, forwardedRef) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function ComponentChart({ data, seriesDefs, override, handleRangeChange, currentHoveredSeries }: Props) {
   
   const [explodeKeyHeld, setExplodeKeyHeld] = React.useState(false)
@@ -43,21 +43,21 @@ function ComponentChart({ data, seriesDefs, override, handleRangeChange, current
     }
   }, [])
 
-  React.useEffect(() => {
-    console.log('currentHoveredSeries', currentHoveredSeries)
-    // console.log('xxx')
-    // handleClick()
-    // console.log('yyy')
-  }, [currentHoveredSeries])
+  // React.useEffect(() => {
+  //   console.log('currentHoveredSeries', currentHoveredSeries)
+  //   console.log('xxx')
+  //   handleClick()
+  //   console.log('yyy')
+  // }, [currentHoveredSeries])
 
-  function handleClick() {
-    const chart = ref.current?.chart
-    if (!chart) return
-    console.log('currentHoveredSeries', currentHoveredSeries)
-    chart.series.forEach(s => {
-      s.setState('inactive')
-    })
-  }
+  // function handleClick() {
+  //   const chart = ref.current?.chart
+  //   if (!chart) return
+  //   console.log('currentHoveredSeries', currentHoveredSeries)
+  //   chart.series.forEach(s => {
+  //     s.setState('inactive')
+  //   })
+  // }
 
   return(
     <Box
@@ -67,7 +67,7 @@ function ComponentChart({ data, seriesDefs, override, handleRangeChange, current
         position: 'absolute',
       }}
     >
-      <button onClick={handleClick}>XXX</button>
+      {/* <button onClick={handleClick}>XXX</button> */}
       <HighchartsWrapper
         ref={ref}
         useHighchartsStock={true}
