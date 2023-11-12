@@ -16,8 +16,8 @@ interface Props {
 }
 
 // const ComponentChart = React.forwardRef(({ data, seriesDefs, override, handleRangeChange, currentHoveredSeries }: Props, forwardedRef) => {
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function ComponentChart({ data, seriesDefs, override, handleRangeChange, currentHoveredSeries }: Props) {
+// function ComponentChart({ data, seriesDefs, override, handleRangeChange, currentHoveredSeries }: Props) {
+function ComponentChart({ data, seriesDefs, override, handleRangeChange }: Props) {
   
   const [explodeKeyHeld, setExplodeKeyHeld] = React.useState(false)
   const ref = React.useRef<HighchartsReactRefObject>(null)
