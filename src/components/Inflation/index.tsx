@@ -68,6 +68,7 @@ export default function Inflation() {
   }, [])
 
   function processInflationData(data: TedData, freq: Frequency) {
+    console.log(data)
     const numFreq = freqToNum(freq)
     return(data.series.map((series: {name: string, values: number[]}, seriesIndex: number) => ({
       name: series.name,

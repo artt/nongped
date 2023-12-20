@@ -196,15 +196,10 @@ export default function Countries() {
   const [chartType, setChartType] = React.useState<string>("bar")
 
   React.useEffect(() => {
-    fetch(`${serverAddress}/imf`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        series: series,
-      })
+    const params = new URLSearchParams({
+      series: series,
     })
+    fetch(`${serverAddress}/imf?${params}`)
       .then(res => res.json())
       .then(res => {
         const tmp: CountryData[] = Object.entries(res)
@@ -221,9 +216,9 @@ export default function Countries() {
       })
   }, [series])
 
-  React.useEffect(() => {
-    console.log(worldData)
-  }, [worldData])
+  // React.useEffect(() => {
+  //   console.log(worldData)
+  // }, [worldData])
 
   React.useEffect(() => {
     let tmp

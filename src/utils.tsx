@@ -10,18 +10,32 @@ export const serverAddress = "https://ted.api.artt.dev"
 
 export const curYear = new Date().getFullYear()
 
+
+// export async function getTedDataPromise(series: string[], freq: string, start_period: string | number) {
+//   return fetch(`${serverAddress}/ted`, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify({
+//       series: series,
+//       freq: freq,
+//       start_period: start_period,
+//     })
+//   })
+//     .then(res => res.json())
+// }
+
 export async function getTedDataPromise(series: string[], freq: string, start_period: string | number) {
-  return fetch(`${serverAddress}/ted`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      series: series,
-      freq: freq,
-      start_period: start_period,
-    })
+  if (typeof start_period === "number") {
+    start_period = start_period.toString()
+  }
+  const params = new URLSearchParams({
+    series: series.join(','),
+    freq: freq,
+    start_period: start_period,
   })
+  return fetch(`${serverAddress}/ted?${params}`)
     .then(res => res.json())
 }
 
