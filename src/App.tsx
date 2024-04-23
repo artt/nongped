@@ -1,3 +1,4 @@
+import React from "react";
 import Fx from "components/Fx"
 import Inflation from 'components/Inflation';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -17,6 +18,8 @@ import logoUrl from 'assets/nongped.svg'
 import Countries from "components/Countries";
 import Gdp from "components/Gdp";
 import Exports from "components/Exports";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 
 const navItems = [
   {
@@ -46,7 +49,16 @@ export default function App() {
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   const page = query.get('p')
-  
+
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+  const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
   const theme = createTheme({
     palette: {
       primary: {
@@ -93,11 +105,38 @@ export default function App() {
                   </Button>
                 ))}
               </Box>
+              {/* use menu instead if screen is xs */}
+              <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
+                <Button
+                  sx={{ color: '#fff' }}
+                  // component={Link}
+                  // to="/"
+                  onClick={handleMenuClick}
+                >
+                  Menu
+                </Button>
+                <Menu
+                  anchorEl={anchorEl}
+                  open={open}
+                  onClose={handleMenuClose}
+                >
+                  {navItems.map((item, i) => (
+                    <MenuItem
+                      key={i}
+                      component={Link}
+                      to={item.path ? `/?p=${item.path}` : '/'}
+                      onClick={handleMenuClose}
+                    >
+                      {item.label}
+                    </MenuItem>
+                  ))}
+                </Menu>
+              </Box>
             </Toolbar>
           </AppBar>
           <Box sx={{
             flexGrow: 1,
-            height: '100vh',
+            minHeight: '100vh',
             display: 'flex',
             flexDirection: 'column',
           }}>
