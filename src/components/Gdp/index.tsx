@@ -8,6 +8,7 @@ import Box from "@mui/material/Box"
 import Color from 'color'
 import { processGdpData } from './calculation'
 import TimeSeriesController from 'components/TimeSeriesController'
+import useMediaQuery from '@mui/material/useMediaQuery'
 
 const freqList = ["Q", "Y"]
 
@@ -143,6 +144,9 @@ function getSeriesType(mode: ContributionMode, seriesIndex: number) {
 
 export default function Gdp() {
 
+  const wideScreen = useMediaQuery('(min-width:600px)');
+  const tallScreen = useMediaQuery('(min-height:600px)');
+
   const [processedData, setProcessedData] = React.useState<GdpData>()
   const dataLoaded = React.useRef(false)
   const currentHoveredSeries = React.useRef<string>("")
@@ -254,53 +258,67 @@ export default function Gdp() {
     setData({freq, mode, series, chartSeries})
   }, [processedData, freq, mode, seriesState])
 
-  return (
-    <Split
-      grow="bottom"
-      top={
-        <Box sx={{
-          display: "flex",
-          width: '100%',
-          gap: 4,
-        }}>
-          <TimeSeriesController
-            freqList={freqList}
-            freq={freq}
-            setFreq={(setFreq as (freq: Frequency) => void)} // a bit of a hack here
-            showGrowth={showGrowth}
-            setShowGrowth={setShowGrowth}
-            showContribution={showContribution}
-            setShowContribution={setShowContribution}
-          />
-          <SummaryTable
-            freqList={freqList}
-            seriesDefs={seriesDefs}
-            headerWidth={220}
-            cellWidths={{ levelReal: 100, growth: 55, contribution: 55 }}
-            data={data}
-            seriesState={seriesState}
-            minDate={minDate}
-            maxDate={maxDate}
-            setSeriesState={setSeriesState}
-            setCurrentHoveredSeries={setCurrentHoveredSeries}
-            digits={{ levelReal: 0 }}
-          />
-        </Box>
-      }
-      bottom={
-        <ComponentChart
-          data={data}
-          seriesDefs={seriesDefs}
-          override={{
-            yAxis: {
-              reversedStacks: false,
-            }
-          }}
-          handleRangeChange={handleRangeChange}
-          currentHoveredSeries={currentHoveredSeries.current}
+  function Top() {
+    return (
+      <Box sx={{
+        display: "flex",
+        width: '100%',
+        gap: 4,
+        flexDirection: {xs: 'column', sm: 'row'},
+      }}>
+        <TimeSeriesController
+          freqList={freqList}
+          freq={freq}
+          setFreq={(setFreq as (freq: Frequency) => void)} // a bit of a hack here
+          showGrowth={showGrowth}
+          setShowGrowth={setShowGrowth}
+          showContribution={showContribution}
+          setShowContribution={setShowContribution}
         />
-      }
-    />
-  )
+        <SummaryTable
+          freqList={freqList}
+          seriesDefs={seriesDefs}
+          headerWidth={220}
+          cellWidths={{ levelReal: 100, growth: 55, contribution: 55 }}
+          data={data}
+          seriesState={seriesState}
+          minDate={minDate}
+          maxDate={maxDate}
+          setSeriesState={setSeriesState}
+          setCurrentHoveredSeries={setCurrentHoveredSeries}
+          digits={{ levelReal: 0 }}
+        />
+      </Box>
+    )
+  }
+
+  if (wideScreen && tallScreen) {
+    return (
+      <Split
+        grow="bottom"
+        top={
+          <Top />
+        }
+        bottom={
+          <ComponentChart
+            data={data}
+            seriesDefs={seriesDefs}
+            override={{
+              yAxis: {
+                reversedStacks: false,
+              }
+            }}
+            handleRangeChange={handleRangeChange}
+            currentHoveredSeries={currentHoveredSeries.current}
+          />
+        }
+      />
+    )
+  }
+  else {
+    return (
+      <Top />
+    )
+  }
 
 }
