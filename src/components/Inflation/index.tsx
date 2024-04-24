@@ -5,11 +5,8 @@ import Split from "components/Split"
 import ComponentChart from "components/ComponentChart"
 import SummaryTable from "components/SummaryTable"
 import Box from "@mui/material/Box"
-import FormControlLabel from "@mui/material/FormControlLabel"
-import Switch from "@mui/material/Switch"
-import FormGroup from "@mui/material/FormGroup"
-import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
-import ToggleButton from "@mui/material/ToggleButton"
+import useMediaQuery from '@mui/material/useMediaQuery';
+import TimeSeriesController from "components/TimeSeriesController"
 
 const inputDefs: SeriesDefinition[] = [
   {
@@ -49,6 +46,9 @@ type InflationData = {
 type Frequency = keyof InflationData
 
 export default function Inflation() {
+
+  const wideScreen = useMediaQuery('(min-width:600px)');
+  const tallScreen = useMediaQuery('(min-height:600px)');
 
   const [processedData, setProcessedData] = React.useState<InflationData>()
   const dataLoaded = React.useRef(false)
@@ -145,72 +145,57 @@ export default function Inflation() {
     setData({freq, mode, series, chartSeries})
   }, [processedData, freq, mode])
 
-  return (
-    <Split
-      grow="bottom"
-      bottom={
-        <ComponentChart
-          data={data}
-          seriesDefs={seriesDefs}
-          handleRangeChange={handleRangeChange}
+  function Top() {
+    return (
+      <Box sx={{
+        display: "flex",
+        width: '100%',
+        gap: 4,
+        flexDirection: {xs: 'column', sm: 'row'},
+      }}>
+        <TimeSeriesController
+          freqList={freqList}
+          freq={freq}
+          setFreq={setFreq}
+          showGrowth={showGrowth}
+          setShowGrowth={setShowGrowth}
+          showContribution={showContribution}
+          setShowContribution={setShowContribution}
         />
-      }
-      top={
-        <Box sx={{
-          display: "flex",
-          width: '100%',
-          gap: 4,
-        }}>
-          <Box>
-            <ToggleButtonGroup
-              value={freq}
-              size="small"
-              exclusive
-              onChange={(_e, newFreq: Frequency) => {
-                if (newFreq === null) return
-                setFreq((newFreq as Frequency))
-              }}
-              aria-label="frequency"
-              fullWidth
-              sx={{marginBottom: 2}}
-            >
-              {freqList.map(freq => (
-                <ToggleButton key={freq} value={freq} aria-label={`${freq}ly`}>
-                  {freq}
-                </ToggleButton>
-              ))}
-            </ToggleButtonGroup>
+        <SummaryTable
+          freqList={freqList}
+          seriesDefs={seriesDefs}
+          data={data}
+          seriesState={seriesState}
+          minDate={minDate}
+          maxDate={maxDate}
+          setSeriesState={setSeriesState}
+        />
+      </Box>
+    )
+  }
 
-            <FormGroup>
-              <FormControlLabel
-                control={<Switch
-                  checked={showGrowth}
-                  onChange={() => setShowGrowth(!showGrowth)}
-                />}
-                label="Growth"
-              />
-              <FormControlLabel
-                control={<Switch
-                  checked={showContribution}
-                  onChange={() => setShowContribution(!showContribution)}
-                />}
-                label="Contribution"
-                disabled={!showGrowth}
-              />
-            </FormGroup>
-          </Box>
-          <SummaryTable
-            freqList={freqList}
-            seriesDefs={seriesDefs}
+  if (wideScreen && tallScreen) {
+    return (
+      <Split
+        grow="bottom"
+        bottom={
+          <ComponentChart
             data={data}
-            seriesState={seriesState}
-            minDate={minDate}
-            maxDate={maxDate}
-            setSeriesState={setSeriesState}
+            seriesDefs={seriesDefs}
+            handleRangeChange={handleRangeChange}
           />
-        </Box>
-      }
-    />
-  )
+        }
+        top={
+          <Top />
+        }
+      />
+    )
+  }
+  else {
+    return (
+      <Top />
+    )
+  }
   
 }

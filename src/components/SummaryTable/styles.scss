@@ -10,9 +10,10 @@ $cell-padding: $cell-padding-vertical $cell-padding-horizontal;
 
 
 .summary-table-container {
-  width: 100px; // just so that it has some basis to stretch out
+  // width: 100px; // just so that it has some basis to stretch out
   font-size: 0.8rem;
   flex: auto;
+  width: 100%; // just so that it has some basis to stretch out
   overflow-x: scroll;
 
   .rg-header-cell {

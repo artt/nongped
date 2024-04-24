@@ -1,17 +1,13 @@
 import React from 'react'
 import { calculateColor, defaultOptions, getAllSeriesNames, getSeries, getTedDataPromise, isAnyParentCollapsed, processSeriesDefinition } from "utils"
 import Split from "components/Split"
-import type { SeriesDefinition, ContributionMode, SeriesState, ComponentChartData, GdpData, QuarterlyFrequency } from "types"
+import type { SeriesDefinition, ContributionMode, SeriesState, ComponentChartData, GdpData, QuarterlyFrequency, Frequency } from "types"
 import ComponentChart from "components/ComponentChart"
 import SummaryTable from "components/SummaryTable"
 import Box from "@mui/material/Box"
-import FormControlLabel from "@mui/material/FormControlLabel"
-import Switch from "@mui/material/Switch"
-import FormGroup from "@mui/material/FormGroup"
-import ToggleButtonGroup from "@mui/material/ToggleButtonGroup"
-import ToggleButton from "@mui/material/ToggleButton"
 import Color from 'color'
 import { processGdpData } from './calculation'
+import TimeSeriesController from 'components/TimeSeriesController'
 
 const freqList = ["Q", "Y"]
 
@@ -267,44 +263,15 @@ export default function Gdp() {
           width: '100%',
           gap: 4,
         }}>
-          <Box>
-            <ToggleButtonGroup
-              value={freq}
-              size="small"
-              exclusive
-              onChange={(_e, newFreq: QuarterlyFrequency) => {
-                if (newFreq === null) return
-                setFreq((newFreq as QuarterlyFrequency))
-              }}
-              aria-label="frequency"
-              fullWidth
-              sx={{marginBottom: 2}}
-            >
-              {freqList.map(freq => (
-                <ToggleButton key={freq} value={freq} aria-label={`${freq}ly`}>
-                  {freq}
-                </ToggleButton>
-              ))}
-            </ToggleButtonGroup>
-
-            <FormGroup>
-              <FormControlLabel
-                control={<Switch
-                  checked={showGrowth}
-                  onChange={() => setShowGrowth(!showGrowth)}
-                />}
-                label="Growth"
-              />
-              <FormControlLabel
-                control={<Switch
-                  checked={showContribution}
-                  onChange={() => setShowContribution(!showContribution)}
-                />}
-                label="Contribution"
-                disabled={!showGrowth}
-              />
-            </FormGroup>
-          </Box>
+          <TimeSeriesController
+            freqList={freqList}
+            freq={freq}
+            setFreq={(setFreq as (freq: Frequency) => void)} // a bit of a hack here
+            showGrowth={showGrowth}
+            setShowGrowth={setShowGrowth}
+            showContribution={showContribution}
+            setShowContribution={setShowContribution}
+          />
           <SummaryTable
             freqList={freqList}
             seriesDefs={seriesDefs}

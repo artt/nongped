@@ -72,7 +72,7 @@ export default function App() {
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Box sx={{ display: 'flex' }}>
+        <Box sx={{ display: 'flex', width: '100%' }}>
           <AppBar
             position="fixed"
             elevation={0}
@@ -137,6 +137,7 @@ export default function App() {
           <Box sx={{
             flexGrow: 1,
             minHeight: '100vh',
+            width: '100%',
             display: 'flex',
             flexDirection: 'column',
           }}>
